@@ -1,0 +1,19 @@
+{
+  "name": "fixed-float-bidirectional-converter",
+  "dockerComposeFile": [
+    "compose.yaml"
+  ],
+  "overrideCommand": true,
+  "service": "app",
+  "workspaceFolder": "/home/node/workspace",
+  "forwardPorts": [5173],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

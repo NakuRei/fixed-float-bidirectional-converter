@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: fixed-float-bidirectional-converter
+    command: sleep infinity
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "3"
+    volumes:
+      - ..:/home/node/workspace
