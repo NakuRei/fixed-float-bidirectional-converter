@@ -1,3 +1,8 @@
 {
   "files.eol": "\n",
+  // linter
+  "eslint.workingDirectories": ["./app"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
