@@ -14,6 +14,7 @@ module.exports = {
     'commitlint.config.js',
     'tailwind.config.js',
     'postcss.config.js',
+    'vitest-setup.ts',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

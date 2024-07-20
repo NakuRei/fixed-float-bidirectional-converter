@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
@@ -6,5 +8,20 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
+  },
+  test: {
+    globals: false,
+    environment: 'jsdom',
+    setupFiles: ['./vitest-setup.ts'],
+    coverage: {
+      exclude: [
+        '.eslintrc.cjs',
+        'commitlint.config.js',
+        'postcss.config.js',
+        'tailwind.config.js',
+        'vite.config.ts',
+        'src/main.tsx',
+      ],
+    },
   },
 });
