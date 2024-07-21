@@ -14,14 +14,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest-setup.ts'],
     coverage: {
-      exclude: [
-        '.eslintrc.cjs',
-        'commitlint.config.js',
-        'postcss.config.js',
-        'tailwind.config.js',
-        'vite.config.ts',
-        'src/main.tsx',
-      ],
+      include: ['src'],
+      exclude: ['src/main.tsx'],
     },
   },
 });
