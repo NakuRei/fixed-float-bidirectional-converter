@@ -82,7 +82,7 @@ function App(): JSX.Element {
               'flex flex-col',
               'items-center justify-center',
               'gap-8',
-              'px-12 sm:px-36 py-12',
+              'px-12 sm:px-24 py-12',
             ].join(' ')}
           >
             <h1 className="text-2xl font-bold">Binary to Float Converter</h1>
@@ -130,7 +130,7 @@ function App(): JSX.Element {
             {result !== null && (
               <div
                 className={[
-                  'w-full h-full',
+                  'w-full h-fit',
                   'flex flex-col justify-start items-center',
                   'px-4 py-2',
                   'bg-primary-900 bg-opacity-40',
@@ -144,7 +144,7 @@ function App(): JSX.Element {
             {error && (
               <div
                 className={[
-                  'w-full max-w-[100vw] h-full',
+                  'w-full h-fit',
                   'flex flex-col justify-start items-center',
                   'px-4 py-2',
                   'bg-error-container',
