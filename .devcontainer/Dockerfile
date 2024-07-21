@@ -1,6 +1,6 @@
 FROM node:20-bookworm-slim
 
-EXPOSE 5173
+EXPOSE 4173 5173
 
 RUN apt-get update -y \
   && DEBIAN_FRONTEND=noninteractive \
