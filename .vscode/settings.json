@@ -1,3 +1,16 @@
 {
   "files.eol": "\n",
+  // linter
+  "eslint.workingDirectories": ["./app"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  // formatter
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "prettier.requireConfig": true,
+  "prettier.configPath": "./app/.prettierrc",
+  "prettier.prettierPath": "./app/node_modules/prettier"
 }
