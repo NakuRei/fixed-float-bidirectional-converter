@@ -4,14 +4,17 @@ import { CustomHeader } from './components/CustomHeader';
 import { CustomFooter } from './components/CustomFooter';
 import { CustomInput } from './components/CustomInput';
 import { CustomLabel } from './components/CustomLabel';
+import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 
 import { convertTwosComplementBinary2Floating } from './utils/convertTwosComplement2Floating';
+import { convertUnsignedBinaryStringToFloat } from './utils/convertUnsignedBinaryStringToFloat';
 
 function App(): JSX.Element {
-  const [binaryString, setBinaryString] = useState<string>('');
   const [integerBits, setIntegerBits] = useState<string>('4');
   const [fractionalBits, setFractionalBits] = useState<string>('4');
+  const [isSigned, setIsSigned] = useState<boolean>(true);
+  const [binaryString, setBinaryString] = useState<string>('');
   const [result, setResult] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,12 +45,21 @@ function App(): JSX.Element {
       }
 
       try {
-        const floatValue = convertTwosComplementBinary2Floating(
-          binaryString,
-          parseInt(integerBits),
-          parseInt(fractionalBits),
-        );
-        setResult(floatValue);
+        if (isSigned) {
+          const floatValue = convertTwosComplementBinary2Floating(
+            binaryString,
+            parseInt(integerBits),
+            parseInt(fractionalBits),
+          );
+          setResult(floatValue);
+        } else {
+          const floatValue = convertUnsignedBinaryStringToFloat(
+            binaryString,
+            parseInt(integerBits),
+            parseInt(fractionalBits),
+          );
+          setResult(floatValue);
+        }
         setError(null);
       } catch (err) {
         setError(
@@ -58,7 +70,7 @@ function App(): JSX.Element {
     }
 
     convert();
-  }, [binaryString, integerBits, fractionalBits]);
+  }, [binaryString, integerBits, fractionalBits, isSigned]);
 
   return (
     <>
@@ -112,9 +124,31 @@ function App(): JSX.Element {
                 onChange={handleFractionalBitsChange}
               />
             </InputWithLabelContainer>
+
+            <div className="w-full h-fit">
+              <CustomToggle
+                id="isSignedToggle"
+                checked={isSigned}
+                onChange={(e) => {
+                  setIsSigned(e.target.checked);
+                }}
+                onKeyUp={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsSigned(!isSigned);
+                  }
+                }}
+              >
+                <span>
+                  {isSigned ? 'Signed (Twos Complement)' : 'Unsigned'}
+                </span>
+              </CustomToggle>
+            </div>
+
             <InputWithLabelContainer>
               <CustomLabel htmlFor="binaryString">
-                Fixed-Point Number (Twos Complement):
+                {isSigned
+                  ? 'Fixed-Point Number (Twos Complement):'
+                  : 'Fixed-Point Number (Unsigned)'}
               </CustomLabel>
               <CustomInput
                 id="binaryString"

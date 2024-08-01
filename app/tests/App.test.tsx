@@ -22,6 +22,14 @@ describe('App Component', () => {
     expect(input).toHaveValue('4');
   });
 
+  it('toggles between signed and unsigned modes', () => {
+    render(<App />);
+    const toggleButton = screen.getByRole('checkbox');
+    expect(screen.getByText('Signed (Twos Complement)')).toBeInTheDocument();
+    fireEvent.click(toggleButton);
+    expect(screen.getByText('Unsigned')).toBeInTheDocument();
+  });
+
   it('handles binary string input correctly and displays result', async () => {
     render(<App />);
     const binaryInput = screen.getByPlaceholderText(
