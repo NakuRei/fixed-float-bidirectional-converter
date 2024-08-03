@@ -93,11 +93,14 @@ function App(): JSX.Element {
               'w-full max-w-3xl h-full',
               'flex flex-col',
               'items-center justify-center',
-              'gap-8',
-              'px-12 sm:px-24 py-12',
+              'gap-6',
+              'px-0 sm:px-24 py-12',
             ].join(' ')}
           >
-            <h1 className="text-2xl font-bold">Binary to Float Converter</h1>
+            <h1 className="text-2xl font-bold">
+              Fixed-Float Bidirectional Converter
+            </h1>
+
             <InputWithLabelContainer>
               <CustomLabel htmlFor="integerBits">
                 Integer Bits (including sign bit):
@@ -111,6 +114,7 @@ function App(): JSX.Element {
                 onChange={handleIntegerBitsChange}
               />
             </InputWithLabelContainer>
+
             <InputWithLabelContainer>
               <CustomLabel htmlFor="fractionalBits">
                 Fractional Bits:
@@ -161,6 +165,7 @@ function App(): JSX.Element {
                 }}
               />
             </InputWithLabelContainer>
+
             {result !== null && (
               <div
                 className={[
