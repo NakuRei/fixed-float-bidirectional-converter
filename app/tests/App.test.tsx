@@ -3,9 +3,22 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../src/App';
 
 describe('App Component', () => {
-  it('renders without crashing', () => {
+  it('renders without crashing and displays the correct title', () => {
     render(<App />);
-    expect(screen.getByText(/Binary to Float Converter/i)).toBeInTheDocument();
+
+    // ヘッダー内のタイトルをチェック
+    const headerTitle = screen.getByText(
+      'Fixed-Float Bidirectional Converter',
+      { selector: 'header div' },
+    );
+    expect(headerTitle).toBeInTheDocument();
+
+    // メインコンテンツ内の h1 タイトルをチェック
+    const mainTitle = screen.getByRole('heading', {
+      name: 'Fixed-Float Bidirectional Converter',
+      level: 1,
+    });
+    expect(mainTitle).toBeInTheDocument();
   });
 
   it('handles integer bits input correctly', () => {

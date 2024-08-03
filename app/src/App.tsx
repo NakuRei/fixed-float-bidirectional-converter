@@ -97,7 +97,10 @@ function App(): JSX.Element {
               'px-12 sm:px-24 py-12',
             ].join(' ')}
           >
-            <h1 className="text-2xl font-bold">Binary to Float Converter</h1>
+            <h1 className="text-2xl font-bold">
+              Fixed-Float Bidirectional Converter
+            </h1>
+
             <InputWithLabelContainer>
               <CustomLabel htmlFor="integerBits">
                 Integer Bits (including sign bit):
