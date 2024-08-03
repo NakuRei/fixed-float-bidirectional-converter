@@ -114,6 +114,7 @@ function App(): JSX.Element {
                 onChange={handleIntegerBitsChange}
               />
             </InputWithLabelContainer>
+
             <InputWithLabelContainer>
               <CustomLabel htmlFor="fractionalBits">
                 Fractional Bits:
@@ -164,6 +165,7 @@ function App(): JSX.Element {
                 }}
               />
             </InputWithLabelContainer>
+
             {result !== null && (
               <div
                 className={[
