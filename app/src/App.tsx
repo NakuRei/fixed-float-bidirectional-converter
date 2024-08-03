@@ -93,8 +93,8 @@ function App(): JSX.Element {
               'w-full max-w-3xl h-full',
               'flex flex-col',
               'items-center justify-center',
-              'gap-8',
-              'px-12 sm:px-24 py-12',
+              'gap-6',
+              'px-0 sm:px-24 py-12',
             ].join(' ')}
           >
             <h1 className="text-2xl font-bold">
