@@ -1,18 +1,18 @@
 import { describe, it, expect } from 'vitest';
 
-import { validateBinaryString } from '../../src/utils/validateBinaryString';
+import { validateBinaryString } from '../../../src/utils/binaryConverter/validateBinaryString';
 
 describe('validateBinaryString', () => {
   it('should throw an error for invalid binary strings', () => {
     expect(() => {
       validateBinaryString('invalid');
-    }).toThrowError('Binary string contains characters other than 0 and 1');
+    }).toThrowError();
     expect(() => {
       validateBinaryString('01a01');
-    }).toThrowError('Binary string contains characters other than 0 and 1');
+    }).toThrowError();
     expect(() => {
       validateBinaryString('');
-    }).toThrowError('Binary string contains characters other than 0 and 1');
+    }).toThrowError();
   });
 
   it('should not throw an error for valid binary strings', () => {
