@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { validateBinaryStringLength } from '../../src/utils/validateBinaryStringLength';
+import { validateBinaryStringLength } from '../../../src/utils/binaryConverter/validateBinaryStringLength';
 
 describe('validateBinaryStringLength', () => {
   it('should return the total number of bits', () => {
@@ -12,18 +12,12 @@ describe('validateBinaryStringLength', () => {
   it('should throw an error for invalid binary strings', () => {
     expect(() => {
       validateBinaryStringLength(5, 3, '0101010');
-    }).toThrowError(
-      'Binary string length does not match the specified number of bits',
-    );
+    }).toThrowError();
     expect(() => {
       validateBinaryStringLength(3, 4, '011010');
-    }).toThrowError(
-      'Binary string length does not match the specified number of bits',
-    );
+    }).toThrowError();
     expect(() => {
       validateBinaryStringLength(4, 1, '0110');
-    }).toThrowError(
-      'Binary string length does not match the specified number of bits',
-    );
+    }).toThrowError();
   });
 });

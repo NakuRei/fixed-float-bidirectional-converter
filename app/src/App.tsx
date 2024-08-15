@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { CustomHeader } from './components/CustomHeader';
 import { CustomFooter } from './components/CustomFooter';
@@ -7,16 +7,22 @@ import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 
-import { convertTwosComplementBinary2Floating } from './utils/convertTwosComplement2Floating';
-import { convertUnsignedBinaryStringToFloat } from './utils/convertUnsignedBinaryStringToFloat';
+import { BinaryConverter } from './utils/binaryConverter/BinaryConverter';
+import { UnsignedBinaryToFloatStrategy } from './utils/binaryConverter/strategy/UnsignedBinaryToFloatStrategy';
+import { TwosComplementBinary2FloatStrategy } from './utils/binaryConverter/strategy/TwosComplementBinary2FloatStrategy';
 
 function App(): JSX.Element {
   const [integerBits, setIntegerBits] = useState<string>('4');
   const [fractionalBits, setFractionalBits] = useState<string>('4');
   const [isSigned, setIsSigned] = useState<boolean>(true);
   const [binaryString, setBinaryString] = useState<string>('');
-  const [result, setResult] = useState<number | null>(null);
+  const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const converter = useMemo(
+    () => new BinaryConverter(new UnsignedBinaryToFloatStrategy()),
+    [],
+  );
 
   function handleIntegerBitsChange(
     e: React.ChangeEvent<HTMLInputElement>,
@@ -46,20 +52,16 @@ function App(): JSX.Element {
 
       try {
         if (isSigned) {
-          const floatValue = convertTwosComplementBinary2Floating(
-            binaryString,
-            parseInt(integerBits),
-            parseInt(fractionalBits),
-          );
-          setResult(floatValue);
+          converter.setStrategy(new TwosComplementBinary2FloatStrategy());
         } else {
-          const floatValue = convertUnsignedBinaryStringToFloat(
-            binaryString,
-            parseInt(integerBits),
-            parseInt(fractionalBits),
-          );
-          setResult(floatValue);
+          converter.setStrategy(new UnsignedBinaryToFloatStrategy());
         }
+        const floatString = converter.convert(
+          binaryString,
+          parseInt(integerBits),
+          parseInt(fractionalBits),
+        );
+        setResult(floatString);
         setError(null);
       } catch (err) {
         setError(
@@ -70,7 +72,7 @@ function App(): JSX.Element {
     }
 
     convert();
-  }, [binaryString, integerBits, fractionalBits, isSigned]);
+  }, [binaryString, integerBits, fractionalBits, isSigned, converter]);
 
   return (
     <>
