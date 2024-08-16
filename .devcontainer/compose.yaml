@@ -15,3 +15,6 @@ services:
       - 0.0.0.0:5175:5173
     volumes:
       - ..:/home/node/workspace
+      - ~/.gnupg:/home/node/.gnupg
+    environment:
+      - GPG_TTY=/dev/pts/0
