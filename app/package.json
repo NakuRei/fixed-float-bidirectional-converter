@@ -14,7 +14,10 @@
     "test:watch": "vitest"
   },
   "lint-staged": {
-    "*.{tsx, ts, js}": "eslint --fix",
+    "*.{tsx, ts, js}": [
+      "eslint --fix",
+      "vitest related --run"
+    ],
     "*.{js,jsx,ts,tsx,css,html,md,json,cjs}": "prettier --write"
   },
   "dependencies": {
