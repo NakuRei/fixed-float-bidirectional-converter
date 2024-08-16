@@ -8,6 +8,7 @@ RUN apt-get update -y \
   ca-certificates \
   git \
   openssh-client \
+  gnupg \
   && update-ca-certificates \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
