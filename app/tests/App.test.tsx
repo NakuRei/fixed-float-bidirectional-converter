@@ -55,16 +55,17 @@ describe('App Component', () => {
     fireEvent.change(fractionalInput, { target: { value: '4' } });
     fireEvent.change(binaryInput, { target: { value: '01001101' } });
 
-    // Ensure state updates and component re-renders
     await waitFor(() => {
-      expect(screen.queryByText(/Result:/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Result/i)).toBeInTheDocument();
     });
 
-    const resultLabel = screen.getByText(/Result:/i);
+    const resultLabel = screen.getByText(/Result/i);
     expect(resultLabel).toBeInTheDocument();
 
-    const resultValue = screen.getByText('4.8125');
-    expect(resultValue).toBeInTheDocument();
+    const floatResultValue = screen.getByText('4.8125');
+    expect(floatResultValue).toBeInTheDocument();
+    const hexResultValue = screen.getByText('4D');
+    expect(hexResultValue).toBeInTheDocument();
   });
 
   it('displays error message for invalid binary string input', async () => {

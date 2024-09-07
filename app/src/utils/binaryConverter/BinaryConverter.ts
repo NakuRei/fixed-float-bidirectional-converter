@@ -1,8 +1,9 @@
+import { Converter } from '../Converter';
 import { BinaryConversionStrategy } from './BinaryConversionStrategy';
 import { validateBinaryStringLength } from './validateBinaryStringLength';
 import { validateBinaryString } from './validateBinaryString';
 
-export class BinaryConverter {
+export class BinaryConverter implements Converter {
   private strategy: BinaryConversionStrategy;
 
   public constructor(strategy: BinaryConversionStrategy) {
