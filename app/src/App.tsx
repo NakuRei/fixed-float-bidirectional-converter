@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 import { CustomHeader } from './components/CustomHeader';
 import { CustomFooter } from './components/CustomFooter';
@@ -6,30 +6,28 @@ import { CustomInput } from './components/CustomInput';
 import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
+import { LabeledResultDisplay } from './components/LabeledResultDisplay';
 
-import { BinaryConverter } from './utils/binaryConverter/BinaryConverter';
-import { UnsignedBinaryToFloatStrategy } from './utils/binaryConverter/strategy/UnsignedBinaryToFloatStrategy';
-import { TwosComplementBinary2FloatStrategy } from './utils/binaryConverter/strategy/TwosComplementBinary2FloatStrategy';
+import {
+  signedBinaryConverters,
+  unsignedBinaryConverters,
+} from './utils/converters/convertersInstances';
+import { ConversionResults } from './types/ConversionResults';
 
 function App(): JSX.Element {
-  const [integerBits, setIntegerBits] = useState<string>('4');
-  const [fractionalBits, setFractionalBits] = useState<string>('4');
+  const [integerBitsString, setIntegerBitsString] = useState<string>('4');
+  const [fractionalBitsString, setFractionalBitsString] = useState<string>('4');
   const [isSigned, setIsSigned] = useState<boolean>(true);
   const [binaryString, setBinaryString] = useState<string>('');
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<ConversionResults | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const converter = useMemo(
-    () => new BinaryConverter(new UnsignedBinaryToFloatStrategy()),
-    [],
-  );
 
   function handleIntegerBitsChange(
     e: React.ChangeEvent<HTMLInputElement>,
   ): void {
     const value = e.target.value;
     if (value === '' || /^\d+$/.test(value)) {
-      setIntegerBits(value);
+      setIntegerBitsString(value);
     }
   }
 
@@ -38,7 +36,7 @@ function App(): JSX.Element {
   ): void {
     const value = e.target.value;
     if (value === '' || /^\d+$/.test(value)) {
-      setFractionalBits(value);
+      setFractionalBitsString(value);
     }
   }
 
@@ -51,17 +49,19 @@ function App(): JSX.Element {
       }
 
       try {
-        if (isSigned) {
-          converter.setStrategy(new TwosComplementBinary2FloatStrategy());
-        } else {
-          converter.setStrategy(new UnsignedBinaryToFloatStrategy());
-        }
-        const floatString = converter.convert(
+        const integerBits = parseInt(integerBitsString);
+        const fractionalBits = parseInt(fractionalBitsString);
+
+        const converters = isSigned
+          ? signedBinaryConverters
+          : unsignedBinaryConverters;
+
+        const conversionResults = converters.convert(
           binaryString,
-          parseInt(integerBits),
-          parseInt(fractionalBits),
+          integerBits,
+          fractionalBits,
         );
-        setResult(floatString);
+        setResult(conversionResults);
         setError(null);
       } catch (err) {
         setError(
@@ -72,7 +72,7 @@ function App(): JSX.Element {
     }
 
     convert();
-  }, [binaryString, integerBits, fractionalBits, isSigned, converter]);
+  }, [binaryString, integerBitsString, fractionalBitsString, isSigned]);
 
   return (
     <>
@@ -111,7 +111,7 @@ function App(): JSX.Element {
                 id="integerBits"
                 type="text"
                 inputMode="numeric"
-                value={integerBits}
+                value={integerBitsString}
                 placeholder="Integer Bits"
                 onChange={handleIntegerBitsChange}
               />
@@ -125,7 +125,7 @@ function App(): JSX.Element {
                 id="fractionalBits"
                 type="text"
                 inputMode="numeric"
-                value={fractionalBits}
+                value={fractionalBitsString}
                 placeholder="Fractional Bits"
                 onChange={handleFractionalBitsChange}
               />
@@ -178,8 +178,15 @@ function App(): JSX.Element {
                   'text-on-background',
                 ].join(' ')}
               >
-                <p className="text-sm">Result:</p>
-                <p className="text-xl font-bold">{result}</p>
+                <h2 className="text-xl font-bold mb-4">Result</h2>
+                <LabeledResultDisplay
+                  label="Floating:"
+                  result={result.floatString}
+                />
+                <LabeledResultDisplay
+                  label="Hexadecimal:"
+                  result={result.hexString}
+                />
               </div>
             )}
             {error && (
