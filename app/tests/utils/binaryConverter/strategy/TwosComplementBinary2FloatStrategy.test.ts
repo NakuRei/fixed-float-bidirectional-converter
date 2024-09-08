@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { TwosComplementBinary2FloatStrategy } from '../../../../src/utils/binaryConverter/strategy/TwosComplementBinary2FloatStrategy';
+import { TwosComplementBinaryToFloatStrategy } from '../../../../src/utils/binaryConverter/strategy/TwosComplementBinaryToFloatStrategy';
 
-describe('TwosComplementBinary2FloatStrategy', () => {
+describe('TwosComplementBinaryToFloatStrategy', () => {
   // eslint-disable-next-line @typescript-eslint/init-declarations
-  let strategy: TwosComplementBinary2FloatStrategy;
+  let strategy: TwosComplementBinaryToFloatStrategy;
 
   beforeAll(() => {
-    strategy = new TwosComplementBinary2FloatStrategy();
+    strategy = new TwosComplementBinaryToFloatStrategy();
   });
 
   it('should correctly convert positive integers', () => {
