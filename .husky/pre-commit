@@ -1,3 +1,18 @@
 cd app
 
 npx lint-staged
+
+# Color codes
+readonly RED='\033[0;31m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m' # No Color
+
+readonly BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$BRANCH" = "main" ]; then
+  echo "${RED}Error: Direct commits to the main branch are not allowed.${NC}"
+  echo "${YELLOW}Please create a new branch for your changes and commit there.${NC}"
+  echo "${YELLOW}To create a new branch, use:${NC}"
+  echo "  ${YELLOW}git switch -c feature/your-new-feature${NC}"
+  echo "${YELLOW}Then stage your changes and commit again.${NC}"
+  exit 1
+fi
