@@ -3,7 +3,7 @@ import { UnsignedBinaryToFloatStrategy } from './UnsignedBinaryToFloatStrategy';
 import { invertBinaryString } from '../../invertBinaryString';
 import { addOneWithCarry } from '../../addOneWithCarry';
 
-export class TwosComplementBinary2FloatStrategy
+export class TwosComplementBinaryToFloatStrategy
   implements BinaryConversionStrategy
 {
   public convert(
