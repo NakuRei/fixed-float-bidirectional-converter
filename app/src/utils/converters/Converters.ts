@@ -3,8 +3,9 @@ import { ConversionResults } from '../../types/ConversionResults';
 
 export class Converters {
   public constructor(
-    private readonly toFloatConverter: Converter,
     private readonly toHexConverter: Converter,
+    private readonly toFloatConverter: Converter,
+    private readonly toBinaryConverter: Converter,
   ) {}
 
   public convert(
@@ -12,16 +13,21 @@ export class Converters {
     integerBits: number,
     fractionalBits: number,
   ): ConversionResults {
-    const floatString = this.toFloatConverter.convert(
-      inputString,
-      integerBits,
-      fractionalBits,
-    );
     const hexString = this.toHexConverter.convert(
       inputString,
       integerBits,
       fractionalBits,
     );
-    return { floatString, hexString };
+    const floatString = this.toFloatConverter.convert(
+      inputString,
+      integerBits,
+      fractionalBits,
+    );
+    const binaryString = this.toBinaryConverter.convert(
+      inputString,
+      integerBits,
+      fractionalBits,
+    );
+    return { hexString, floatString, binaryString };
   }
 }
