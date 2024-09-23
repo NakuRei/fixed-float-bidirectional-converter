@@ -30,7 +30,7 @@ export class BinaryConverter implements Converter {
     integerBits: number,
     fractionalBits: number,
   ): void {
-    validateBinaryStringLength(integerBits, fractionalBits, binaryString);
     validateBinaryString(binaryString);
+    validateBinaryStringLength(integerBits, fractionalBits, binaryString);
   }
 }

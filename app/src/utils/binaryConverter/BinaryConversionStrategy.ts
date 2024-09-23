@@ -1,7 +1,7 @@
 export interface BinaryConversionStrategy {
-  convert(
+  convert: (
     binaryString: string,
     integerBits: number,
     fractionalBits: number,
-  ): string;
+  ) => string;
 }
