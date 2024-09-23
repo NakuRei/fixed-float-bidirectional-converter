@@ -176,16 +176,21 @@ function App(): JSX.Element {
                   'px-4 py-2',
                   'bg-primary-900 bg-opacity-40',
                   'text-on-background',
+                  'overflow-x-auto',
                 ].join(' ')}
               >
                 <h2 className="text-xl font-bold mb-4">Result</h2>
+                <LabeledResultDisplay
+                  label="Hexadecimal:"
+                  result={result.hexString}
+                />
                 <LabeledResultDisplay
                   label="Floating:"
                   result={result.floatString}
                 />
                 <LabeledResultDisplay
-                  label="Hexadecimal:"
-                  result={result.hexString}
+                  label="Binary:"
+                  result={result.binaryString}
                 />
               </div>
             )}
