@@ -10,7 +10,8 @@
       "extensions": [
         "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "wdhongtw.gpg-indicator"
       ]
     }
   }
