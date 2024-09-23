@@ -1,4 +1,5 @@
 export interface ConversionResults {
-  readonly floatString: string;
   readonly hexString: string;
+  readonly floatString: string;
+  readonly binaryString: string;
 }
