@@ -1,7 +1,7 @@
 export interface Converter {
-  convert(
+  convert: (
     inputString: string,
     integerBits: number,
     fractionalBits: number,
-  ): string;
+  ) => string;
 }
