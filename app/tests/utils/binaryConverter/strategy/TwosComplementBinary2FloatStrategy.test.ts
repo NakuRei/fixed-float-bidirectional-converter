@@ -80,10 +80,10 @@ describe('TwosComplementBinaryToFloatStrategy', () => {
 
   it('should handle very small fractional values', () => {
     expect(strategy.convert('000000000001', 0, 12)).toBe(
-      (1 / 2 ** 12).toString(),
+      (1 / (2 ** 12)).toString(),
     );
     expect(strategy.convert('100000000001', 1, 11)).toBe(
-      (-1 + 1 / 2 ** 11).toString(),
+      (-1 + (1 / (2 ** 11))).toString(),
     );
   });
 });

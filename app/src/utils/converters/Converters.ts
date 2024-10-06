@@ -1,5 +1,5 @@
-import { Converter } from '../Converter';
-import { ConversionResults } from '../../types/ConversionResults';
+import type { Converter } from '../Converter';
+import type { ConversionResults } from '../../types/ConversionResults';
 
 export class Converters {
   public constructor(
@@ -28,6 +28,10 @@ export class Converters {
       integerBits,
       fractionalBits,
     );
-    return { hexString, floatString, binaryString };
+    return {
+      hexString,
+      floatString,
+      binaryString,
+    };
   }
 }

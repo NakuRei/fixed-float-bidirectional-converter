@@ -1,4 +1,4 @@
-import { BinaryConversionStrategy } from '../BinaryConversionStrategy';
+import type { BinaryConversionStrategy } from '../BinaryConversionStrategy';
 
 export class BinaryToBinaryStrategy implements BinaryConversionStrategy {
   public convert(binaryString: string): string {

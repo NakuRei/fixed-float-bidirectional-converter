@@ -16,10 +16,9 @@ export function CustomToggle({
   onChange,
   onKeyUp,
   className = '',
-}: CustomToggleProps): JSX.Element {
+}: CustomToggleProps): React.JSX.Element {
   return (
     <CustomLabel
-      htmlFor={id}
       className={[
         'w-full h-fit',
         'flex flex-row',
@@ -28,16 +27,18 @@ export function CustomToggle({
         'cursor-pointer',
         className,
       ].join(' ')}
+      htmlFor={id}
     >
       <input
-        id={id}
-        type="checkbox"
-        value=""
-        className="sr-only peer"
         checked={checked}
+        className="sr-only peer"
+        id={id}
         onChange={onChange}
         onKeyUp={onKeyUp}
+        type="checkbox"
+        value=""
       />
+
       <div
         className={[
           'relative',
@@ -46,7 +47,8 @@ export function CustomToggle({
           'peer-focus:outline-none',
           'peer-focus:ring-2 peer-focus:ring-on-primary-container',
           'peer-checked:bg-primary-800',
-          'peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full',
+          'peer-checked:after:translate-x-full',
+          'rtl:peer-checked:after:-translate-x-full',
           'peer-checked:after:border-on-background',
           'peer',
           'after:absolute',
@@ -57,7 +59,8 @@ export function CustomToggle({
           'after:border after:border-on-background',
           'after:transition-all',
         ].join(' ')}
-      ></div>
+      />
+
       {children}
     </CustomLabel>
   );

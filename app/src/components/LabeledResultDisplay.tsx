@@ -6,7 +6,7 @@ interface LabeledResultDisplayProps {
 export function LabeledResultDisplay({
   label,
   result,
-}: LabeledResultDisplayProps): JSX.Element {
+}: LabeledResultDisplayProps): React.JSX.Element {
   return (
     <div className={['w-full h-fit', 'grid grid-cols-12'].join(' ')}>
       <span
@@ -16,6 +16,7 @@ export function LabeledResultDisplay({
       >
         {label}
       </span>
+
       <span
         className={[
           'text-xl font-bold text-on-primary-container',

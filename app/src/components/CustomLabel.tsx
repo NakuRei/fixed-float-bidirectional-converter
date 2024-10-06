@@ -8,13 +8,13 @@ export function CustomLabel({
   children,
   htmlFor,
   className = '',
-}: CustomLabelProps): JSX.Element {
+}: CustomLabelProps): React.JSX.Element {
   return (
     <label
-      htmlFor={htmlFor}
       className={['text-on-background text-sm font-medium', className].join(
         ' ',
       )}
+      htmlFor={htmlFor}
     >
       {children}
     </label>

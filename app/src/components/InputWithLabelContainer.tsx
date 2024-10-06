@@ -6,7 +6,7 @@ interface InputWithLabelContainerProps {
 export function InputWithLabelContainer({
   children,
   className = '',
-}: InputWithLabelContainerProps): JSX.Element {
+}: InputWithLabelContainerProps): React.JSX.Element {
   return (
     <div
       className={[

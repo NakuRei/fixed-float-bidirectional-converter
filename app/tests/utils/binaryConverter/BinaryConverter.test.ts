@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { BinaryConverter } from '../../../src/utils/binaryConverter/BinaryConverter';
-import { BinaryConversionStrategy } from '../../../src/utils/binaryConverter/BinaryConversionStrategy';
+import type { BinaryConversionStrategy } from '../../../src/utils/binaryConverter/BinaryConversionStrategy';
 
 class MockBinaryConversionStrategy1 implements BinaryConversionStrategy {
   public convert(): string {
