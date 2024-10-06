@@ -18,7 +18,7 @@ export function CustomDropdown<T>({
   onChange,
   getOptionLabel,
   className,
-}: DropdownProps<T>): JSX.Element {
+}: DropdownProps<T>): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +50,6 @@ export function CustomDropdown<T>({
     >
       <div className="w-full">
         <button
-          type="button"
           className={[
             'w-full h-fit',
             'inline-flex justify-between items-center',
@@ -68,53 +67,63 @@ export function CustomDropdown<T>({
           ].join(' ')}
           onClick={toggleDropdown}
           title={getOptionLabel(value)}
+          type="button"
         >
           <span className="text-base truncate mr-2">
             {getOptionLabel(value)}
           </span>
-          <CaretDown size={16} weight="bold" className="flex-shrink-0" />
+
+          <CaretDown
+            className="flex-shrink-0"
+            size={16}
+            weight="bold"
+          />
         </button>
       </div>
 
-      {isOpen && (
-        <div
-          className={[
-            'w-full max-h-60 overflow-auto',
-            'absolute left-0 right-0',
-            'z-10',
-            'rounded-md',
-            'bg-background-800',
-          ].join(' ')}
-        >
+      {isOpen
+        ? (
           <div
-            className="py-1"
-            role="menu"
-            aria-orientation="vertical"
-            aria-labelledby="options-menu"
+            className={[
+              'w-full max-h-60 overflow-auto',
+              'absolute left-0 right-0',
+              'z-10',
+              'rounded-md',
+              'bg-background-800',
+            ].join(' ')}
           >
-            {options.map((option, index) => (
-              <button
-                key={index}
-                className={[
-                  'w-full h-fit',
-                  'block',
-                  'px-4 py-2',
-                  'text-on-background hover:text-primary',
-                  'hover:bg-background hover:bg-opacity-50',
-                  'text-left truncate',
-                ].join(' ')}
-                role="menuitem"
-                onClick={(e) => {
-                  handleOptionClick(e, option);
-                }}
-                title={getOptionLabel(option)}
-              >
-                {getOptionLabel(option)}
-              </button>
-            ))}
+            <div
+              aria-labelledby="options-menu"
+              aria-orientation="vertical"
+              className="py-1"
+              role="menu"
+            >
+              {options.map(
+                (option, index) => (
+                  <button
+                    className={[
+                      'w-full h-fit',
+                      'block',
+                      'px-4 py-2',
+                      'text-on-background hover:text-primary',
+                      'hover:bg-background hover:bg-opacity-50',
+                      'text-left truncate',
+                    ].join(' ')}
+                    key={index}
+                    onClick={(e) => {
+                      handleOptionClick(e, option);
+                    }}
+                    role="menuitem"
+                    title={getOptionLabel(option)}
+                  >
+                    {getOptionLabel(option)}
+                  </button>
+                ),
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+        : null}
     </div>
   );
 }
