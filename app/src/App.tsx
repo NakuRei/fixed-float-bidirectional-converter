@@ -6,15 +6,16 @@ import { CustomInput } from './components/CustomInput';
 import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
-import { LabeledResultDisplay } from './components/LabeledResultDisplay';
+import { ResultDisplay } from './components/ResultDisplay';
+import { ErrorDisplay } from './components/ErrorDisplay';
 
 import {
   signedBinaryConverters,
   unsignedBinaryConverters,
 } from './utils/converters/convertersInstances';
-import { ConversionResults } from './types/ConversionResults';
+import type { ConversionResults } from './types/ConversionResults';
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
   const [fractionalBitsString, setFractionalBitsString] = useState<string>('4');
   const [isSigned, setIsSigned] = useState<boolean>(true);
@@ -26,7 +27,7 @@ function App(): JSX.Element {
     e: React.ChangeEvent<HTMLInputElement>,
   ): void {
     const value = e.target.value;
-    if (value === '' || /^\d+$/.test(value)) {
+    if (value === '' || (/^\d+$/u).test(value)) {
       setIntegerBitsString(value);
     }
   }
@@ -35,7 +36,7 @@ function App(): JSX.Element {
     e: React.ChangeEvent<HTMLInputElement>,
   ): void {
     const value = e.target.value;
-    if (value === '' || /^\d+$/.test(value)) {
+    if (value === '' || (/^\d+$/u).test(value)) {
       setFractionalBitsString(value);
     }
   }
@@ -49,8 +50,8 @@ function App(): JSX.Element {
       }
 
       try {
-        const integerBits = parseInt(integerBitsString);
-        const fractionalBits = parseInt(fractionalBitsString);
+        const integerBits = parseInt(integerBitsString, 10);
+        const fractionalBits = parseInt(fractionalBitsString, 10);
 
         const converters = isSigned
           ? signedBinaryConverters
@@ -80,6 +81,7 @@ function App(): JSX.Element {
         className={['w-full h-[100svh]', 'grid grid-rows-[auto_1fr]'].join(' ')}
       >
         <CustomHeader />
+
         <main
           className={[
             'w-full max-w-[100vw] h-full',
@@ -107,13 +109,14 @@ function App(): JSX.Element {
               <CustomLabel htmlFor="integerBits">
                 Integer Bits (including sign bit):
               </CustomLabel>
+
               <CustomInput
                 id="integerBits"
-                type="text"
                 inputMode="numeric"
-                value={integerBitsString}
-                placeholder="Integer Bits"
                 onChange={handleIntegerBitsChange}
+                placeholder="Integer Bits"
+                type="text"
+                value={integerBitsString}
               />
             </InputWithLabelContainer>
 
@@ -121,20 +124,21 @@ function App(): JSX.Element {
               <CustomLabel htmlFor="fractionalBits">
                 Fractional Bits:
               </CustomLabel>
+
               <CustomInput
                 id="fractionalBits"
-                type="text"
                 inputMode="numeric"
-                value={fractionalBitsString}
-                placeholder="Fractional Bits"
                 onChange={handleFractionalBitsChange}
+                placeholder="Fractional Bits"
+                type="text"
+                value={fractionalBitsString}
               />
             </InputWithLabelContainer>
 
             <div className="w-full h-fit">
               <CustomToggle
-                id="isSignedToggle"
                 checked={isSigned}
+                id="isSignedToggle"
                 onChange={(e) => {
                   setIsSigned(e.target.checked);
                 }}
@@ -156,60 +160,25 @@ function App(): JSX.Element {
                   ? 'Fixed-Point Number (Twos Complement):'
                   : 'Fixed-Point Number (Unsigned)'}
               </CustomLabel>
+
               <CustomInput
                 id="binaryString"
-                type="text"
                 inputMode="numeric"
-                value={binaryString}
-                placeholder="Enter Fixed-Point Number"
                 onChange={(e) => {
                   setBinaryString(e.target.value);
                 }}
+                placeholder="Enter Fixed-Point Number"
+                type="text"
+                value={binaryString}
               />
             </InputWithLabelContainer>
 
-            {result !== null && (
-              <div
-                className={[
-                  'w-full h-fit',
-                  'flex flex-col justify-start items-center',
-                  'px-4 py-2',
-                  'bg-primary-900 bg-opacity-40',
-                  'text-on-background',
-                  'overflow-x-auto',
-                ].join(' ')}
-              >
-                <h2 className="text-xl font-bold mb-4">Result</h2>
-                <LabeledResultDisplay
-                  label="Hexadecimal:"
-                  result={result.hexString}
-                />
-                <LabeledResultDisplay
-                  label="Floating:"
-                  result={result.floatString}
-                />
-                <LabeledResultDisplay
-                  label="Binary:"
-                  result={result.binaryString}
-                />
-              </div>
-            )}
-            {error && (
-              <div
-                className={[
-                  'w-full h-fit',
-                  'flex flex-col justify-start items-center',
-                  'px-4 py-2',
-                  'bg-error-container',
-                  'text-error',
-                ].join(' ')}
-              >
-                <p className="text-sm">ERROR:</p>
-                <p className="text-base">{error}</p>
-              </div>
-            )}
+            <ResultDisplay result={result} />
+            <ErrorDisplay error={error} />
+
           </div>
         </main>
+
         <CustomFooter />
       </div>
     </>

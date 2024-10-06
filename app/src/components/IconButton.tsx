@@ -1,4 +1,4 @@
-import { cva, VariantProps } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 const buttonVariants = cva(
   [
@@ -55,7 +55,7 @@ const buttonVariants = cva(
 
 interface IconButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   icon: React.ReactNode;
   ariaLabel: string;
   className?: string;
@@ -69,11 +69,13 @@ export function IconButton({
   disabled = false,
   className = '',
   ...props
-}: IconButtonProps): JSX.Element {
+}: IconButtonProps): React.JSX.Element {
   return (
     <button
-      className={buttonVariants({ variant, size, className })}
       aria-label={ariaLabel}
+      className={buttonVariants({ variant,
+        size,
+        className })}
       disabled={disabled}
       {...props}
     >

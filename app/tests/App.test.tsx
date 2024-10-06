@@ -23,14 +23,14 @@ describe('App Component', () => {
 
   it('handles integer bits input correctly', () => {
     render(<App />);
-    const input = screen.getByPlaceholderText(/Integer Bits/i);
+    const input = screen.getByPlaceholderText(/Integer Bits/iu);
     fireEvent.change(input, { target: { value: '8' } });
     expect(input).toHaveValue('8');
   });
 
   it('handles fractional bits input correctly', () => {
     render(<App />);
-    const input = screen.getByPlaceholderText(/Fractional Bits/i);
+    const input = screen.getByPlaceholderText(/Fractional Bits/iu);
     fireEvent.change(input, { target: { value: '4' } });
     expect(input).toHaveValue('4');
   });
@@ -43,23 +43,23 @@ describe('App Component', () => {
     expect(screen.getByText('Unsigned')).toBeInTheDocument();
   });
 
-  it('handles binary string input correctly and displays result', async () => {
+  it('handles binary string input correctly and displays result', async() => {
     render(<App />);
     const binaryInput = screen.getByPlaceholderText(
-      /Enter Fixed-Point Number/i,
+      /Enter Fixed-Point Number/iu,
     );
-    const integerInput = screen.getByPlaceholderText(/Integer Bits/i);
-    const fractionalInput = screen.getByPlaceholderText(/Fractional Bits/i);
+    const integerInput = screen.getByPlaceholderText(/Integer Bits/iu);
+    const fractionalInput = screen.getByPlaceholderText(/Fractional Bits/iu);
 
     fireEvent.change(integerInput, { target: { value: '4' } });
     fireEvent.change(fractionalInput, { target: { value: '4' } });
     fireEvent.change(binaryInput, { target: { value: '01001101' } });
 
     await waitFor(() => {
-      expect(screen.queryByText(/Result/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Result/iu)).toBeInTheDocument();
     });
 
-    const resultLabel = screen.getByText(/Result/i);
+    const resultLabel = screen.getByText(/Result/iu);
     expect(resultLabel).toBeInTheDocument();
 
     const floatResultValue = screen.getByText('4.8125');
@@ -68,20 +68,20 @@ describe('App Component', () => {
     expect(hexResultValue).toBeInTheDocument();
   });
 
-  it('displays error message for invalid binary string input', async () => {
+  it('displays error message for invalid binary string input', async() => {
     render(<App />);
     const binaryInput = screen.getByPlaceholderText(
-      /Enter Fixed-Point Number/i,
+      /Enter Fixed-Point Number/iu,
     );
 
     fireEvent.change(binaryInput, { target: { value: 'invalid' } });
 
     // Ensure state updates and component re-renders
     await waitFor(() => {
-      expect(screen.queryByText(/ERROR:/i)).toBeInTheDocument();
+      expect(screen.queryByText(/ERROR:/iu)).toBeInTheDocument();
     });
 
-    const error = screen.getByText(/ERROR:/i);
+    const error = screen.getByText(/ERROR:/iu);
     expect(error).toBeInTheDocument();
   });
 });

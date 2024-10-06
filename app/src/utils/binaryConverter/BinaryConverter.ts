@@ -1,5 +1,5 @@
-import { Converter } from '../Converter';
-import { BinaryConversionStrategy } from './BinaryConversionStrategy';
+import type { Converter } from '../Converter';
+import type { BinaryConversionStrategy } from './BinaryConversionStrategy';
 import { validateBinaryStringLength } from './validateBinaryStringLength';
 import { validateBinaryString } from './validateBinaryString';
 

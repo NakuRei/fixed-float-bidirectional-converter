@@ -25,15 +25,9 @@ export function CustomInput({
   onChange,
   placeholder = '',
   className = '',
-}: CustomInputProps): JSX.Element {
+}: CustomInputProps): React.JSX.Element {
   return (
     <input
-      id={id}
-      type={type}
-      inputMode={inputMode}
-      value={value}
-      placeholder={placeholder}
-      onChange={onChange}
       className={[
         'w-full h-fit',
         'px-4 py-2',
@@ -51,6 +45,12 @@ export function CustomInput({
         'transition duration-300 focus:duration-0 ease-in-out',
         className,
       ].join(' ')}
+      id={id}
+      inputMode={inputMode}
+      onChange={onChange}
+      placeholder={placeholder}
+      type={type}
+      value={value}
     />
   );
 }

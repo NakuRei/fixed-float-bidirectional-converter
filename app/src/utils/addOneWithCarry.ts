@@ -7,6 +7,5 @@ export function addOneWithCarry(binaryString: string): string {
     result = (sum % 2).toString() + result;
     carry = Math.floor(sum / 2);
   }
-  binaryString = result;
-  return binaryString;
+  return result;
 }

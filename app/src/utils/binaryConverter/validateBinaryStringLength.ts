@@ -6,7 +6,8 @@ export function validateBinaryStringLength(
   const totalBits = integerBits + fractionalBits;
   if (binaryString.length !== totalBits) {
     throw new Error(
-      `Binary string length should be ${totalBits.toString()}, but got ${binaryString.length.toString()}`,
+      `Binary string length should be ${totalBits.toString()}, but got ${
+        binaryString.length.toString()}`,
     );
   }
   return totalBits;

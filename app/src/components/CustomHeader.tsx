@@ -2,7 +2,7 @@ import { GithubLogo } from '@phosphor-icons/react';
 
 import { IconButton } from './IconButton';
 
-export function CustomHeader(): JSX.Element {
+export function CustomHeader(): React.JSX.Element {
   function openLink(url: string): void {
     window.open(url, '_blank', 'noopener,noreferrer');
   }
@@ -20,18 +20,24 @@ export function CustomHeader(): JSX.Element {
       ].join(' ')}
     >
       <div>Fixed-Float Bidirectional Converter</div>
+
       <div>
         <IconButton
-          icon={<GithubLogo size={20} weight="bold" />}
           ariaLabel="Take a photo"
-          variant="outline-primary-accent"
-          size="md"
+          icon={(
+            <GithubLogo
+              size={20}
+              weight="bold"
+            />
+          )}
           onClick={() => {
             openLink(
               'https://github.com/NakuRei/fixed-float-bidirectional-converter',
             );
           }}
+          size="md"
           title="Open GitHub repository"
+          variant="outline-primary-accent"
         />
       </div>
     </header>
