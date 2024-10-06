@@ -1,16 +1,40 @@
 {
   "files.eol": "\n",
-  // linter
-  "eslint.workingDirectories": ["./app"],
+  // Linter
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    "./app"
+  ],
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit",
   },
-  // formatter
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Formatter
+  "typescript.format.enable": false,
+  "eslint.format.enable": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.formatOnType": true,
-  "prettier.requireConfig": true,
-  "prettier.configPath": "./app/.prettierrc",
-  "prettier.prettierPath": "./app/node_modules/prettier"
+  // 以降は各言語ごとの設定
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
 }
