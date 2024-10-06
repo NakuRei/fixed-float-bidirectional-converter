@@ -70,7 +70,7 @@ export default tseslint.config(
       // JSXの閉じ括弧の位置を強制
       '@stylistic/jsx-closing-bracket-location': ['error', 'line-aligned'],
       // JSXの閉じタグの位置を強制
-      '@stylistic/jsx-closing-tag-location': 'error',
+      '@stylistic/jsx-closing-tag-location': ['error', 'line-aligned'],
       // JSXの{}の有無を強制
       '@stylistic/jsx-curly-brace-presence': 'error',
       // JSXの{}の前後にスペースを禁止
@@ -135,8 +135,7 @@ export default tseslint.config(
       ],
       // JSXの複数行を括弧で囲む
       '@stylistic/jsx-wrap-multilines': [
-        'error',
-        {
+        'error', {
           declaration: 'parens-new-line',
           assignment: 'parens-new-line',
           return: 'parens-new-line',
@@ -224,7 +223,10 @@ export default tseslint.config(
       '@stylistic/no-extra-parens': [
         'error',
         'all',
-        { nestedBinaryExpressions: false },
+        {
+          nestedBinaryExpressions: false,
+          ignoreJSX: 'all',
+        },
       ],
       // 余分なセミコロンをエラーとして報告させる
       '@stylistic/no-extra-semi': 'error',
