@@ -23,7 +23,7 @@ export function CustomHeader(): React.JSX.Element {
 
       <div>
         <IconButton
-          ariaLabel="Take a photo"
+          ariaLabel="Go to GitHub repository"
           icon={(
             <GithubLogo
               size={20}
