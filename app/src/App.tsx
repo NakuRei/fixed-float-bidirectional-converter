@@ -8,17 +8,23 @@ import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 import { ResultDisplay } from './components/ResultDisplay';
 import { ErrorDisplay } from './components/ErrorDisplay';
+import { InputFormat, type InputFormatType } from './constants/InputFormat';
+import { CustomDropdown } from './components/CustomDropdown';
 
 import {
   signedBinaryConverters,
   unsignedBinaryConverters,
+  signedHexConverters,
+  unsignedHexConverters,
 } from './utils/converters/convertersInstances';
 import type { ConversionResults } from './types/ConversionResults';
+import type { Converters } from './utils/converters/Converters';
 
 function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
   const [fractionalBitsString, setFractionalBitsString] = useState<string>('4');
   const [isSigned, setIsSigned] = useState<boolean>(true);
+  const [inputType, setInputType] = useState<InputFormatType>(2);
   const [binaryString, setBinaryString] = useState<string>('');
   const [result, setResult] = useState<ConversionResults | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,13 +55,32 @@ function App(): React.JSX.Element {
         return;
       }
 
+      function getConverters(): Converters {
+        if (isSigned) {
+          switch (inputType) {
+            case InputFormat.Binary:
+              return signedBinaryConverters;
+            case InputFormat.Hexadecimal:
+              return signedHexConverters;
+            default:
+              throw new Error('Invalid input type');
+          }
+        } else {
+          switch (inputType) {
+            case InputFormat.Binary:
+              return unsignedBinaryConverters;
+            case InputFormat.Hexadecimal:
+              return unsignedHexConverters;
+            default:
+              throw new Error('Invalid input type');
+          }
+        }
+      }
+
       try {
         const integerBits = parseInt(integerBitsString, 10);
         const fractionalBits = parseInt(fractionalBitsString, 10);
-
-        const converters = isSigned
-          ? signedBinaryConverters
-          : unsignedBinaryConverters;
+        const converters = getConverters();
 
         const conversionResults = converters.convert(
           binaryString,
@@ -73,7 +98,13 @@ function App(): React.JSX.Element {
     }
 
     convert();
-  }, [binaryString, integerBitsString, fractionalBitsString, isSigned]);
+  }, [
+    binaryString,
+    integerBitsString,
+    fractionalBitsString,
+    isSigned,
+    inputType,
+  ]);
 
   return (
     <>
@@ -153,6 +184,27 @@ function App(): React.JSX.Element {
                 </span>
               </CustomToggle>
             </div>
+
+            <InputWithLabelContainer>
+              <CustomLabel htmlFor="inputType">Input Type</CustomLabel>
+
+              <CustomDropdown<InputFormatType>
+                getOptionLabel={
+                  (option: InputFormatType) => {
+                    return Object.keys(InputFormat).find(
+                      (key) => {
+                        return InputFormat[key] === option;
+                      },
+                    ) ?? '';
+                  }
+                }
+                onChange={(newValue: InputFormatType) => {
+                  setInputType(newValue);
+                }}
+                options={Object.values(InputFormat)}
+                value={inputType}
+              />
+            </InputWithLabelContainer>
 
             <InputWithLabelContainer>
               <CustomLabel htmlFor="binaryString">
