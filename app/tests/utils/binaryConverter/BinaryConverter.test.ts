@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { BinaryConverter } from '../../../src/utils/binaryConverter/BinaryConverter';
 import type { BinaryConversionStrategy } from '../../../src/utils/binaryConverter/BinaryConversionStrategy';
 
@@ -13,9 +13,6 @@ class MockBinaryConversionStrategy2 implements BinaryConversionStrategy {
     return 'mocked result 2';
   }
 }
-
-vi.mock('../../../src/utils/binaryConverter/validateBinaryStringLength');
-vi.mock('../../../src/utils/binaryConverter/validateBinaryString');
 
 describe('BinaryConverter', () => {
   it('should convert using the strategy', () => {
