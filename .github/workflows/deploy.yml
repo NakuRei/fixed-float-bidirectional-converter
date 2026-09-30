@@ -25,14 +25,13 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .tool-versions
           cache: 'npm'
-          cache-dependency-path: './app/package-lock.json'
       - name: Install dependencies
-        working-directory: ./app
         run: npm ci
+        env:
+          HUSKY: 0
       - name: Build
-        working-directory: ./app
         run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -40,7 +39,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # dist フォルダーのアップロード
-          path: './app/dist'
+          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

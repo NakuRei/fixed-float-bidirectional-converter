@@ -6,9 +6,6 @@ import react from '@vitejs/plugin-react-swc';
 export default defineConfig({
   base: '/fixed-float-bidirectional-converter/',
   plugins: [react()],
-  server: {
-    host: true,
-  },
   test: {
     globals: false,
     environment: 'jsdom',

@@ -2,9 +2,6 @@
   "files.eol": "\n",
   // Linter
   "eslint.useFlatConfig": true,
-  "eslint.workingDirectories": [
-    "./app"
-  ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
   },
