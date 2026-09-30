@@ -1,5 +1,10 @@
 export default {
   extends: ['@commitlint/config-conventional'],
+  parserPreset: {
+    parserOpts: {
+      noteKeywords: ['BREAKING CHANGE', 'BREAKING-CHANGE', 'Co-Authored-By'],
+    },
+  },
   rules: {
     'type-case': [2, 'always', 'lower-case'],
     'scope-case': [2, 'always', 'lower-case'],
