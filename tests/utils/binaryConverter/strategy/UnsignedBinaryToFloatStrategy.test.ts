@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { UnsignedBinaryToFloatStrategy } from '../../../../src/utils/binaryConverter/strategy/UnsignedBinaryToFloatStrategy';
 
 describe('UnsignedBinaryToFloatStrategy', () => {
-  // eslint-disable-next-line @typescript-eslint/init-declarations
+  // eslint-disable-next-line init-declarations
   let strategy: UnsignedBinaryToFloatStrategy;
 
   beforeAll(() => {

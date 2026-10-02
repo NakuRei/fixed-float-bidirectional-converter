@@ -1,41 +1,59 @@
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import tseslint from 'typescript-eslint';
-import react from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
+import { defineConfig } from 'eslint/config';
 
-export default tseslint.config(
+export default defineConfig(
   {
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-      react,
-    },
+    plugins: { '@eslint-react': eslintReact },
     rules: {
-      /*
-       * 以下はReactに関するルールで、下記3つにないもの
-       * reactHooks.configs.recommended.rules
-       * react.configs.recommended.rules
-       * react.configs['jsx-runtime'].rules
-       */
+      // プリセットでは警告または無効のため、エラーとして報告
+      '@eslint-react/jsx-no-comment-textnodes': 'error',
+      '@eslint-react/dom-no-unsafe-target-blank': 'error',
+      '@eslint-react/dom-no-unknown-property': 'error',
+      '@eslint-react/no-missing-component-display-name': 'error',
+      // useStateの戻り値の命名規則を統一
+      '@eslint-react/use-state': 'error',
+      // dangerouslySetInnerHTMLを許可しない
+      '@eslint-react/dom-no-dangerously-set-innerhtml': 'error',
 
-      // 短絡評価によるレンダリングをエラーとして報告
-      'react/jsx-no-leaked-render': [
+      'no-restricted-syntax': [
         'error',
         {
-          validStrategies: ['ternary'],
+          selector: [
+            'JSXExpressionContainer',
+            'LogicalExpression[operator="&&"]',
+          ].join(' > '),
+          message: '短絡評価によるレンダリングは禁止です。三項演算子を使用してください。',
+        },
+        {
+          selector: [
+            'VariableDeclarator[id.name=/^[A-Z]/]',
+            ':matches(ArrowFunctionExpression, FunctionExpression)',
+          ].join(' > '),
+          message: 'コンポーネントは関数宣言で記述してください。',
+        },
+        {
+          selector: [
+            'JSXAttribute',
+            'JSXExpressionContainer',
+            'Literal[value=true]',
+          ].join(' > '),
+          message: 'boolean型のPropsをtrueで渡すときは値を省略してください。',
         },
       ],
-      // コンポーネントを関数宣言で記述
-      'react/function-component-definition': [
-        'error',
-        { namedComponents: 'function-declaration' },
-      ],
-      // useStateの戻り値の命名規則を統一
-      'react/hook-use-state': 'error',
-      // boolean型のPropsをtrueで渡すときは省略する
-      'react/jsx-boolean-value': ['error', 'never'],
-      // dangerouslySetInnerHTMLを許可しない
-      'react/no-danger': 'error',
+
+      // Hooksのルールは公式のeslint-plugin-react-hooksで検査するため、重複する移植版を無効化
+      '@eslint-react/error-boundaries': 'off',
+      '@eslint-react/exhaustive-deps': 'off',
+      '@eslint-react/globals': 'off',
+      '@eslint-react/immutability': 'off',
+      '@eslint-react/purity': 'off',
+      '@eslint-react/refs': 'off',
+      '@eslint-react/rules-of-hooks': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
+      '@eslint-react/set-state-in-render': 'off',
+      '@eslint-react/static-components': 'off',
+      '@eslint-react/unsupported-syntax': 'off',
+      '@eslint-react/use-memo': 'off',
     },
   },
 );

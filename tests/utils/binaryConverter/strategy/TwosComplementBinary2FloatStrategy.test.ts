@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { TwosComplementBinaryToFloatStrategy } from '../../../../src/utils/binaryConverter/strategy/TwosComplementBinaryToFloatStrategy';
 
 describe('TwosComplementBinaryToFloatStrategy', () => {
-  // eslint-disable-next-line @typescript-eslint/init-declarations
+  // eslint-disable-next-line init-declarations
   let strategy: TwosComplementBinaryToFloatStrategy;
 
   beforeAll(() => {

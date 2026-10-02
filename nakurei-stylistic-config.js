@@ -1,12 +1,10 @@
 import stylistic from '@stylistic/eslint-plugin';
-import stylisticTs from '@stylistic/eslint-plugin-ts';
-import tseslint from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
 
-export default tseslint.config(
+export default defineConfig(
   {
     plugins: {
       '@stylistic': stylistic,
-      '@stylistic/ts': stylisticTs,
     },
     rules: {
       // 括弧の前後の改行を強制
@@ -89,8 +87,6 @@ export default tseslint.config(
       '@stylistic/jsx-first-prop-new-line': ['error', 'multiline-multiprop'],
       // 関数引数の要素に改行があるなら改行を強制
       '@stylistic/jsx-function-call-newline': ['error', 'multiline'],
-      // JSXのインデントは2スペース
-      '@stylistic/jsx-indent': ['error', 2],
       // JSXのpropsのインデントも2スペース
       '@stylistic/jsx-indent-props': ['error', 2],
       // 1行に1つのpropsを強制
@@ -110,8 +106,6 @@ export default tseslint.config(
       ],
       // JSXのコンポーネント名をPascalCaseに強制
       '@stylistic/jsx-pascal-case': 'error',
-      // JSXのpropsの複数スペースを禁止
-      '@stylistic/jsx-props-no-multi-spaces': 'error',
       // JSXの引用符をダブルクォートに強制
       '@stylistic/jsx-quotes': ['error', 'prefer-double'],
       // 自己終了タグを強制
@@ -282,14 +276,12 @@ export default tseslint.config(
       '@stylistic/semi-style': ['error', 'last'],
       // ブロックの開始波括弧の前にスペースを強制
       '@stylistic/space-before-blocks': ['error', 'always'],
-      '@stylistic/ts/space-before-blocks': ['error', 'always'],
       // 関数名または関数キーワードと開始括弧の間にスペースは入れない
       '@stylistic/space-before-function-paren': ['error', 'never'],
       // 括弧内のスペースを禁止
       '@stylistic/space-in-parens': ['error', 'never'],
       // 中置演算子（e.g. +, *）の前後にスペースを強制
       '@stylistic/space-infix-ops': 'error',
-      '@stylistic/ts/space-infix-ops': 'error',
       // 単語演算子の前後にスペースを強制、記号演算子の前後のスペースを禁止
       '@stylistic/space-unary-ops': [
         'error', {
@@ -311,7 +303,7 @@ export default tseslint.config(
       // タグ関数とテンプレートリテラルの間にスペースを入れない
       '@stylistic/template-tag-spacing': ['error', 'never'],
       // 型アノテーションと関数型の周囲のスペースを統一
-      '@stylistic/ts/type-annotation-spacing': 'error',
+      '@stylistic/type-annotation-spacing': 'error',
       // 型ジェネリック内のスペースを統一
       '@stylistic/type-generic-spacing': 'error',
       // 名前付きタプルの型宣言の前にスペースを入れる

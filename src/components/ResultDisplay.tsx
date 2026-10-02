@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type { ConversionResults } from '../types/ConversionResults';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 
@@ -19,7 +17,7 @@ export function ResultDisplay(
         'w-full h-fit',
         'flex flex-col justify-start items-center',
         'px-4 py-2',
-        'bg-primary-900 bg-opacity-40',
+        'bg-primary-900/40',
         'text-on-background',
         'overflow-x-auto',
       ].join(' ')}

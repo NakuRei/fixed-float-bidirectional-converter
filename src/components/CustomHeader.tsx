@@ -1,4 +1,4 @@
-import { GithubLogo } from '@phosphor-icons/react';
+import { GithubLogoIcon } from '@phosphor-icons/react';
 
 import { IconButton } from './IconButton';
 
@@ -25,7 +25,7 @@ export function CustomHeader(): React.JSX.Element {
         <IconButton
           ariaLabel="Go to GitHub repository"
           icon={(
-            <GithubLogo
+            <GithubLogoIcon
               size={20}
               weight="bold"
             />

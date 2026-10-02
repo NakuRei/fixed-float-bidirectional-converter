@@ -12,12 +12,12 @@ describe('validateBinaryStringLength', () => {
   it('should throw an error for invalid binary strings', () => {
     expect(() => {
       validateBinaryStringLength(5, 3, '0101010');
-    }).toThrowError();
+    }).toThrow();
     expect(() => {
       validateBinaryStringLength(3, 4, '011010');
-    }).toThrowError();
+    }).toThrow();
     expect(() => {
       validateBinaryStringLength(4, 1, '0110');
-    }).toThrowError();
+    }).toThrow();
   });
 });

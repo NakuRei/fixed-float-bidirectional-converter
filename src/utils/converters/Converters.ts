@@ -2,11 +2,21 @@ import type { Converter } from '../Converter';
 import type { ConversionResults } from '../../types/ConversionResults';
 
 export class Converters {
+  private readonly toHexConverter: Converter;
+
+  private readonly toFloatConverter: Converter;
+
+  private readonly toBinaryConverter: Converter;
+
   public constructor(
-    private readonly toHexConverter: Converter,
-    private readonly toFloatConverter: Converter,
-    private readonly toBinaryConverter: Converter,
-  ) {}
+    toHexConverter: Converter,
+    toFloatConverter: Converter,
+    toBinaryConverter: Converter,
+  ) {
+    this.toHexConverter = toHexConverter;
+    this.toFloatConverter = toFloatConverter;
+    this.toBinaryConverter = toBinaryConverter;
+  }
 
   public convert(
     inputString: string,

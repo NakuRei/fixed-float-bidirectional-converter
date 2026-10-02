@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { BinaryToHexStrategy } from '../../../../src/utils/binaryConverter/strategy/BinaryToHexStrategy';
 
 describe('BinaryToHexStrategy', () => {
-  // eslint-disable-next-line @typescript-eslint/init-declarations
+  // eslint-disable-next-line init-declarations
   let strategy: BinaryToHexStrategy;
 
   beforeEach(() => {

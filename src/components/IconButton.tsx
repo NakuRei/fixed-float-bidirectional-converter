@@ -4,7 +4,8 @@ const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
     'rounded-full',
-    'focus:outline-none',
+    'cursor-pointer',
+    'focus:outline-hidden',
     'focus-visible:ring-2 focus-visible:ring-offset-2',
     'transition duration-150 ease-in-out',
     'active:scale-95',
@@ -77,6 +78,7 @@ export function IconButton({
         size,
         className })}
       disabled={disabled}
+      type="button"
       {...props}
     >
       {icon}
