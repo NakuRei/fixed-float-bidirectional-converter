@@ -1,7 +1,8 @@
 import js from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig(
   {
     extends: [
       js.configs.recommended,
@@ -160,8 +161,7 @@ export default tseslint.config(
       // 外部公開関数に型引数と戻り値の型注釈を強制
       '@typescript-eslint/explicit-module-boundary-types': 'error',
       // 変数の宣言時に初期化を強制
-      'init-declarations': 'off',
-      '@typescript-eslint/init-declarations': 'error',
+      'init-declarations': 'error',
       // Enumの値指定を強制
       '@typescript-eslint/prefer-enum-initializers': 'error',
       // boolean への型強制を禁止

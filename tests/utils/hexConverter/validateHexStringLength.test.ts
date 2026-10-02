@@ -17,13 +17,13 @@ describe('validateHexStringLength', () => {
   it('should throw an error for invalid hex string length', () => {
     expect(() => {
       validateHexStringLength(8, 4, '0FFF');
-    }).toThrowError();
+    }).toThrow();
     expect(() => {
       validateHexStringLength(16, 0, 'FFF');
-    }).toThrowError();
+    }).toThrow();
     expect(() => {
       validateHexStringLength(4, 4, 'F');
-    }).toThrowError();
+    }).toThrow();
   });
 
   it('should handle edge cases correctly', () => {
@@ -35,6 +35,6 @@ describe('validateHexStringLength', () => {
     }).not.toThrow();
     expect(() => {
       validateHexStringLength(1, 1, '12');
-    }).toThrowError();
+    }).toThrow();
   });
 });

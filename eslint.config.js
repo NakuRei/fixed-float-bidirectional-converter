@@ -1,16 +1,17 @@
 import js from '@eslint/js';
+import eslintReact from '@eslint-react/eslint-plugin';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
+import { reactRefresh } from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
-import react from 'eslint-plugin-react';
 
 import myTypescriptConfig from './nakurei-typescript-config.js';
 import myReactConfig from './nakurei-react-config.js';
 import myStylisticConfig from './nakurei-stylistic-config.js';
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+export default defineConfig(
+  globalIgnores(['dist']),
   {
     extends: [...myStylisticConfig],
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -20,6 +21,9 @@ export default tseslint.config(
       js.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
+      eslintReact.configs['strict-type-checked'],
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite(),
       ...myTypescriptConfig,
       ...myReactConfig,
     ],
@@ -28,26 +32,11 @@ export default tseslint.config(
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
+        // 自動JSXランタイムではJSXがReactを参照しないため、参照扱いを無効化
+        jsxPragma: null,
         project: ['./tsconfig.node.json', './tsconfig.app.json'],
         tsconfigRootDir: import.meta.dirname,
       },
-    },
-    settings: { react: { version: '18.3' } },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-      react,
-    },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-
-      // README.mdに記載されているルールを全て有効化
-      ...react.configs.recommended.rules,
-      ...react.configs['jsx-runtime'].rules,
     },
   },
   {

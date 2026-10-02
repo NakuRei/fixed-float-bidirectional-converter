@@ -27,6 +27,6 @@ implements BinaryConversionStrategy {
 
     return isNegative
       ? (-1 * parseFloat(value)).toString()
-      : value.toString();
+      : value;
   }
 }

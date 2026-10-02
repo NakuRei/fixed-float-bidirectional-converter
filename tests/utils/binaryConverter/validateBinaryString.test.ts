@@ -6,13 +6,13 @@ describe('validateBinaryString', () => {
   it('should throw an error for invalid binary strings', () => {
     expect(() => {
       validateBinaryString('invalid');
-    }).toThrowError();
+    }).toThrow();
     expect(() => {
       validateBinaryString('01a01');
-    }).toThrowError();
+    }).toThrow();
     expect(() => {
       validateBinaryString('');
-    }).toThrowError();
+    }).toThrow();
   });
 
   it('should not throw an error for valid binary strings', () => {

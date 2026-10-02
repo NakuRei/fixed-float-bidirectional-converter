@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 
-import { CaretDown } from '@phosphor-icons/react';
+import { CaretDownIcon } from '@phosphor-icons/react';
 
 import { useOutsideClick } from '../hooks/useOutsideClick';
 
@@ -55,14 +55,15 @@ export function CustomDropdown<T>({
             'inline-flex justify-between items-center',
             'px-4 py-2',
             'rounded-md',
+            'cursor-pointer',
             'border-2',
             'border-primary-700',
-            'bg-primary-container bg-opacity-20',
+            'bg-primary-container/20',
             'text-on-background',
-            'focus:border-on-primary-container focus:outline-none',
+            'focus:border-on-primary-container focus:outline-hidden',
             'focus:shadow-lg focus:shadow-on-primary-container/20',
             'focus:bg-background-950',
-            'focus:ring-2 focus:ring-primary-700 focus:ring-opacity-20',
+            'focus:ring-2 focus:ring-primary-700/20',
             'transition duration-300 focus:duration-0 ease-in-out',
           ].join(' ')}
           onClick={toggleDropdown}
@@ -73,8 +74,8 @@ export function CustomDropdown<T>({
             {getOptionLabel(value)}
           </span>
 
-          <CaretDown
-            className="flex-shrink-0"
+          <CaretDownIcon
+            className="shrink-0"
             size={16}
             weight="bold"
           />
@@ -99,22 +100,24 @@ export function CustomDropdown<T>({
               role="menu"
             >
               {options.map(
-                (option, index) => (
+                (option) => (
                   <button
                     className={[
                       'w-full h-fit',
                       'block',
                       'px-4 py-2',
+                      'cursor-pointer',
                       'text-on-background hover:text-primary',
-                      'hover:bg-background hover:bg-opacity-50',
+                      'hover:bg-background/50',
                       'text-left truncate',
                     ].join(' ')}
-                    key={index}
+                    key={getOptionLabel(option)}
                     onClick={(e) => {
                       handleOptionClick(e, option);
                     }}
                     role="menuitem"
                     title={getOptionLabel(option)}
+                    type="button"
                   >
                     {getOptionLabel(option)}
                   </button>
