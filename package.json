@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "verify": "npm run lint && npm test && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "coverage": "vitest run --coverage",
-    "test": "vitest --run",
+    "test": "vitest --run --allowOnly=false",
     "test:watch": "vitest",
     "prepare": "husky"
   },
