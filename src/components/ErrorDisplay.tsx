@@ -1,13 +1,10 @@
 interface ErrorDisplayProps {
-  error: string | null;
+  error: string;
 }
 
 export function ErrorDisplay(
   { error }: ErrorDisplayProps,
-): React.JSX.Element | null {
-  if (error === null || error.trim() === '') {
-    return null;
-  }
+): React.JSX.Element {
   return (
     <div
       className={[
