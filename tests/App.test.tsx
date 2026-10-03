@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../src/App';
+import { InputFormat } from '../src/constants/InputFormat';
 
 describe('App Component', () => {
   it('renders without crashing and displays the correct title', () => {
@@ -37,10 +38,13 @@ describe('App Component', () => {
 
   it('toggles between signed and unsigned modes', () => {
     render(<App />);
-    const toggleButton = screen.getByRole('checkbox');
-    expect(screen.getByText('Signed (Twos Complement)')).toBeInTheDocument();
+    const name = 'Signed (two\'s complement)';
+    const toggleButton = screen.getByRole('checkbox', { name });
+    expect(toggleButton).toBeChecked();
     fireEvent.click(toggleButton);
-    expect(screen.getByText('Unsigned')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name })).not.toBeChecked();
+    fireEvent.click(screen.getByRole('checkbox', { name }));
+    expect(screen.getByRole('checkbox', { name })).toBeChecked();
   });
 
   it('handles binary string input correctly and displays result', async() => {
@@ -141,16 +145,19 @@ describe('App Component', () => {
     });
     expect(screen.getByText('ERROR:')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Binary' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Hexadecimal' }));
+    const inputFormat = screen.getByRole('combobox', { name: 'Input Type' });
+    fireEvent.change(inputFormat, {
+      target: { value: InputFormat.Hexadecimal.toString() },
+    });
     expect(screen.getByText('4.8125')).toBeInTheDocument();
     expect(screen.getByText('4D')).toBeInTheDocument();
     expect(input).toHaveValue('4d');
     expect(screen.getByText('01001101')).toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Hexadecimal' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Binary' }));
+    fireEvent.change(inputFormat, {
+      target: { value: InputFormat.Binary.toString() },
+    });
     expect(screen.getByText('ERROR:')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Result' }))
       .not.toBeInTheDocument();
@@ -179,8 +186,9 @@ describe('App Component', () => {
   it('extends hex output as bit width and sign change', () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
-    fireEvent.click(screen.getByRole('button', { name: 'Binary' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Hexadecimal' }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+      target: { value: InputFormat.Hexadecimal.toString() },
+    });
     fireEvent.change(input, { target: { value: 'FF' } });
     expect(screen.getByText('FF')).toBeInTheDocument();
 

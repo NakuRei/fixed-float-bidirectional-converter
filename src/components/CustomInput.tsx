@@ -1,33 +1,17 @@
-interface CustomInputProps {
+interface CustomInputProps extends React.ComponentPropsWithoutRef<'input'> {
   id: string;
-  type: string;
-  inputMode?:
-    | 'search'
-    | 'email'
-    | 'tel'
-    | 'text'
-    | 'url'
-    | 'none'
-    | 'numeric'
-    | 'decimal'
-    | undefined;
+  type: React.HTMLInputTypeAttribute;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  className?: string;
 }
 
 export function CustomInput({
-  id,
-  type,
-  inputMode = 'text',
-  value,
-  onChange,
-  placeholder = '',
   className = '',
+  ...inputProps
 }: CustomInputProps): React.JSX.Element {
   return (
     <input
+      {...inputProps}
       className={[
         'w-full h-fit',
         'px-4 py-2',
@@ -40,17 +24,12 @@ export function CustomInput({
         'focus:shadow-lg focus:shadow-on-primary-container/20',
         'focus:bg-background-950',
         'focus:ring-2 focus:ring-primary-700/20',
+        'aria-invalid:border-error',
         'placeholder-background-500',
         'focus:placeholder-transparent',
         'transition duration-300 focus:duration-0 ease-in-out',
         className,
       ].join(' ')}
-      id={id}
-      inputMode={inputMode}
-      onChange={onChange}
-      placeholder={placeholder}
-      type={type}
-      value={value}
     />
   );
 }

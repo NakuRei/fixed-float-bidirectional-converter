@@ -1,9 +1,10 @@
 interface ErrorDisplayProps {
+  id: string;
   error: string;
 }
 
 export function ErrorDisplay(
-  { error }: ErrorDisplayProps,
+  { id, error }: ErrorDisplayProps,
 ): React.JSX.Element {
   return (
     <div
@@ -14,6 +15,7 @@ export function ErrorDisplay(
         'bg-error-container',
         'text-error',
       ].join(' ')}
+      id={id}
     >
       <p className="text-sm">ERROR:</p>
       <p className="text-base">{error}</p>

@@ -5,7 +5,6 @@ interface CustomToggleProps {
   checked: boolean;
   children?: React.ReactNode;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onKeyUp?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   className?: string;
 }
 
@@ -14,7 +13,6 @@ export function CustomToggle({
   checked,
   children,
   onChange,
-  onKeyUp,
   className = '',
 }: CustomToggleProps): React.JSX.Element {
   return (
@@ -34,7 +32,6 @@ export function CustomToggle({
         className="sr-only peer"
         id={id}
         onChange={onChange}
-        onKeyUp={onKeyUp}
         type="checkbox"
         value=""
       />
