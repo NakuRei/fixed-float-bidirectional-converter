@@ -1,0 +1,245 @@
+import { describe, it, expect } from 'vitest';
+import { InputFormat } from '../../src/constants/InputFormat';
+import { convertFixedPoint } from '../../src/utils/convertFixedPoint';
+
+describe('convertFixedPoint', () => {
+  it.each([
+    ['01010', 5, 0, '10'],
+    ['11010', 5, 0, '-6'],
+    ['01010100', 5, 3, '10.5'],
+    ['0110101', 3, 4, '3.3125'],
+    ['01101', 4, 1, '6.5'],
+    ['10101100', 5, 3, '-10.5'],
+    ['1001011', 3, 4, '-3.3125'],
+    ['10011', 4, 1, '-6.5'],
+    ['10000', 5, 0, '-16'],
+    ['01111', 5, 0, '15'],
+    ['10000000', 5, 3, '-16'],
+    ['01111111', 5, 3, '15.875'],
+    ['01', 1, 1, '0.5'],
+    ['11', 1, 1, '-0.5'],
+    ['001', 2, 1, '0.5'],
+    ['101', 2, 1, '-1.5'],
+    ['0001', 1, 3, '0.125'],
+    ['1111', 1, 3, '-0.125'],
+    ['00000', 5, 0, '0'],
+    ['11111', 5, 0, '-1'],
+    ['1111111', 3, 4, '-0.0625'],
+    ['100000', 6, 0, '-32'],
+    ['10000000', 3, 5, '-4'],
+    ['010', 1, 2, '0.5'],
+    ['110', 1, 2, '-0.5'],
+    ['011', 1, 2, '0.75'],
+    ['111', 1, 2, '-0.25'],
+    ['0101', 0, 4, '0.3125'],
+    ['1011', 0, 4, '-0.3125'],
+    ['01000000000000000000000000000000', 32, 0, '1073741824'],
+    ['11000000000000000000000000000000', 32, 0, '-1073741824'],
+    ['000000000001', 0, 12, '0.000244140625'],
+    ['100000000001', 1, 11, '-0.99951171875'],
+  ])('decodes signed %s with %i integer and %i fractional bits', (
+    inputString,
+    integerBits,
+    fractionalBits,
+    floatString,
+  ) => {
+    expect(convertFixedPoint({
+      inputString,
+      inputType: InputFormat.Binary,
+      isSigned: true,
+      integerBitsString: integerBits.toString(),
+      fractionalBitsString: fractionalBits.toString(),
+    })).toMatchObject({
+      status: 'success',
+      result: {
+        binaryString: inputString,
+        floatString,
+      },
+    });
+  });
+
+  it.each([
+    ['0000', 8, 8, '0'],
+    ['FF', 8, 0, '255'],
+    ['00FF', 0, 16, '0.0038909912109375'],
+    ['1A3F', 8, 8, '26.24609375'],
+    ['1234', 12, 4, '291.25'],
+    ['FFFF', 8, 8, '255.99609375'],
+    ['0001', 8, 8, '0.00390625'],
+    ['0080', 8, 8, '0.5'],
+    ['ff', 8, 0, '255'],
+    ['A', 4, 0, '10'],
+    ['A', 3, 1, '5'],
+    ['A', 2, 2, '2.5'],
+    ['FF', 3, 3, '7.875'],
+    ['FEDCBA9876543210', 32, 32, '4275878552.462222'],
+  ])('decodes unsigned hex %s with %i integer and %i fractional bits', (
+    inputString,
+    integerBits,
+    fractionalBits,
+    floatString,
+  ) => {
+    expect(convertFixedPoint({
+      inputString,
+      inputType: InputFormat.Hexadecimal,
+      isSigned: false,
+      integerBitsString: integerBits.toString(),
+      fractionalBitsString: fractionalBits.toString(),
+    })).toMatchObject({
+      status: 'success',
+      result: { floatString },
+    });
+  });
+
+  it.each([false, true])('agrees across formats for signed=%s', (isSigned) => {
+    for (let totalBits = 1; totalBits <= 8; totalBits++) {
+      for (
+        let fractionalBits = 0;
+        fractionalBits <= totalBits;
+        fractionalBits++
+      ) {
+        for (let value = 0; value < 2 ** totalBits; value++) {
+          const binaryString = value.toString(2).padStart(totalBits, '0');
+          const hexDigits = Math.ceil(totalBits / 4);
+          const inputHexString = value.toString(16)
+            .padStart(hexDigits, '0')
+            .toUpperCase();
+          const signedValue = isSigned && value >= 2 ** (totalBits - 1)
+            ? value - (2 ** totalBits)
+            : value;
+          const extendedValue = signedValue < 0
+            ? signedValue + (16 ** hexDigits)
+            : signedValue;
+          const hexString = extendedValue.toString(16)
+            .padStart(hexDigits, '0')
+            .toUpperCase();
+          const input = {
+            isSigned,
+            integerBitsString: (totalBits - fractionalBits).toString(),
+            fractionalBitsString: fractionalBits.toString(),
+          };
+          const expected = {
+            status: 'success',
+            result: {
+              binaryString,
+              hexString,
+              floatString: (signedValue / (2 ** fractionalBits)).toString(),
+            },
+          };
+          expect(convertFixedPoint({
+            ...input,
+            inputString: binaryString,
+            inputType: InputFormat.Binary,
+          })).toEqual(expected);
+          expect(convertFixedPoint({
+            ...input,
+            inputString: inputHexString,
+            inputType: InputFormat.Hexadecimal,
+          })).toEqual(expected);
+          expect(convertFixedPoint({
+            ...input,
+            inputString: hexString,
+            inputType: InputFormat.Hexadecimal,
+          })).toEqual(expected);
+        }
+      }
+    }
+  });
+
+  it.each([
+    ['4d', 4, 4, true, '01001101', '4D', '4.8125'],
+    ['cd', 4, 4, true, '11001101', 'CD', '-3.1875'],
+    ['cd', 4, 4, false, '11001101', 'CD', '12.8125'],
+    ['FF', 3, 3, false, '111111', '3F', '7.875'],
+    ['FF', 3, 3, true, '111111', 'FF', '-0.125'],
+    ['ff', 3, 3, false, '111111', '3F', '7.875'],
+    ['ff', 3, 3, true, '111111', 'FF', '-0.125'],
+    ['3F', 3, 3, true, '111111', 'FF', '-0.125'],
+    ['DF', 3, 3, true, '011111', '1F', '3.875'],
+    ['E0', 3, 3, true, '100000', 'E0', '-4'],
+    ['E0', 3, 3, false, '100000', '20', '4'],
+    ['F', 1, 1, false, '11', '3', '1.5'],
+    ['AB', 3, 2, false, '01011', '0B', '2.75'],
+    ['00f', 8, 4, false, '000000001111', '00F', '0.9375'],
+  ])('extends hex %s for %i.%i signed=%s', (
+    inputString,
+    integerBits,
+    fractionalBits,
+    isSigned,
+    binaryString,
+    hexString,
+    floatString,
+  ) => {
+    expect(convertFixedPoint({
+      inputString,
+      inputType: InputFormat.Hexadecimal,
+      isSigned,
+      integerBitsString: integerBits.toString(),
+      fractionalBitsString: fractionalBits.toString(),
+    })).toEqual({
+      status: 'success',
+      result: {
+        binaryString,
+        hexString,
+        floatString,
+      },
+    });
+  });
+
+  it.each([
+    ['11110000111100001111000011110000', false, 'F0F0F0F0'],
+    ['0001010', false, '0A'],
+    ['111111', true, 'FF'],
+    ['111111', false, '3F'],
+    ['100000', true, 'E0'],
+    ['100000', false, '20'],
+    ['011111', true, '1F'],
+    ['000000', true, '00'],
+    [`1${'0'.repeat(53)}`, true, 'E0000000000000'],
+    [`1${'0'.repeat(53)}`, false, '20000000000000'],
+    ['1'.repeat(65), true, 'F'.repeat(17)],
+    ['1'.repeat(65), false, `1${'F'.repeat(16)}`],
+  ])('extends binary %s for signed=%s', (
+    inputString,
+    isSigned,
+    hexString,
+  ) => {
+    expect(convertFixedPoint({
+      inputString,
+      inputType: InputFormat.Binary,
+      isSigned,
+      integerBitsString: inputString.length.toString(),
+      fractionalBitsString: '0',
+    })).toMatchObject({
+      status: 'success',
+      result: {
+        binaryString: inputString,
+        hexString,
+      },
+    });
+  });
+
+  it.each([
+    ['F'.repeat(64), 256, 0, false, (2 ** 256).toString()],
+    [`${'0'.repeat(63)}1`, 0, 256, false, (2 ** -256).toString()],
+    ['F'.repeat(64), 256, 0, true, '-1'],
+    [`8${'0'.repeat(63)}`, 256, 0, true, (-(2 ** 255)).toString()],
+  ])('decodes wide hex %s with %i integer and %i fractional bits', (
+    inputString,
+    integerBits,
+    fractionalBits,
+    isSigned,
+    floatString,
+  ) => {
+    expect(convertFixedPoint({
+      inputString,
+      inputType: InputFormat.Hexadecimal,
+      isSigned,
+      integerBitsString: integerBits.toString(),
+      fractionalBitsString: fractionalBits.toString(),
+    })).toMatchObject({
+      status: 'success',
+      result: { floatString },
+    });
+  });
+});

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { CustomHeader } from './components/CustomHeader';
 import { CustomFooter } from './components/CustomFooter';
@@ -11,23 +11,24 @@ import { ErrorDisplay } from './components/ErrorDisplay';
 import { InputFormat, type InputFormatType } from './constants/InputFormat';
 import { CustomDropdown } from './components/CustomDropdown';
 
-import {
-  signedBinaryConverters,
-  unsignedBinaryConverters,
-  signedHexConverters,
-  unsignedHexConverters,
-} from './utils/converters/convertersInstances';
-import type { ConversionResults } from './types/ConversionResults';
-import type { Converters } from './utils/converters/Converters';
+import { convertFixedPoint } from './utils/convertFixedPoint';
 
 function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
   const [fractionalBitsString, setFractionalBitsString] = useState<string>('4');
   const [isSigned, setIsSigned] = useState<boolean>(true);
-  const [inputType, setInputType] = useState<InputFormatType>(2);
-  const [binaryString, setBinaryString] = useState<string>('');
-  const [result, setResult] = useState<ConversionResults | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [inputType, setInputType] = useState<InputFormatType>(
+    InputFormat.Binary,
+  );
+  const [inputString, setInputString] = useState<string>('');
+
+  const outcome = convertFixedPoint({
+    inputString,
+    inputType,
+    isSigned,
+    integerBitsString,
+    fractionalBitsString,
+  });
 
   function handleIntegerBitsChange(
     e: React.ChangeEvent<HTMLInputElement>,
@@ -46,65 +47,6 @@ function App(): React.JSX.Element {
       setFractionalBitsString(value);
     }
   }
-
-  useEffect(() => {
-    function convert(): void {
-      if (!binaryString) {
-        setResult(null);
-        setError(null);
-        return;
-      }
-
-      function getConverters(): Converters {
-        if (isSigned) {
-          switch (inputType) {
-            case InputFormat.Binary:
-              return signedBinaryConverters;
-            case InputFormat.Hexadecimal:
-              return signedHexConverters;
-            default:
-              throw new Error('Invalid input type');
-          }
-        } else {
-          switch (inputType) {
-            case InputFormat.Binary:
-              return unsignedBinaryConverters;
-            case InputFormat.Hexadecimal:
-              return unsignedHexConverters;
-            default:
-              throw new Error('Invalid input type');
-          }
-        }
-      }
-
-      try {
-        const integerBits = parseInt(integerBitsString, 10);
-        const fractionalBits = parseInt(fractionalBitsString, 10);
-        const converters = getConverters();
-
-        const conversionResults = converters.convert(
-          binaryString,
-          integerBits,
-          fractionalBits,
-        );
-        setResult(conversionResults);
-        setError(null);
-      } catch(err) {
-        setError(
-          err instanceof Error ? err.message : 'An unknown error occurred',
-        );
-        setResult(null);
-      }
-    }
-
-    convert();
-  }, [
-    binaryString,
-    integerBitsString,
-    fractionalBitsString,
-    isSigned,
-    inputType,
-  ]);
 
   return (
     <div
@@ -190,11 +132,11 @@ function App(): React.JSX.Element {
             <CustomDropdown<InputFormatType>
               getOptionLabel={
                 (option: InputFormatType) => {
-                  return Object.keys(InputFormat).find(
-                    (key) => {
-                      return InputFormat[key] === option;
+                  return Object.entries(InputFormat).find(
+                    ([, value]) => {
+                      return value === option;
                     },
-                  ) ?? '';
+                  )?.[0] ?? '';
                 }
               }
               onChange={(newValue: InputFormatType) => {
@@ -206,26 +148,31 @@ function App(): React.JSX.Element {
           </InputWithLabelContainer>
 
           <InputWithLabelContainer>
-            <CustomLabel htmlFor="binaryString">
+            <CustomLabel htmlFor="inputString">
               {isSigned
                 ? 'Fixed-Point Number (Twos Complement):'
                 : 'Fixed-Point Number (Unsigned)'}
             </CustomLabel>
 
             <CustomInput
-              id="binaryString"
+              id="inputString"
               inputMode="numeric"
               onChange={(e) => {
-                setBinaryString(e.target.value);
+                setInputString(e.target.value);
               }}
               placeholder="Enter Fixed-Point Number"
               type="text"
-              value={binaryString}
+              value={inputString}
             />
           </InputWithLabelContainer>
 
-          <ResultDisplay result={result} />
-          <ErrorDisplay error={error} />
+          {outcome.status === 'success'
+            ? <ResultDisplay result={outcome.result} />
+            : null}
+
+          {outcome.status === 'invalid'
+            ? <ErrorDisplay error={outcome.message} />
+            : null}
 
         </div>
       </main>

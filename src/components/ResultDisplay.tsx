@@ -2,15 +2,12 @@ import type { ConversionResults } from '../types/ConversionResults';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 
 interface ResultDisplayProps {
-  result: ConversionResults | null;
+  result: ConversionResults;
 }
 
 export function ResultDisplay(
   { result }: ResultDisplayProps,
-): React.JSX.Element | null {
-  if (result === null) {
-    return null;
-  }
+): React.JSX.Element {
   return (
     <div
       className={[

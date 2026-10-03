@@ -1,4 +1,4 @@
-export const InputFormat: Record<string, number> = {
+export const InputFormat = {
   Binary: 2,
   Hexadecimal: 16,
 } as const;
