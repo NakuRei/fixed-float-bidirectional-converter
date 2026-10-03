@@ -1,20 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import App from '../src/App';
 import { InputFormat } from '../src/constants/InputFormat';
 
 describe('App Component', () => {
-  it('renders without crashing and displays the correct title', () => {
+  it('displays the title in the banner and main heading', () => {
     render(<App />);
 
-    // ヘッダー内のタイトルをチェック
-    const headerTitle = screen.getByText(
+    const headerTitle = within(screen.getByRole('banner')).getByText(
       'Fixed-Float Bidirectional Converter',
-      { selector: 'header div' },
     );
     expect(headerTitle).toBeInTheDocument();
 
-    // メインコンテンツ内の h1 タイトルをチェック
     const mainTitle = screen.getByRole('heading', {
       name: 'Fixed-Float Bidirectional Converter',
       level: 1,
@@ -22,32 +19,7 @@ describe('App Component', () => {
     expect(mainTitle).toBeInTheDocument();
   });
 
-  it('handles integer bits input correctly', () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText(/Integer Bits/iu);
-    fireEvent.change(input, { target: { value: '8' } });
-    expect(input).toHaveValue('8');
-  });
-
-  it('handles fractional bits input correctly', () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText(/Fractional Bits/iu);
-    fireEvent.change(input, { target: { value: '4' } });
-    expect(input).toHaveValue('4');
-  });
-
-  it('toggles between signed and unsigned modes', () => {
-    render(<App />);
-    const name = 'Signed (two\'s complement)';
-    const toggleButton = screen.getByRole('checkbox', { name });
-    expect(toggleButton).toBeChecked();
-    fireEvent.click(toggleButton);
-    expect(screen.getByRole('checkbox', { name })).not.toBeChecked();
-    fireEvent.click(screen.getByRole('checkbox', { name }));
-    expect(screen.getByRole('checkbox', { name })).toBeChecked();
-  });
-
-  it('handles binary string input correctly and displays result', async() => {
+  it('handles binary string input correctly and displays result', () => {
     render(<App />);
     const binaryInput = screen.getByPlaceholderText(
       /Enter Fixed-Point Number/iu,
@@ -59,10 +31,6 @@ describe('App Component', () => {
     fireEvent.change(fractionalInput, { target: { value: '4' } });
     fireEvent.change(binaryInput, { target: { value: '01001101' } });
 
-    await waitFor(() => {
-      expect(screen.queryByText(/Result/iu)).toBeInTheDocument();
-    });
-
     const resultLabel = screen.getByText(/Result/iu);
     expect(resultLabel).toBeInTheDocument();
 
@@ -70,23 +38,6 @@ describe('App Component', () => {
     expect(floatResultValue).toBeInTheDocument();
     const hexResultValue = screen.getByText('4D');
     expect(hexResultValue).toBeInTheDocument();
-  });
-
-  it('displays error message for invalid binary string input', async() => {
-    render(<App />);
-    const binaryInput = screen.getByPlaceholderText(
-      /Enter Fixed-Point Number/iu,
-    );
-
-    fireEvent.change(binaryInput, { target: { value: 'invalid' } });
-
-    // Ensure state updates and component re-renders
-    await waitFor(() => {
-      expect(screen.queryByText(/ERROR:/iu)).toBeInTheDocument();
-    });
-
-    const error = screen.getByText(/ERROR:/iu);
-    expect(error).toBeInTheDocument();
   });
 
   it('replaces results and errors as the input changes', () => {
@@ -122,17 +73,23 @@ describe('App Component', () => {
 
   it('recalculates the value when the sign mode changes', () => {
     render(<App />);
+    const toggle = screen.getByRole('checkbox', {
+      name: 'Signed (two\'s complement)',
+    });
+    expect(toggle).toBeChecked();
     const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
     fireEvent.change(input, {
       target: { value: '11001101' },
     });
     expect(screen.getByText('-3.1875')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(toggle);
+    expect(toggle).not.toBeChecked();
     expect(screen.getByText('12.8125')).toBeInTheDocument();
     expect(screen.queryByText('-3.1875')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(toggle);
+    expect(toggle).toBeChecked();
     expect(screen.getByText('-3.1875')).toBeInTheDocument();
     expect(screen.queryByText('12.8125')).not.toBeInTheDocument();
   });
