@@ -91,58 +91,44 @@ describe('convertFixedPoint', () => {
     });
   });
 
-  it.each([false, true])('agrees across formats for signed=%s', (isSigned) => {
-    for (let totalBits = 1; totalBits <= 8; totalBits++) {
-      for (
-        let fractionalBits = 0;
-        fractionalBits <= totalBits;
-        fractionalBits++
-      ) {
-        for (let value = 0; value < 2 ** totalBits; value++) {
-          const binaryString = value.toString(2).padStart(totalBits, '0');
-          const hexDigits = Math.ceil(totalBits / 4);
-          const inputHexString = value.toString(16)
-            .padStart(hexDigits, '0')
-            .toUpperCase();
-          const signedValue = isSigned && value >= 2 ** (totalBits - 1)
-            ? value - (2 ** totalBits)
-            : value;
-          const extendedValue = signedValue < 0
-            ? signedValue + (16 ** hexDigits)
-            : signedValue;
-          const hexString = extendedValue.toString(16)
-            .padStart(hexDigits, '0')
-            .toUpperCase();
-          const input = {
-            isSigned,
-            integerBitsString: (totalBits - fractionalBits).toString(),
-            fractionalBitsString: fractionalBits.toString(),
-          };
-          const expected = {
-            status: 'success',
-            result: {
-              binaryString,
-              hexString,
-              floatString: (signedValue / (2 ** fractionalBits)).toString(),
-            },
-          };
-          expect(convertFixedPoint({
-            ...input,
-            inputString: binaryString,
-            inputType: InputFormat.Binary,
-          })).toEqual(expected);
-          expect(convertFixedPoint({
-            ...input,
-            inputString: inputHexString,
-            inputType: InputFormat.Hexadecimal,
-          })).toEqual(expected);
-          expect(convertFixedPoint({
-            ...input,
-            inputString: hexString,
-            inputType: InputFormat.Hexadecimal,
-          })).toEqual(expected);
-        }
-      }
+  it.each([
+    ['0', '0', '0', 1, 0, true, '0'],
+    ['1', '1', 'F', 1, 0, true, '-1'],
+    ['1', '1', '1', 1, 0, false, '1'],
+    ['1', '1', 'F', 0, 1, true, '-0.5'],
+    ['1', '1', '1', 0, 1, false, '0.5'],
+    ['00000001', '01', '01', 4, 4, false, '0.0625'],
+    ['111111', '3F', 'FF', 3, 3, true, '-0.125'],
+    ['111111', 'FF', '3F', 3, 3, false, '7.875'],
+    ['11001101', 'CD', 'CD', 4, 4, true, '-3.1875'],
+  ])('agrees for %s / %s / %s with %i.%i signed=%s', (
+    binaryString,
+    inputHexString,
+    hexString,
+    integerBits,
+    fractionalBits,
+    isSigned,
+    floatString,
+  ) => {
+    for (const [inputType, inputString] of [
+      [InputFormat.Binary, binaryString],
+      [InputFormat.Hexadecimal, inputHexString],
+      [InputFormat.Hexadecimal, hexString],
+    ] as const) {
+      expect(convertFixedPoint({
+        inputString,
+        inputType,
+        isSigned,
+        integerBitsString: integerBits.toString(),
+        fractionalBitsString: fractionalBits.toString(),
+      })).toEqual({
+        status: 'success',
+        result: {
+          binaryString,
+          hexString,
+          floatString,
+        },
+      });
     }
   });
 

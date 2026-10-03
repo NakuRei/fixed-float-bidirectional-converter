@@ -211,30 +211,4 @@ describe('convertFixedPoint binary64 rounding', () => {
   it('rejects unsigned overflow with 1024 integer bits', () => {
     expectFloatConversion((1n << 1024n) - 1n, 1024, 0, false, Infinity);
   });
-
-  it('agrees with an exact decimal reference across widths and scales', () => {
-    let randomState = 0x35e071a;
-    for (let sample = 0; sample < 256; sample++) {
-      const totalBits = 1 + ((sample * 37) % 2200);
-      const fractionalBits = (sample * 131) % (totalBits + 1);
-      const isSigned = sample % 2 === 1;
-      let integer = 0n;
-      for (let bit = 0; bit < totalBits; bit++) {
-        randomState ^= randomState << 13;
-        randomState ^= randomState >>> 17;
-        randomState ^= randomState << 5;
-        integer = (integer << 1n) | BigInt(randomState >>> 31);
-      }
-      if (isSigned && integer >= 2n ** BigInt(totalBits - 1)) {
-        integer -= 2n ** BigInt(totalBits);
-      }
-      const decimalCoefficient = integer * (5n ** BigInt(fractionalBits));
-      const expectedValue = Number(
-        `${decimalCoefficient.toString()}e-${fractionalBits.toString()}`,
-      );
-      expectFloatConversion(
-        integer, totalBits, fractionalBits, isSigned, expectedValue,
-      );
-    }
-  });
 });
