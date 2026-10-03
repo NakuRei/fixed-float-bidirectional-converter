@@ -9,7 +9,6 @@ import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 import { ResultDisplay } from './components/ResultDisplay';
 import { ErrorDisplay } from './components/ErrorDisplay';
 import { InputFormat, type InputFormatType } from './constants/InputFormat';
-import { CustomDropdown } from './components/CustomDropdown';
 
 import { convertFixedPoint } from './utils/convertFixedPoint';
 
@@ -30,23 +29,13 @@ function App(): React.JSX.Element {
     fractionalBitsString,
   });
 
-  function handleIntegerBitsChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ): void {
-    const value = e.target.value;
-    if (value === '' || (/^\d+$/u).test(value)) {
-      setIntegerBitsString(value);
-    }
-  }
-
-  function handleFractionalBitsChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ): void {
-    const value = e.target.value;
-    if (value === '' || (/^\d+$/u).test(value)) {
-      setFractionalBitsString(value);
-    }
-  }
+  const invalidFields = outcome.status === 'invalid'
+    ? outcome.invalidFields
+    : [];
+  const isIntegerBitsInvalid = invalidFields.includes('integerBitsString');
+  const isFractionalBitsInvalid = invalidFields
+    .includes('fractionalBitsString');
+  const isInputStringInvalid = invalidFields.includes('inputString');
 
   return (
     <div
@@ -79,17 +68,30 @@ function App(): React.JSX.Element {
 
           <InputWithLabelContainer>
             <CustomLabel htmlFor="integerBits">
-              Integer Bits (including sign bit):
+              Integer Bits:
             </CustomLabel>
 
             <CustomInput
+              aria-describedby={isIntegerBitsInvalid
+                ? 'integerBitsHint conversionError'
+                : 'integerBitsHint'}
+              aria-invalid={isIntegerBitsInvalid}
               id="integerBits"
               inputMode="numeric"
-              onChange={handleIntegerBitsChange}
+              onChange={(e) => {
+                setIntegerBitsString(e.target.value);
+              }}
               placeholder="Integer Bits"
               type="text"
               value={integerBitsString}
             />
+
+            <p
+              className="text-sm text-on-background"
+              id="integerBitsHint"
+            >
+              Includes the sign bit when signed.
+            </p>
           </InputWithLabelContainer>
 
           <InputWithLabelContainer>
@@ -98,9 +100,15 @@ function App(): React.JSX.Element {
             </CustomLabel>
 
             <CustomInput
+              aria-describedby={isFractionalBitsInvalid
+                ? 'conversionError'
+                : undefined}
+              aria-invalid={isFractionalBitsInvalid}
               id="fractionalBits"
               inputMode="numeric"
-              onChange={handleFractionalBitsChange}
+              onChange={(e) => {
+                setFractionalBitsString(e.target.value);
+              }}
               placeholder="Fractional Bits"
               type="text"
               value={fractionalBitsString}
@@ -114,49 +122,61 @@ function App(): React.JSX.Element {
               onChange={(e) => {
                 setIsSigned(e.target.checked);
               }}
-              onKeyUp={(e) => {
-                if (e.key === 'Enter') {
-                  setIsSigned(!isSigned);
-                }
-              }}
             >
-              <span>
-                {isSigned ? 'Signed (Twos Complement)' : 'Unsigned'}
-              </span>
+              Signed (two&apos;s complement)
             </CustomToggle>
           </div>
 
           <InputWithLabelContainer>
             <CustomLabel htmlFor="inputType">Input Type</CustomLabel>
 
-            <CustomDropdown<InputFormatType>
-              getOptionLabel={
-                (option: InputFormatType) => {
-                  return Object.entries(InputFormat).find(
-                    ([, value]) => {
-                      return value === option;
-                    },
-                  )?.[0] ?? '';
+            <select
+              className={[
+                'w-full h-fit',
+                'px-4 py-2',
+                'rounded-md',
+                'border-2 border-primary-700',
+                'bg-primary-container/20 text-on-background',
+                'scheme-dark cursor-pointer',
+                'focus:border-on-primary-container focus:outline-hidden',
+                'focus:shadow-lg focus:shadow-on-primary-container/20',
+                'focus:bg-background-950',
+                'focus:ring-2 focus:ring-primary-700/20',
+                'transition duration-300 focus:duration-0 ease-in-out',
+              ].join(' ')}
+              id="inputType"
+              onChange={(e) => {
+                const selectedFormat = Number(e.target.value);
+                if (selectedFormat === InputFormat.Binary
+                  || selectedFormat === InputFormat.Hexadecimal) {
+                  setInputType(selectedFormat);
                 }
-              }
-              onChange={(newValue: InputFormatType) => {
-                setInputType(newValue);
               }}
-              options={Object.values(InputFormat)}
               value={inputType}
-            />
+            >
+              {Object.entries(InputFormat).map(([label, value]) => (
+                <option
+                  key={value}
+                  value={value}
+                >
+                  {label}
+                </option>
+              ))}
+            </select>
           </InputWithLabelContainer>
 
           <InputWithLabelContainer>
             <CustomLabel htmlFor="inputString">
-              {isSigned
-                ? 'Fixed-Point Number (Twos Complement):'
-                : 'Fixed-Point Number (Unsigned)'}
+              Fixed-Point Bit Pattern:
             </CustomLabel>
 
             <CustomInput
+              aria-describedby={isInputStringInvalid
+                ? 'inputStringHint conversionError'
+                : 'inputStringHint'}
+              aria-invalid={isInputStringInvalid}
               id="inputString"
-              inputMode="numeric"
+              inputMode={inputType === InputFormat.Binary ? 'numeric' : 'text'}
               onChange={(e) => {
                 setInputString(e.target.value);
               }}
@@ -164,6 +184,15 @@ function App(): React.JSX.Element {
               type="text"
               value={inputString}
             />
+
+            <p
+              className="text-sm text-on-background"
+              id="inputStringHint"
+            >
+              {inputType === InputFormat.Binary
+                ? 'Use 0 or 1, without a prefix or separators.'
+                : 'Use 0–9, A–F or a–f, without 0x or separators.'}
+            </p>
           </InputWithLabelContainer>
 
           {outcome.status === 'success'
@@ -171,7 +200,12 @@ function App(): React.JSX.Element {
             : null}
 
           {outcome.status === 'invalid'
-            ? <ErrorDisplay error={outcome.message} />
+            ? (
+              <ErrorDisplay
+                error={outcome.message}
+                id="conversionError"
+              />
+            )
             : null}
 
         </div>

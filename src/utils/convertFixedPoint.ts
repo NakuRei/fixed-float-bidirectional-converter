@@ -16,6 +16,7 @@ export type ConversionOutcome = {
 } | {
   status: 'invalid';
   message: string;
+  invalidFields: (keyof ConversionInput)[];
 } | {
   status: 'success';
   result: ConversionResults;
@@ -106,15 +107,16 @@ function toFloatString(
 }
 
 export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
-  if (input.inputString === '') {
-    return { status: 'empty' };
-  }
   const integerBits = readBitCount(input.integerBitsString);
   const fractionalBits = readBitCount(input.fractionalBitsString);
   if (integerBits === null || fractionalBits === null) {
     return {
       status: 'invalid',
       message: 'Bit counts must be non-negative whole numbers.',
+      invalidFields: [
+        ...integerBits === null ? ['integerBitsString' as const] : [],
+        ...fractionalBits === null ? ['fractionalBitsString' as const] : [],
+      ],
     };
   }
   const totalBits = integerBits + fractionalBits;
@@ -122,7 +124,11 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
     return {
       status: 'invalid',
       message: 'Total bit count must be positive and in the supported range.',
+      invalidFields: ['integerBitsString', 'fractionalBitsString'],
     };
+  }
+  if (input.inputString === '') {
+    return { status: 'empty' };
   }
   const message = validateFixedPointString(
     input.inputString,
@@ -133,6 +139,7 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
     return {
       status: 'invalid',
       message,
+      invalidFields: ['inputString'],
     };
   }
   const binaryString = toBinaryString(

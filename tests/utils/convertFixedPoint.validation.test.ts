@@ -16,24 +16,45 @@ const validInput: ConversionInput = {
 function expectInvalidConversion(
   input: ConversionInput,
   message: RegExp,
+  invalidFields: readonly (keyof ConversionInput)[],
 ): void {
   const outcome = convertFixedPoint(input);
   expect(outcome.status).toBe('invalid');
   if (outcome.status === 'invalid') {
     expect(outcome.message).toMatch(message);
+    expect(new Set(outcome.invalidFields)).toEqual(new Set(invalidFields));
   }
 }
 
 describe('convertFixedPoint input validation', () => {
-  it.each(['4', '', 'invalid', '0'])('returns empty with bit count %s', (
-    bitCount,
+  it.each([['4', '4'], ['0', '4'], ['4', '0']])(
+    'returns empty with valid bit counts %s + %s',
+    (integerBitsString, fractionalBitsString) => {
+      expect(convertFixedPoint({
+        ...validInput,
+        inputString: '',
+        integerBitsString,
+        fractionalBitsString,
+      })).toEqual({ status: 'empty' });
+    },
+  );
+
+  it.each([
+    ['', '4', ['integerBitsString']],
+    ['1.5', '4', ['integerBitsString']],
+    ['4', '-1', ['fractionalBitsString']],
+    ['1.5', '-1', ['integerBitsString', 'fractionalBitsString']],
+    ['0', '0', ['integerBitsString', 'fractionalBitsString']],
+    ['9007199254740991', '1', ['integerBitsString', 'fractionalBitsString']],
+  ] as const)('rejects bit counts %s + %s with an empty bit pattern', (
+    integerBitsString, fractionalBitsString, invalidFields,
   ) => {
-    expect(convertFixedPoint({
+    expectInvalidConversion({
       ...validInput,
       inputString: '',
-      integerBitsString: bitCount,
-      fractionalBitsString: bitCount,
-    })).toEqual({ status: 'empty' });
+      integerBitsString,
+      fractionalBitsString,
+    }, /Bit counts must|Total bit count must/u, invalidFields);
   });
 
   it.each(['invalid', '01a01', '01001102', ' 1001101', '0100110 '])(
@@ -45,6 +66,7 @@ describe('convertFixedPoint input validation', () => {
       })).toEqual({
         status: 'invalid',
         message: 'Binary string contains characters other than 0 and 1',
+        invalidFields: ['inputString'],
       });
     },
   );
@@ -59,6 +81,7 @@ describe('convertFixedPoint input validation', () => {
       })).toEqual({
         status: 'invalid',
         message: 'Hex string contains characters other than 0-9 and A-F',
+        invalidFields: ['inputString'],
       });
     },
   );
@@ -72,6 +95,7 @@ describe('convertFixedPoint input validation', () => {
           inputString,
         },
         /Binary string length/u,
+        ['inputString'],
       );
     },
   );
@@ -81,7 +105,7 @@ describe('convertFixedPoint input validation', () => {
       ...validInput,
       inputString,
       inputType: InputFormat.Hexadecimal,
-    }, /Hex string length/u);
+    }, /Hex string length/u, ['inputString']);
   });
 
   it.each([
@@ -104,6 +128,7 @@ describe('convertFixedPoint input validation', () => {
           integerBitsString,
         },
         /Bit counts/u,
+        ['integerBitsString'],
       );
     },
   );
@@ -128,6 +153,7 @@ describe('convertFixedPoint input validation', () => {
           fractionalBitsString,
         },
         /Bit counts/u,
+        ['fractionalBitsString'],
       );
     },
   );
@@ -139,9 +165,17 @@ describe('convertFixedPoint input validation', () => {
         ...validInput,
         integerBitsString,
         fractionalBitsString,
-      }, /total bit count/iu);
+      }, /total bit count/iu, ['integerBitsString', 'fractionalBitsString']);
     },
   );
+
+  it('identifies both invalid bit counts', () => {
+    expectInvalidConversion({
+      ...validInput,
+      integerBitsString: '1.5',
+      fractionalBitsString: '-1',
+    }, /Bit counts/u, ['integerBitsString', 'fractionalBitsString']);
+  });
 
   it('accepts leading zeros in bit counts', () => {
     expect(convertFixedPoint({
