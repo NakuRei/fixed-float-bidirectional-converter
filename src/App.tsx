@@ -3,14 +3,39 @@ import { useState } from 'react';
 import { CustomHeader } from './components/CustomHeader';
 import { CustomFooter } from './components/CustomFooter';
 import { CustomInput } from './components/CustomInput';
+import { CustomSelect } from './components/CustomSelect';
 import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
-import { ResultDisplay } from './components/ResultDisplay';
-import { ErrorDisplay } from './components/ErrorDisplay';
+import { ConversionOutput } from './components/ConversionOutput';
 import { InputFormat, type InputFormatType } from './constants/InputFormat';
+import { RoundingMode, type RoundingModeType } from './constants/RoundingMode';
 
-import { convertFixedPoint } from './utils/convertFixedPoint';
+import {
+  convertFixedPoint,
+  type ConversionInput,
+} from './utils/convertFixedPoint';
+
+const inputInstructions = {
+  [InputFormat.Binary]: {
+    label: 'Fixed-Point Bit Pattern:',
+    placeholder: 'Enter Fixed-Point Number',
+    inputMode: 'numeric',
+    hint: 'Use 0 or 1, without a prefix or separators.',
+  },
+  [InputFormat.Decimal]: {
+    label: 'Decimal Value:',
+    placeholder: 'Enter Decimal Number',
+    inputMode: 'text',
+    hint: 'Enter a decimal value, such as -3.1875 or 1.25e-1.',
+  },
+  [InputFormat.Hexadecimal]: {
+    label: 'Fixed-Point Bit Pattern:',
+    placeholder: 'Enter Fixed-Point Number',
+    inputMode: 'text',
+    hint: 'Use 0–9, A–F or a–f, without 0x or separators.',
+  },
+} as const;
 
 function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
@@ -20,14 +45,28 @@ function App(): React.JSX.Element {
     InputFormat.Binary,
   );
   const [inputString, setInputString] = useState<string>('');
+  const [roundingMode, setRoundingMode] = useState<RoundingModeType>(
+    RoundingMode.NearestEven,
+  );
+  const instructions = inputInstructions[inputType];
 
-  const outcome = convertFixedPoint({
-    inputString,
-    inputType,
-    isSigned,
-    integerBitsString,
-    fractionalBitsString,
-  });
+  const conversionInput: ConversionInput = inputType === InputFormat.Decimal
+    ? {
+      inputString,
+      isSigned,
+      integerBitsString,
+      fractionalBitsString,
+      inputType,
+      roundingMode,
+    }
+    : {
+      inputString,
+      isSigned,
+      integerBitsString,
+      fractionalBitsString,
+      inputType,
+    };
+  const outcome = convertFixedPoint(conversionInput);
 
   const invalidFields = outcome.status === 'invalid'
     ? outcome.invalidFields
@@ -130,24 +169,12 @@ function App(): React.JSX.Element {
           <InputWithLabelContainer>
             <CustomLabel htmlFor="inputType">Input Type</CustomLabel>
 
-            <select
-              className={[
-                'w-full h-fit',
-                'px-4 py-2',
-                'rounded-md',
-                'border-2 border-primary-700',
-                'bg-primary-container/20 text-on-background',
-                'scheme-dark cursor-pointer',
-                'focus:border-on-primary-container focus:outline-hidden',
-                'focus:shadow-lg focus:shadow-on-primary-container/20',
-                'focus:bg-background-950',
-                'focus:ring-2 focus:ring-primary-700/20',
-                'transition duration-300 focus:duration-0 ease-in-out',
-              ].join(' ')}
+            <CustomSelect
               id="inputType"
               onChange={(e) => {
                 const selectedFormat = Number(e.target.value);
                 if (selectedFormat === InputFormat.Binary
+                  || selectedFormat === InputFormat.Decimal
                   || selectedFormat === InputFormat.Hexadecimal) {
                   setInputType(selectedFormat);
                 }
@@ -162,12 +189,56 @@ function App(): React.JSX.Element {
                   {label}
                 </option>
               ))}
-            </select>
+            </CustomSelect>
           </InputWithLabelContainer>
+
+          {inputType === InputFormat.Decimal
+            ? (
+              <InputWithLabelContainer>
+                <CustomLabel htmlFor="roundingMode">
+                  Fixed-point rounding
+                </CustomLabel>
+
+                <CustomSelect
+                  aria-describedby="roundingHint"
+                  id="roundingMode"
+                  onChange={(e) => {
+                    const mode = e.target.value;
+                    if (mode === RoundingMode.NearestEven
+                      || mode === RoundingMode.TowardZero
+                      || mode === RoundingMode.Exact) {
+                      setRoundingMode(mode);
+                    }
+                  }}
+                  value={roundingMode}
+                >
+                  <option value={RoundingMode.NearestEven}>
+                    Nearest (ties to even)
+                  </option>
+
+                  <option value={RoundingMode.TowardZero}>
+                    Toward zero (truncate)
+                  </option>
+
+                  <option value={RoundingMode.Exact}>Exact only</option>
+                </CustomSelect>
+
+                <p
+                  className="text-sm text-on-background"
+                  id="roundingHint"
+                >
+                  Values outside the fixed-point range are rejected.
+                  {' '}
+                  Exact only rejects precision loss in fixed-point
+                  conversion.
+                </p>
+              </InputWithLabelContainer>
+            )
+            : null}
 
           <InputWithLabelContainer>
             <CustomLabel htmlFor="inputString">
-              Fixed-Point Bit Pattern:
+              {instructions.label}
             </CustomLabel>
 
             <CustomInput
@@ -176,11 +247,11 @@ function App(): React.JSX.Element {
                 : 'inputStringHint'}
               aria-invalid={isInputStringInvalid}
               id="inputString"
-              inputMode={inputType === InputFormat.Binary ? 'numeric' : 'text'}
+              inputMode={instructions.inputMode}
               onChange={(e) => {
                 setInputString(e.target.value);
               }}
-              placeholder="Enter Fixed-Point Number"
+              placeholder={instructions.placeholder}
               type="text"
               value={inputString}
             />
@@ -189,25 +260,11 @@ function App(): React.JSX.Element {
               className="text-sm text-on-background"
               id="inputStringHint"
             >
-              {inputType === InputFormat.Binary
-                ? 'Use 0 or 1, without a prefix or separators.'
-                : 'Use 0–9, A–F or a–f, without 0x or separators.'}
+              {instructions.hint}
             </p>
           </InputWithLabelContainer>
 
-          {outcome.status === 'success'
-            ? <ResultDisplay result={outcome.result} />
-            : null}
-
-          {outcome.status === 'invalid'
-            ? (
-              <ErrorDisplay
-                error={outcome.message}
-                id="conversionError"
-              />
-            )
-            : null}
-
+          <ConversionOutput outcome={outcome} />
         </div>
       </main>
 

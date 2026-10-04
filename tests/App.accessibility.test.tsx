@@ -6,6 +6,8 @@ import { InputFormat } from '../src/constants/InputFormat';
 describe('Accessible converter controls', () => {
   it('exposes the input names, instructions and selected format', () => {
     render(<App />);
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-atomic', 'true');
     const integerBits = screen.getByRole('textbox', { name: 'Integer Bits:' });
     const fractionalBits = screen.getByRole('textbox', {
       name: 'Fractional Bits:',
@@ -74,7 +76,7 @@ describe('Accessible converter controls', () => {
 
     expect(integerBits).toHaveValue(integerValue);
     expect(fractionalBits).toHaveValue(fractionalValue);
-    const errorDescription = /Bit counts must|Total bit count must/u;
+    const errorDescription = /Bit counts must|Total bit count (?:must|is)/u;
     for (const [field, invalid] of [
       [integerBits, integerInvalid],
       [fractionalBits, fractionalInvalid],

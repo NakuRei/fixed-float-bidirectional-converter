@@ -1,17 +1,30 @@
 import { InputFormat, type InputFormatType } from '../constants/InputFormat';
+import type { RoundingModeType } from '../constants/RoundingMode';
 import type { ConversionResults } from '../types/ConversionResults';
+import { encodeDecimalFixedPoint, MAX_DECIMAL_BITS } from './encodeDecimalFixedPoint';
+import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
 
-const FLOAT64_SIGNIFICAND_BITS = 53;
-const FLOAT64_MAX_NORMAL_EXPONENT = 1023;
-const FLOAT64_MIN_SUBNORMAL_EXPONENT = -1074;
-
-export interface ConversionInput {
+interface ConversionFields {
   inputString: string;
-  inputType: InputFormatType;
   isSigned: boolean;
   integerBitsString: string;
   fractionalBitsString: string;
 }
+
+type BitPatternFormat = typeof InputFormat.Binary
+  | typeof InputFormat.Hexadecimal;
+
+interface BitPatternInput extends ConversionFields {
+  inputType: BitPatternFormat;
+  roundingMode?: never;
+}
+
+interface DecimalInput extends ConversionFields {
+  inputType: typeof InputFormat.Decimal;
+  roundingMode: RoundingModeType;
+}
+
+export type ConversionInput = BitPatternInput | DecimalInput;
 
 export type ConversionOutcome = {
   status: 'empty';
@@ -21,6 +34,7 @@ export type ConversionOutcome = {
   invalidFields: (keyof ConversionInput)[];
 } | {
   status: 'success';
+  inputWasRounded: boolean;
   result: ConversionResults;
 };
 
@@ -36,7 +50,7 @@ function readBitCount(value: string): number | null {
 
 function validateFixedPointString(
   inputString: string,
-  inputType: InputFormatType,
+  inputType: BitPatternFormat,
   totalBits: number,
 ): string | null {
   const isBinary = inputType === InputFormat.Binary;
@@ -63,7 +77,7 @@ function validateFixedPointString(
 
 function toBinaryString(
   inputString: string,
-  inputType: InputFormatType,
+  inputType: BitPatternFormat,
   totalBits: number,
 ): string {
   if (inputType === InputFormat.Binary) {
@@ -88,110 +102,23 @@ function toHexString(binaryString: string, isSigned: boolean): string {
   return hexString.toUpperCase();
 }
 
-function roundBinarySignificand(
-  magnitude: bigint,
-  discardedBits: number,
-): bigint {
-  const shift = BigInt(discardedBits);
-  const significand = magnitude >> shift;
-  const remainder = magnitude - (significand << shift);
-  const halfway = 1n << (shift - 1n);
-  const roundUp = remainder > halfway
-    || (remainder === halfway && significand % 2n === 1n);
-  return roundUp
-    ? significand + 1n
-    : significand;
-}
-
-function decodeFixedPointNumber(
+function formatFixedPointResults(
   binaryString: string,
   fractionalBits: number,
   isSigned: boolean,
-): number {
-  const unsignedInteger = BigInt(`0b${binaryString}`);
-  const integer = isSigned && binaryString.startsWith('1')
-    ? unsignedInteger - (1n << BigInt(binaryString.length))
-    : unsignedInteger;
-  const isNegative = integer < 0n;
-  const magnitude = isNegative
-    ? -integer
-    : integer;
-  if (magnitude === 0n) {
-    return 0;
-  }
-  const sign = isNegative
-    ? -1
-    : 1;
-  const leadingExponent = magnitude.toString(2).length - fractionalBits - 1;
-  if (leadingExponent > FLOAT64_MAX_NORMAL_EXPONENT) {
-    return sign * Infinity;
-  }
-  if (leadingExponent < FLOAT64_MIN_SUBNORMAL_EXPONENT - 1) {
-    return sign * 0;
-  }
-  const roundingExponent = Math.max(
-    leadingExponent - (FLOAT64_SIGNIFICAND_BITS - 1),
-    FLOAT64_MIN_SUBNORMAL_EXPONENT,
-  );
-  const discardedBits = fractionalBits + roundingExponent;
-  const significand = discardedBits > 0
-    ? roundBinarySignificand(magnitude, discardedBits)
-    : magnitude;
-  const scaleExponent = Math.max(-fractionalBits, roundingExponent);
-  return sign * Number(significand) * (2 ** scaleExponent);
-}
-
-function convertBinaryFixedPoint(
-  binaryString: string,
-  fractionalBits: number,
-  isSigned: boolean,
-): ConversionOutcome {
-  const floatValue = decodeFixedPointNumber(
-    binaryString,
-    fractionalBits,
-    isSigned,
-  );
-  if (!Number.isFinite(floatValue)) {
-    return {
-      status: 'invalid',
-      message: 'Value is outside the supported floating-point range.',
-      invalidFields: ['inputString'],
-    };
-  }
+): ConversionResults {
   return {
-    status: 'success',
-    result: {
-      binaryString,
-      hexString: toHexString(binaryString, isSigned),
-      floatString: floatValue.toString(),
-    },
+    binaryString,
+    hexString: toHexString(binaryString, isSigned),
+    float64: decodeFixedPointFloat64(binaryString, fractionalBits, isSigned),
   };
 }
 
-export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
-  const integerBits = readBitCount(input.integerBitsString);
-  const fractionalBits = readBitCount(input.fractionalBitsString);
-  if (integerBits === null || fractionalBits === null) {
-    return {
-      status: 'invalid',
-      message: 'Bit counts must be non-negative whole numbers.',
-      invalidFields: [
-        ...integerBits === null ? ['integerBitsString' as const] : [],
-        ...fractionalBits === null ? ['fractionalBitsString' as const] : [],
-      ],
-    };
-  }
-  const totalBits = integerBits + fractionalBits;
-  if (totalBits === 0 || !Number.isSafeInteger(totalBits)) {
-    return {
-      status: 'invalid',
-      message: 'Total bit count must be positive and in the supported range.',
-      invalidFields: ['integerBitsString', 'fractionalBitsString'],
-    };
-  }
-  if (input.inputString === '') {
-    return { status: 'empty' };
-  }
+function convertFixedPointPattern(
+  input: BitPatternInput,
+  fractionalBits: number,
+  totalBits: number,
+): ConversionOutcome {
   const message = validateFixedPointString(
     input.inputString,
     input.inputType,
@@ -209,5 +136,85 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
     input.inputType,
     totalBits,
   );
-  return convertBinaryFixedPoint(binaryString, fractionalBits, input.isSigned);
+  return {
+    status: 'success',
+    inputWasRounded: false,
+    result: formatFixedPointResults(
+      binaryString, fractionalBits, input.isSigned,
+    ),
+  };
+}
+
+function convertDecimalFixedPoint(
+  input: DecimalInput,
+  fractionalBits: number,
+  totalBits: number,
+): ConversionOutcome {
+  const encoding = encodeDecimalFixedPoint(
+    input.inputString,
+    totalBits,
+    fractionalBits,
+    input.isSigned,
+    input.roundingMode,
+  );
+  if (encoding.status === 'invalid') {
+    return {
+      ...encoding,
+      invalidFields: ['inputString'],
+    };
+  }
+  return {
+    status: 'success',
+    inputWasRounded: encoding.inputWasRounded,
+    result: formatFixedPointResults(
+      encoding.binaryString, fractionalBits, input.isSigned,
+    ),
+  };
+}
+
+function validateTotalBitCount(
+  totalBits: number,
+  inputType: InputFormatType,
+): string | null {
+  if (totalBits === 0) {
+    return 'Total bit count must be at least 1.';
+  }
+  if (inputType === InputFormat.Decimal && totalBits > MAX_DECIMAL_BITS) {
+    return 'Decimal conversion supports at most '
+      + `${MAX_DECIMAL_BITS.toString()} total bits.`;
+  }
+  if (!Number.isSafeInteger(totalBits)) {
+    return 'Total bit count is too large.';
+  }
+  return null;
+}
+
+export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
+  const integerBits = readBitCount(input.integerBitsString);
+  const fractionalBits = readBitCount(input.fractionalBitsString);
+  if (integerBits === null || fractionalBits === null) {
+    return {
+      status: 'invalid',
+      message: 'Bit counts must be non-negative whole numbers.',
+      invalidFields: [
+        ...integerBits === null ? ['integerBitsString' as const] : [],
+        ...fractionalBits === null ? ['fractionalBitsString' as const] : [],
+      ],
+    };
+  }
+  const totalBits = integerBits + fractionalBits;
+  const message = validateTotalBitCount(totalBits, input.inputType);
+  if (message !== null) {
+    return {
+      status: 'invalid',
+      message,
+      invalidFields: ['integerBitsString', 'fractionalBitsString'],
+    };
+  }
+  if (input.inputString === '') {
+    return { status: 'empty' };
+  }
+  return input.inputType === InputFormat.Decimal
+    ? convertDecimalFixedPoint(input, fractionalBits, totalBits)
+    : convertFixedPointPattern(input, fractionalBits, totalBits);
 }
