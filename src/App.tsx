@@ -7,8 +7,7 @@ import { CustomSelect } from './components/CustomSelect';
 import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
-import { ResultDisplay } from './components/ResultDisplay';
-import { ErrorDisplay } from './components/ErrorDisplay';
+import { ConversionOutput } from './components/ConversionOutput';
 import { InputFormat, type InputFormatType } from './constants/InputFormat';
 import { RoundingMode, type RoundingModeType } from './constants/RoundingMode';
 
@@ -265,23 +264,7 @@ function App(): React.JSX.Element {
             </p>
           </InputWithLabelContainer>
 
-          {outcome.status === 'success'
-            ? (
-              <ResultDisplay
-                inputWasRounded={outcome.inputWasRounded}
-                result={outcome.result}
-              />
-            )
-            : null}
-
-          {outcome.status === 'invalid'
-            ? (
-              <ErrorDisplay
-                error={outcome.message}
-                id="conversionError"
-              />
-            )
-            : null}
+          <ConversionOutput outcome={outcome} />
         </div>
       </main>
 

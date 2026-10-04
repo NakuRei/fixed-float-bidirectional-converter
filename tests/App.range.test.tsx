@@ -46,6 +46,8 @@ describe('Wide fixed-point values in the converter', () => {
     expect(screen.getByText('Out of range')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Float64 conversion' }))
       .toHaveAccessibleDescription(/outside the Float64 range/u);
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent(/outside the Float64 range/u);
     expect(screen.getByRole('heading', { name: 'Result' }))
       .toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
@@ -55,9 +57,9 @@ describe('Wide fixed-point values in the converter', () => {
     expect(screen.queryByText('Out of range')).not.toBeInTheDocument();
     expect(screen.getByText('-1')).toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Float64 conversion' }))
-      .toHaveAccessibleDescription(
-        'Float64 represents the fixed-point value exactly.',
-      );
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent(
+      /^Float64 represents the fixed-point value exactly\.$/u,
+    );
   });
 });
