@@ -264,7 +264,10 @@ function App(): React.JSX.Element {
             </p>
           </InputWithLabelContainer>
 
-          <ConversionOutput outcome={outcome} />
+          <ConversionOutput
+            isDecimalInput={inputType === InputFormat.Decimal}
+            outcome={outcome}
+          />
         </div>
       </main>
 
