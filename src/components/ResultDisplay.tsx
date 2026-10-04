@@ -2,39 +2,38 @@ import type { ConversionResults } from '../types/ConversionResults';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 
 interface ResultDisplayProps {
+  float64DescriptionId: string;
   result: ConversionResults;
 }
 
 export function ResultDisplay(
-  { result }: ResultDisplayProps,
+  { float64DescriptionId, result }: ResultDisplayProps,
 ): React.JSX.Element {
   return (
-    <div
-      className={[
-        'w-full h-fit',
-        'flex flex-col justify-start items-center',
-        'px-4 py-2',
-        'bg-primary-900/40',
-        'text-on-background',
-        'overflow-x-auto',
-      ].join(' ')}
-    >
-      <h2 className="text-xl font-bold mb-4">Result</h2>
-
+    <>
       <LabeledResultDisplay
         label="Hexadecimal:"
         result={result.hexString}
       />
 
       <LabeledResultDisplay
-        label="Floating:"
-        result={result.floatString}
-      />
-
-      <LabeledResultDisplay
         label="Binary:"
         result={result.binaryString}
       />
-    </div>
+
+      <div
+        aria-describedby={float64DescriptionId}
+        aria-label="Float64 conversion"
+        className="w-full mt-4"
+        role="group"
+      >
+        <LabeledResultDisplay
+          label="Float64:"
+          result={result.float64.status === 'overflow'
+            ? 'Out of range'
+            : result.float64.value}
+        />
+      </div>
+    </>
   );
 }
