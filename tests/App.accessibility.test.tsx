@@ -74,7 +74,7 @@ describe('Accessible converter controls', () => {
 
     expect(integerBits).toHaveValue(integerValue);
     expect(fractionalBits).toHaveValue(fractionalValue);
-    const errorDescription = /Bit counts must|Total bit count must/u;
+    const errorDescription = /Bit counts must|Total bit count (?:must|is)/u;
     for (const [field, invalid] of [
       [integerBits, integerInvalid],
       [fractionalBits, fractionalInvalid],

@@ -2,6 +2,7 @@ import type { ConversionResults } from '../types/ConversionResults';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 
 interface ResultDisplayProps {
+  inputWasRounded: boolean;
   result: ConversionResults;
 }
 
@@ -13,7 +14,7 @@ const float64Descriptions = {
 };
 
 export function ResultDisplay(
-  { result }: ResultDisplayProps,
+  { inputWasRounded, result }: ResultDisplayProps,
 ): React.JSX.Element {
   return (
     <div
@@ -27,6 +28,14 @@ export function ResultDisplay(
       ].join(' ')}
     >
       <h2 className="text-xl font-bold mb-4">Result</h2>
+
+      {inputWasRounded
+        ? (
+          <p className="text-sm mb-4">
+            The decimal input was rounded to fit the fixed-point format.
+          </p>
+        )
+        : null}
 
       <LabeledResultDisplay
         label="Hexadecimal:"

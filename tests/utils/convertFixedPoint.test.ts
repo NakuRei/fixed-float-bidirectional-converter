@@ -51,6 +51,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: fractionalBits.toString(),
     })).toMatchObject({
       status: 'success',
+      inputWasRounded: false,
       result: {
         binaryString: inputString,
         float64: {
@@ -90,6 +91,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: fractionalBits.toString(),
     })).toMatchObject({
       status: 'success',
+      inputWasRounded: false,
       result: { float64: { value: float64Value } },
     });
   });
@@ -126,6 +128,7 @@ describe('convertFixedPoint', () => {
         fractionalBitsString: fractionalBits.toString(),
       })).toEqual({
         status: 'success',
+        inputWasRounded: false,
         result: {
           binaryString,
           hexString,
@@ -170,6 +173,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: fractionalBits.toString(),
     })).toEqual({
       status: 'success',
+      inputWasRounded: false,
       result: {
         binaryString,
         hexString,
@@ -207,6 +211,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: '0',
     })).toMatchObject({
       status: 'success',
+      inputWasRounded: false,
       result: {
         binaryString: inputString,
         hexString,
@@ -234,6 +239,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: fractionalBits.toString(),
     })).toMatchObject({
       status: 'success',
+      inputWasRounded: false,
       result: { float64: { value: float64Value } },
     });
   });

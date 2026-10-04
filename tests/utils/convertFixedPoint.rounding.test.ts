@@ -27,6 +27,7 @@ function expectFloatConversion(
     });
     expect(outcome).toMatchObject({
       status: 'success',
+      inputWasRounded: false,
       result: { binaryString },
     });
     if (outcome.status === 'success') {

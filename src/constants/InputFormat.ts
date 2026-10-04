@@ -1,5 +1,6 @@
 export const InputFormat = {
   Binary: 2,
+  Decimal: 10,
   Hexadecimal: 16,
 } as const;
 
