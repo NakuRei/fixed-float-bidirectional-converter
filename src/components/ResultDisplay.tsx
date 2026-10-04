@@ -5,6 +5,13 @@ interface ResultDisplayProps {
   result: ConversionResults;
 }
 
+const float64Descriptions = {
+  exact: 'Float64 represents the fixed-point value exactly.',
+  rounded: 'Precision was lost converting the fixed-point value to Float64.',
+  overflow: 'The fixed-point value is outside the Float64 range. '
+    + 'Hexadecimal and binary results remain valid.',
+};
+
 export function ResultDisplay(
   { result }: ResultDisplayProps,
 ): React.JSX.Element {
@@ -27,14 +34,30 @@ export function ResultDisplay(
       />
 
       <LabeledResultDisplay
-        label="Floating:"
-        result={result.floatString}
-      />
-
-      <LabeledResultDisplay
         label="Binary:"
         result={result.binaryString}
       />
+
+      <div
+        aria-describedby="float64Description"
+        aria-label="Float64 conversion"
+        className="w-full mt-4"
+        role="group"
+      >
+        <LabeledResultDisplay
+          label="Float64:"
+          result={result.float64.status === 'overflow'
+            ? 'Out of range'
+            : result.float64.value}
+        />
+
+        <p
+          className="text-sm mt-2"
+          id="float64Description"
+        >
+          {float64Descriptions[result.float64.status]}
+        </p>
+      </div>
     </div>
   );
 }

@@ -41,7 +41,7 @@ describe('convertFixedPoint', () => {
     inputString,
     integerBits,
     fractionalBits,
-    floatString,
+    float64Value,
   ) => {
     expect(convertFixedPoint({
       inputString,
@@ -53,7 +53,10 @@ describe('convertFixedPoint', () => {
       status: 'success',
       result: {
         binaryString: inputString,
-        floatString,
+        float64: {
+          status: 'exact',
+          value: float64Value,
+        },
       },
     });
   });
@@ -77,7 +80,7 @@ describe('convertFixedPoint', () => {
     inputString,
     integerBits,
     fractionalBits,
-    floatString,
+    float64Value,
   ) => {
     expect(convertFixedPoint({
       inputString,
@@ -87,7 +90,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: fractionalBits.toString(),
     })).toMatchObject({
       status: 'success',
-      result: { floatString },
+      result: { float64: { value: float64Value } },
     });
   });
 
@@ -108,7 +111,7 @@ describe('convertFixedPoint', () => {
     integerBits,
     fractionalBits,
     isSigned,
-    floatString,
+    float64Value,
   ) => {
     for (const [inputType, inputString] of [
       [InputFormat.Binary, binaryString],
@@ -126,7 +129,10 @@ describe('convertFixedPoint', () => {
         result: {
           binaryString,
           hexString,
-          floatString,
+          float64: {
+            status: 'exact',
+            value: float64Value,
+          },
         },
       });
     }
@@ -154,7 +160,7 @@ describe('convertFixedPoint', () => {
     isSigned,
     binaryString,
     hexString,
-    floatString,
+    float64Value,
   ) => {
     expect(convertFixedPoint({
       inputString,
@@ -167,7 +173,10 @@ describe('convertFixedPoint', () => {
       result: {
         binaryString,
         hexString,
-        floatString,
+        float64: {
+          status: 'exact',
+          value: float64Value,
+        },
       },
     });
   });
@@ -215,7 +224,7 @@ describe('convertFixedPoint', () => {
     integerBits,
     fractionalBits,
     isSigned,
-    floatString,
+    float64Value,
   ) => {
     expect(convertFixedPoint({
       inputString,
@@ -225,7 +234,7 @@ describe('convertFixedPoint', () => {
       fractionalBitsString: fractionalBits.toString(),
     })).toMatchObject({
       status: 'success',
-      result: { floatString },
+      result: { float64: { value: float64Value } },
     });
   });
 });

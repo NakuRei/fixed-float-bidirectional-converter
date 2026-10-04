@@ -8,6 +8,7 @@ function expectFloatConversion(
   fractionalBits: number,
   isSigned: boolean,
   expectedValue: number,
+  expectedStatus: 'exact' | 'rounded' | 'overflow',
 ): void {
   const unsignedInteger = integer < 0n
     ? integer + (2n ** BigInt(totalBits))
@@ -24,22 +25,17 @@ function expectFloatConversion(
       integerBitsString: (totalBits - fractionalBits).toString(),
       fractionalBitsString: fractionalBits.toString(),
     });
-    if (Number.isFinite(expectedValue)) {
-      expect(outcome).toMatchObject({
-        status: 'success',
-        result: {
-          binaryString,
-          floatString: expectedValue.toString(),
-        },
-      });
-    } else {
-      expect(outcome).toMatchObject({
-        status: 'invalid',
-        invalidFields: ['inputString'],
-      });
-      if (outcome.status === 'invalid') {
-        expect(outcome.message).toMatch(/floating-point range/iu);
-      }
+    expect(outcome).toMatchObject({
+      status: 'success',
+      result: { binaryString },
+    });
+    if (outcome.status === 'success') {
+      expect(outcome.result.float64).toEqual(expectedStatus === 'overflow'
+        ? { status: 'overflow' }
+        : {
+          status: expectedStatus,
+          value: expectedValue.toString(),
+        });
     }
   }
 }
@@ -48,6 +44,7 @@ describe('convertFixedPoint binary64 rounding', () => {
   it.each([
     {
       name: 'zero with 1025 integer bits',
+      expectedStatus: 'exact',
       integer: 0n,
       totalBits: 1025,
       fractionalBits: 0,
@@ -55,6 +52,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'one with 1025 integer bits',
+      expectedStatus: 'exact',
       integer: 1n,
       totalBits: 1025,
       fractionalBits: 0,
@@ -62,6 +60,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'one with a wide integer and fraction',
+      expectedStatus: 'exact',
       integer: 1n << 1500n,
       totalBits: 1502,
       fractionalBits: 1500,
@@ -69,6 +68,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'an integer above a rounding midpoint',
+      expectedStatus: 'rounded',
       integer: (1n << 54n) + 3n,
       totalBits: 56,
       fractionalBits: 0,
@@ -76,6 +76,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a fraction below a rounding midpoint',
+      expectedStatus: 'rounded',
       integer: (1n << 55n) + 3n,
       totalBits: 57,
       fractionalBits: 55,
@@ -83,6 +84,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a midpoint with the lower even significand',
+      expectedStatus: 'rounded',
       integer: (1n << 53n) + 1n,
       totalBits: 55,
       fractionalBits: 53,
@@ -90,6 +92,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a fraction above a rounding midpoint',
+      expectedStatus: 'rounded',
       integer: (1n << 54n) + 3n,
       totalBits: 56,
       fractionalBits: 54,
@@ -97,6 +100,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a midpoint with the upper even significand',
+      expectedStatus: 'rounded',
       integer: (1n << 53n) + 3n,
       totalBits: 55,
       fractionalBits: 53,
@@ -104,6 +108,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'rounding into the next exponent',
+      expectedStatus: 'rounded',
       integer: (1n << 54n) - 1n,
       totalBits: 55,
       fractionalBits: 53,
@@ -111,6 +116,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the largest finite value',
+      expectedStatus: 'exact',
       integer: ((1n << 53n) - 1n) << 971n,
       totalBits: 1025,
       fractionalBits: 0,
@@ -118,6 +124,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the integer just below the overflow midpoint',
+      expectedStatus: 'rounded',
       integer: (1n << 1024n) - (1n << 970n) - 1n,
       totalBits: 1025,
       fractionalBits: 0,
@@ -125,6 +132,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the smallest normal value',
+      expectedStatus: 'exact',
       integer: 1n,
       totalBits: 1023,
       fractionalBits: 1022,
@@ -132,6 +140,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the largest subnormal value',
+      expectedStatus: 'exact',
       integer: (1n << 52n) - 1n,
       totalBits: 1075,
       fractionalBits: 1074,
@@ -139,6 +148,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the smallest subnormal value',
+      expectedStatus: 'exact',
       integer: 1n,
       totalBits: 1075,
       fractionalBits: 1074,
@@ -146,6 +156,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a subnormal midpoint rounding upwards to even',
+      expectedStatus: 'rounded',
       integer: 3n,
       totalBits: 1076,
       fractionalBits: 1075,
@@ -153,6 +164,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a subnormal midpoint rounding downwards to even',
+      expectedStatus: 'rounded',
       integer: 5n,
       totalBits: 1076,
       fractionalBits: 1075,
@@ -160,6 +172,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the midpoint between zero and the smallest subnormal',
+      expectedStatus: 'rounded',
       integer: 1n,
       totalBits: 1076,
       fractionalBits: 1075,
@@ -167,6 +180,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'rounding a subnormal into the normal range',
+      expectedStatus: 'rounded',
       integer: (1n << 53n) - 1n,
       totalBits: 1076,
       fractionalBits: 1075,
@@ -174,6 +188,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a value far below the smallest subnormal',
+      expectedStatus: 'rounded',
       integer: 1n,
       totalBits: 1501,
       fractionalBits: 1500,
@@ -181,6 +196,7 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'the overflow midpoint',
+      expectedStatus: 'overflow',
       integer: (1n << 1024n) - (1n << 970n),
       totalBits: 1025,
       fractionalBits: 0,
@@ -188,27 +204,40 @@ describe('convertFixedPoint binary64 rounding', () => {
     },
     {
       name: 'a value above the overflow midpoint',
+      expectedStatus: 'overflow',
       integer: 1n << 1024n,
       totalBits: 1026,
       fractionalBits: 0,
       expectedValue: Infinity,
     },
-  ])('$name in both formats and sign modes', ({
-    integer, totalBits, fractionalBits, expectedValue,
+  ] as const)('$name in both formats and sign modes', ({
+    integer, totalBits, fractionalBits, expectedValue, expectedStatus,
   }) => {
     for (const isSigned of [false, true]) {
       expectFloatConversion(
-        integer, totalBits, fractionalBits, isSigned, expectedValue,
+        integer,
+        totalBits,
+        fractionalBits,
+        isSigned,
+        expectedValue,
+        expectedStatus,
       );
     }
     if (integer !== 0n) {
       expectFloatConversion(
-        -integer, totalBits, fractionalBits, true, -expectedValue,
+        -integer,
+        totalBits,
+        fractionalBits,
+        true,
+        -expectedValue,
+        expectedStatus,
       );
     }
   });
 
-  it('rejects unsigned overflow with 1024 integer bits', () => {
-    expectFloatConversion((1n << 1024n) - 1n, 1024, 0, false, Infinity);
+  it('preserves unsigned bits when Float64 overflows', () => {
+    expectFloatConversion(
+      (1n << 1024n) - 1n, 1024, 0, false, Infinity, 'overflow',
+    );
   });
 });

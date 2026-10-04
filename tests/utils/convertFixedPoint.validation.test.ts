@@ -187,7 +187,10 @@ describe('convertFixedPoint input validation', () => {
       result: {
         binaryString: '01001101',
         hexString: '4D',
-        floatString: '4.8125',
+        float64: {
+          status: 'exact',
+          value: '4.8125',
+        },
       },
     });
   });
@@ -199,7 +202,10 @@ describe('convertFixedPoint input validation', () => {
       result: {
         binaryString: '01001101',
         hexString: '4D',
-        floatString: '4.8125',
+        float64: {
+          status: 'exact',
+          value: '4.8125',
+        },
       },
     };
     expect(convertFixedPoint(input)).toEqual(expected);

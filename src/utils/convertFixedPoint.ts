@@ -1,9 +1,6 @@
 import { InputFormat, type InputFormatType } from '../constants/InputFormat';
 import type { ConversionResults } from '../types/ConversionResults';
-
-const FLOAT64_SIGNIFICAND_BITS = 53;
-const FLOAT64_MAX_NORMAL_EXPONENT = 1023;
-const FLOAT64_MIN_SUBNORMAL_EXPONENT = -1074;
+import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
 
 export interface ConversionInput {
   inputString: string;
@@ -88,82 +85,17 @@ function toHexString(binaryString: string, isSigned: boolean): string {
   return hexString.toUpperCase();
 }
 
-function roundBinarySignificand(
-  magnitude: bigint,
-  discardedBits: number,
-): bigint {
-  const shift = BigInt(discardedBits);
-  const significand = magnitude >> shift;
-  const remainder = magnitude - (significand << shift);
-  const halfway = 1n << (shift - 1n);
-  const roundUp = remainder > halfway
-    || (remainder === halfway && significand % 2n === 1n);
-  return roundUp
-    ? significand + 1n
-    : significand;
-}
-
-function decodeFixedPointNumber(
-  binaryString: string,
-  fractionalBits: number,
-  isSigned: boolean,
-): number {
-  const unsignedInteger = BigInt(`0b${binaryString}`);
-  const integer = isSigned && binaryString.startsWith('1')
-    ? unsignedInteger - (1n << BigInt(binaryString.length))
-    : unsignedInteger;
-  const isNegative = integer < 0n;
-  const magnitude = isNegative
-    ? -integer
-    : integer;
-  if (magnitude === 0n) {
-    return 0;
-  }
-  const sign = isNegative
-    ? -1
-    : 1;
-  const leadingExponent = magnitude.toString(2).length - fractionalBits - 1;
-  if (leadingExponent > FLOAT64_MAX_NORMAL_EXPONENT) {
-    return sign * Infinity;
-  }
-  if (leadingExponent < FLOAT64_MIN_SUBNORMAL_EXPONENT - 1) {
-    return sign * 0;
-  }
-  const roundingExponent = Math.max(
-    leadingExponent - (FLOAT64_SIGNIFICAND_BITS - 1),
-    FLOAT64_MIN_SUBNORMAL_EXPONENT,
-  );
-  const discardedBits = fractionalBits + roundingExponent;
-  const significand = discardedBits > 0
-    ? roundBinarySignificand(magnitude, discardedBits)
-    : magnitude;
-  const scaleExponent = Math.max(-fractionalBits, roundingExponent);
-  return sign * Number(significand) * (2 ** scaleExponent);
-}
-
 function convertBinaryFixedPoint(
   binaryString: string,
   fractionalBits: number,
   isSigned: boolean,
 ): ConversionOutcome {
-  const floatValue = decodeFixedPointNumber(
-    binaryString,
-    fractionalBits,
-    isSigned,
-  );
-  if (!Number.isFinite(floatValue)) {
-    return {
-      status: 'invalid',
-      message: 'Value is outside the supported floating-point range.',
-      invalidFields: ['inputString'],
-    };
-  }
   return {
     status: 'success',
     result: {
       binaryString,
       hexString: toHexString(binaryString, isSigned),
-      floatString: floatValue.toString(),
+      float64: decodeFixedPointFloat64(binaryString, fractionalBits, isSigned),
     },
   };
 }
