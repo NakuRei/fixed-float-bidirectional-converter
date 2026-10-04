@@ -3,21 +3,58 @@ import { ErrorDisplay } from './ErrorDisplay';
 import { ResultDisplay } from './ResultDisplay';
 
 interface ConversionOutputProps {
+  isDecimalInput: boolean;
   outcome: ConversionOutcome;
 }
 
 const float64DescriptionId = 'float64Description';
 
 const float64Descriptions = {
-  exact: 'Float64 represents the fixed-point value exactly.',
   rounded: 'Precision was lost converting the fixed-point value to Float64.',
   overflow: 'The fixed-point value is outside the Float64 range. '
     + 'Hexadecimal and binary results remain valid.',
 };
 
+function PrecisionNotices(
+  { outcome }: Pick<ConversionOutputProps, 'outcome'>,
+): React.JSX.Element | null {
+  if (outcome.status !== 'success'
+    || (!outcome.inputWasRounded
+      && outcome.result.float64.status === 'exact')) {
+    return null;
+  }
+  return (
+    <div
+      className={outcome.result.float64.status === 'overflow'
+        ? 'text-sm mb-4'
+        : 'sr-only'}
+    >
+      {outcome.inputWasRounded
+        ? (
+          <p className="sr-only">
+            The decimal input was rounded to fit the fixed-point format.
+          </p>
+        )
+        : null}
+
+      {outcome.result.float64.status !== 'exact'
+        ? (
+          <p id={float64DescriptionId}>
+            {float64Descriptions[outcome.result.float64.status]}
+          </p>
+        )
+        : null}
+    </div>
+  );
+}
+
 export function ConversionOutput(
-  { outcome }: ConversionOutputProps,
+  { isDecimalInput, outcome }: ConversionOutputProps,
 ): React.JSX.Element {
+  const fixedPointPrecision = outcome.status === 'success'
+    && outcome.inputWasRounded
+    ? 'Rounded'
+    : 'Exact';
   return (
     <div
       className={outcome.status === 'empty'
@@ -46,29 +83,18 @@ export function ConversionOutput(
           )
           : null}
 
-        {outcome.status === 'success'
-          ? (
-            <div className="text-sm mb-4">
-              {outcome.inputWasRounded
-                ? (
-                  <p className="mb-2">
-                    The decimal input was rounded to fit the fixed-point format.
-                  </p>
-                )
-                : null}
-
-              <p id={float64DescriptionId}>
-                {float64Descriptions[outcome.result.float64.status]}
-              </p>
-            </div>
-          )
-          : null}
+        <PrecisionNotices outcome={outcome} />
       </div>
 
       {outcome.status === 'success'
         ? (
           <ResultDisplay
-            float64DescriptionId={float64DescriptionId}
+            fixedPointPrecision={isDecimalInput
+              ? fixedPointPrecision
+              : undefined}
+            float64DescriptionId={outcome.result.float64.status === 'exact'
+              ? undefined
+              : float64DescriptionId}
             result={outcome.result}
           />
         )

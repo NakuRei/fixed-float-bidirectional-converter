@@ -18,6 +18,30 @@ function renderDecimalInput(integerBits: string, fractionalBits: string): void {
 }
 
 describe('Conversion precision in the UI', () => {
+  it.each([
+    ['0.125', '02', '00000010', '0.125', 'Exact'],
+    ['0.1', '02', '00000010', '0.125', 'Rounded'],
+    ['-0.1', 'FE', '11111110', '-0.125', 'Rounded'],
+    ['0.01', '00', '00000000', '0', 'Rounded'],
+    ['0', '00', '00000000', '0', 'Exact'],
+  ])('labels the conversion results for decimal input %s', (
+    input, hex, binary, float, precision,
+  ) => {
+    renderDecimalInput('4', '4');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {
+      target: { value: input },
+    });
+    for (const [label, value, expectedPrecision] of [
+      ['Hexadecimal:', hex, precision],
+      ['Binary:', binary, precision],
+      ['Float64:', float, 'Exact'],
+    ]) {
+      const row = screen.getByText(label).parentElement;
+      expect(row).toHaveTextContent(`${label}${value}${expectedPrecision}`);
+    }
+    expect(screen.queryByText('Rounded to zero')).not.toBeInTheDocument();
+  });
+
   it('reports input rounding when Float64 displays the same decimal', () => {
     renderDecimalInput('1', '55');
     const status = screen.getByRole('status');
@@ -34,14 +58,12 @@ describe('Conversion precision in the UI', () => {
     expect(status).toHaveTextContent(
       'The decimal input was rounded to fit the fixed-point format.',
     );
-    expect(status).toHaveTextContent(
+    expect(status).not.toHaveTextContent(
       'Float64 represents the fixed-point value exactly.',
     );
     const float64 = screen.getByRole('group', { name: 'Float64 conversion' });
     expect(within(float64).getByText('0.1')).toBeInTheDocument();
-    expect(float64).toHaveAccessibleDescription(
-      'Float64 represents the fixed-point value exactly.',
-    );
+    expect(float64).not.toHaveAccessibleDescription();
 
     fireEvent.change(rounding, { target: { value: RoundingMode.Exact } });
     expect(input).toBeInvalid();
@@ -62,9 +84,7 @@ describe('Conversion precision in the UI', () => {
     expect(status).toHaveTextContent(/decimal input was rounded/u);
     fireEvent.change(input, { target: { value: '0.125' } });
     expect(screen.getByRole('status')).toBe(status);
-    expect(status).toHaveTextContent(
-      /^Float64 represents the fixed-point value exactly\.$/u,
-    );
+    expect(status).toBeEmptyDOMElement();
   });
 
   it('clears the input rounding notice for empty and invalid input', () => {
@@ -110,13 +130,11 @@ describe('Conversion precision in the UI', () => {
       { target: { value: pattern } },
     );
     expect(screen.getByRole('status')).toBe(status);
-    expect(status).toHaveTextContent(
-      /^Float64 represents the fixed-point value exactly\.$/u,
-    );
+    expect(status).toBeEmptyDOMElement();
     expect(screen.getByRole('group', { name: 'Float64 conversion' }))
-      .toHaveAccessibleDescription(
-        'Float64 represents the fixed-point value exactly.',
-      );
+      .not.toHaveAccessibleDescription();
+    expect(screen.getAllByText('Exact')).toHaveLength(1);
+    expect(screen.queryByText('Rounded')).not.toBeInTheDocument();
     expect(status).not.toHaveTextContent(pattern);
   });
 
@@ -134,6 +152,8 @@ describe('Conversion precision in the UI', () => {
     expect(screen.getByText('0020000000000001')).toBeInTheDocument();
     const float64 = screen.getByRole('group', { name: 'Float64 conversion' });
     expect(within(float64).getByText('9007199254740992')).toBeInTheDocument();
+    expect(within(float64).getByText('Rounded')).toBeVisible();
+    expect(screen.getAllByText('Exact')).toHaveLength(2);
     expect(float64).toHaveAccessibleDescription(
       'Precision was lost converting the fixed-point value to Float64.',
     );
@@ -158,6 +178,8 @@ describe('Conversion precision in the UI', () => {
       .toBeInTheDocument();
     const float64 = screen.getByRole('group', { name: 'Float64 conversion' });
     expect(within(float64).getByText('Out of range')).toBeInTheDocument();
+    expect(within(float64).queryByText(/^(?:Exact|Rounded)$/u))
+      .not.toBeInTheDocument();
     expect(float64).toHaveAccessibleDescription(
       /Hexadecimal and binary results remain valid/u,
     );
@@ -184,7 +206,7 @@ describe('Conversion precision in the UI', () => {
     );
     expect(screen.getByRole('status')).toBe(status);
     expect(status).toHaveTextContent(/decimal input was rounded/u);
-    expect(status).toHaveTextContent(
+    expect(status).not.toHaveTextContent(
       'Float64 represents the fixed-point value exactly.',
     );
     expect(status).not.toHaveTextContent(/Precision was lost/u);

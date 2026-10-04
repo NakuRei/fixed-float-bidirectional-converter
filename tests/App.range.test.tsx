@@ -58,8 +58,6 @@ describe('Wide fixed-point values in the converter', () => {
     expect(screen.getByText('-1')).toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toBe(status);
-    expect(status).toHaveTextContent(
-      /^Float64 represents the fixed-point value exactly\.$/u,
-    );
+    expect(status).toBeEmptyDOMElement();
   });
 });
