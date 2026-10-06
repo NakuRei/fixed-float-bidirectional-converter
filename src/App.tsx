@@ -21,7 +21,7 @@ const inputInstructions = {
     label: 'Fixed-Point Bit Pattern:',
     placeholder: 'Enter Fixed-Point Number',
     inputMode: 'numeric',
-    hint: 'Use 0 or 1, without a prefix or separators.',
+    hint: 'Use 0 or 1, optionally prefixed with 0b. No separators.',
   },
   [InputFormat.Decimal]: {
     label: 'Decimal Value:',
@@ -33,7 +33,8 @@ const inputInstructions = {
     label: 'Fixed-Point Bit Pattern:',
     placeholder: 'Enter Fixed-Point Number',
     inputMode: 'text',
-    hint: 'Use 0–9, A–F or a–f, without 0x or separators.',
+    hint: 'Use 0–9, A–F or a–f, optionally prefixed with 0x. '
+      + 'No separators.',
   },
 } as const;
 

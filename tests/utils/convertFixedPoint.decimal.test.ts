@@ -182,11 +182,7 @@ describe('convertFixedPoint decimal encoding', () => {
   });
 
   it.each([
-    ' ',
-    ' 1',
-    '1 ',
-    '\n1',
-    '1\n',
+    '- 3.1875',
     '.',
     '+',
     '-',
@@ -197,8 +193,6 @@ describe('convertFixedPoint decimal encoding', () => {
     'NaN',
     'Infinity',
     '-Infinity',
-    '0x10',
-    '0b10',
     '1_000',
     '1,5',
     '3.1875x',

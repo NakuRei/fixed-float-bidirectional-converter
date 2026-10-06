@@ -16,11 +16,29 @@ describe('Original and converted output values', () => {
       ],
     },
     {
+      format: InputFormat.Hexadecimal,
+      input: '0x14',
+      rows: [
+        ['Hex', '0x14', 'original'],
+        ['Binary', '00010100', 'Exact'],
+        ['Decimal', '1.25', 'Exact'],
+      ],
+    },
+    {
       format: InputFormat.Binary,
       input: '00010100',
       rows: [
         ['Hex', '14', 'Exact'],
         ['Binary', '00010100', 'original'],
+        ['Decimal', '1.25', 'Exact'],
+      ],
+    },
+    {
+      format: InputFormat.Binary,
+      input: '0b00010100',
+      rows: [
+        ['Hex', '14', 'Exact'],
+        ['Binary', '0b00010100', 'original'],
         ['Decimal', '1.25', 'Exact'],
       ],
     },

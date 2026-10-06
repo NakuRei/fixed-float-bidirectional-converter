@@ -127,7 +127,7 @@ describe('Decimal input in the converter', () => {
       target: { value: InputFormat.Binary.toString() },
     });
     expect(input).toBeInvalid();
-    expect(input).toHaveAccessibleDescription(/length should be 8/u);
+    expect(input).toHaveAccessibleDescription(/digit count should be 8/u);
 
     fireEvent.change(format, {
       target: { value: InputFormat.Decimal.toString() },
