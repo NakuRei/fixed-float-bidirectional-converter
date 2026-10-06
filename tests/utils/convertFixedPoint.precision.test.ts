@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { InputFormat } from '../../src/constants/InputFormat';
 import { RoundingMode } from '../../src/constants/RoundingMode';
-import type { ConversionResults } from '../../src/types/ConversionResults';
+import type { Float64Result } from '../../src/types/ConversionResults';
 import {
   convertFixedPoint,
   type ConversionInput,
@@ -16,19 +16,33 @@ const decimalInput: ConversionInput = {
   roundingMode: RoundingMode.NearestEven,
 };
 
-function expectEquivalentFormats(
+function expectEncodingAndDecoding(
   input: ConversionInput,
-  result: ConversionResults,
-  inputWasRounded: boolean,
+  expected: { binary: string;
+    hex: string;
+    decimal: Float64Result; },
+  fixedPointStatus: 'exact' | 'rounded',
 ): void {
   expect(convertFixedPoint(input)).toEqual({
     status: 'success',
-    inputWasRounded,
-    result,
+    result: {
+      hex: {
+        status: fixedPointStatus,
+        value: expected.hex,
+      },
+      binary: {
+        status: fixedPointStatus,
+        value: expected.binary,
+      },
+      decimal: {
+        status: 'original',
+        value: input.inputString,
+      },
+    },
   });
   for (const [inputType, inputString] of [
-    [InputFormat.Binary, result.binaryString],
-    [InputFormat.Hexadecimal, result.hexString],
+    [InputFormat.Binary, expected.binary],
+    [InputFormat.Hexadecimal, expected.hex],
   ] as const) {
     expect(convertFixedPoint({
       inputType,
@@ -38,8 +52,17 @@ function expectEquivalentFormats(
       fractionalBitsString: input.fractionalBitsString,
     })).toEqual({
       status: 'success',
-      inputWasRounded: false,
-      result,
+      result: {
+        hex: {
+          status: inputType === InputFormat.Hexadecimal ? 'original' : 'exact',
+          value: expected.hex,
+        },
+        binary: {
+          status: inputType === InputFormat.Binary ? 'original' : 'exact',
+          value: expected.binary,
+        },
+        decimal: expected.decimal,
+      },
     });
   }
 }
@@ -50,8 +73,8 @@ describe('Fixed-point and Float64 precision', () => {
       fractionalBits: 55,
       roundingMode: RoundingMode.NearestEven,
       integer: 3602879701896397n,
-      hexString: '0CCCCCCCCCCCCD',
-      float64: {
+      hex: '0CCCCCCCCCCCCD',
+      decimal: {
         status: 'exact',
         value: '0.1',
       },
@@ -60,8 +83,8 @@ describe('Fixed-point and Float64 precision', () => {
       fractionalBits: 55,
       roundingMode: RoundingMode.TowardZero,
       integer: 3602879701896396n,
-      hexString: '0CCCCCCCCCCCCC',
-      float64: {
+      hex: '0CCCCCCCCCCCCC',
+      decimal: {
         status: 'exact',
         value: '0.09999999999999998',
       },
@@ -70,8 +93,8 @@ describe('Fixed-point and Float64 precision', () => {
       fractionalBits: 60,
       roundingMode: RoundingMode.NearestEven,
       integer: 115292150460684698n,
-      hexString: '019999999999999A',
-      float64: {
+      hex: '019999999999999A',
+      decimal: {
         status: 'rounded',
         value: '0.1',
       },
@@ -79,16 +102,16 @@ describe('Fixed-point and Float64 precision', () => {
   ] as const)(
     'distinguishes quantization from Float64 with $fractionalBits bits, '
     + '$roundingMode',
-    ({ fractionalBits, roundingMode, integer, hexString, float64 }) => {
-      expectEquivalentFormats({
+    ({ fractionalBits, roundingMode, integer, hex, decimal }) => {
+      expectEncodingAndDecoding({
         ...decimalInput,
         fractionalBitsString: fractionalBits.toString(),
         roundingMode,
       }, {
-        binaryString: integer.toString(2).padStart(fractionalBits + 1, '0'),
-        hexString,
-        float64,
-      }, true);
+        binary: integer.toString(2).padStart(fractionalBits + 1, '0'),
+        hex,
+        decimal,
+      }, 'rounded');
     },
   );
 
@@ -103,20 +126,20 @@ describe('Fixed-point and Float64 precision', () => {
   });
 
   it('allows Float64 precision loss in Exact only mode', () => {
-    expectEquivalentFormats({
+    expectEncodingAndDecoding({
       ...decimalInput,
       inputString: '9007199254740993',
       integerBitsString: '64',
       fractionalBitsString: '0',
       roundingMode: RoundingMode.Exact,
     }, {
-      hexString: '0020000000000001',
-      binaryString: `00000000001${'0'.repeat(52)}1`,
-      float64: {
+      hex: '0020000000000001',
+      binary: `00000000001${'0'.repeat(52)}1`,
+      decimal: {
         status: 'rounded',
         value: '9007199254740992',
       },
-    }, false);
+    }, 'exact');
   });
 
   it.each([
@@ -125,18 +148,18 @@ describe('Fixed-point and Float64 precision', () => {
   ] as const)('preserves %s when Float64 overflows', (
     inputString, unsignedInteger,
   ) => {
-    expectEquivalentFormats({
+    expectEncodingAndDecoding({
       ...decimalInput,
       inputString,
       integerBitsString: '1028',
       fractionalBitsString: '0',
       roundingMode: RoundingMode.Exact,
     }, {
-      hexString: unsignedInteger.toString(16).padStart(257, '0')
+      hex: unsignedInteger.toString(16).padStart(257, '0')
         .toUpperCase(),
-      binaryString: unsignedInteger.toString(2).padStart(1028, '0'),
-      float64: { status: 'overflow' },
-    }, false);
+      binary: unsignedInteger.toString(2).padStart(1028, '0'),
+      decimal: { status: 'overflow' },
+    }, 'exact');
   });
 
   it.each([
@@ -145,18 +168,18 @@ describe('Fixed-point and Float64 precision', () => {
   ])('preserves exact %s2^-1100 when Float64 underflows', (
     sign, binaryString, hexString,
   ) => {
-    expectEquivalentFormats({
+    expectEncodingAndDecoding({
       ...decimalInput,
       inputString: `${sign}${(5n ** 1100n).toString()}e-1100`,
       fractionalBitsString: '1100',
       roundingMode: RoundingMode.Exact,
     }, {
-      hexString,
-      binaryString,
-      float64: {
+      hex: hexString,
+      binary: binaryString,
+      decimal: {
         status: 'rounded',
         value: '0',
       },
-    }, false);
+    }, 'exact');
   });
 });

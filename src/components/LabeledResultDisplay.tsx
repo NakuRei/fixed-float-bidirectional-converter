@@ -1,6 +1,6 @@
 interface LabeledResultDisplayProps {
   label: string;
-  precision: 'Exact' | 'Rounded' | undefined;
+  precision: 'original' | 'Exact' | 'rounded' | undefined;
   result: string;
 }
 

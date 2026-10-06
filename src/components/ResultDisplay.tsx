@@ -2,48 +2,57 @@ import type { ConversionResults } from '../types/ConversionResults';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 
 interface ResultDisplayProps {
-  fixedPointPrecision: 'Exact' | 'Rounded' | undefined;
-  float64DescriptionId: string | undefined;
+  decimalDescriptionId: string | undefined;
   result: ConversionResults;
 }
 
-const float64Precision = {
+const precisionLabels = {
+  original: 'original',
   exact: 'Exact',
-  rounded: 'Rounded',
+  rounded: 'rounded',
   overflow: undefined,
 } as const;
 
-export function ResultDisplay(
-  { fixedPointPrecision, float64DescriptionId, result }: ResultDisplayProps,
-): React.JSX.Element {
+export function ResultDisplay({
+  decimalDescriptionId,
+  result,
+}: ResultDisplayProps): React.JSX.Element {
+  const rows = [
+    {
+      label: 'Hex',
+      result: result.hex,
+      descriptionId: undefined,
+    },
+    {
+      label: 'Binary',
+      result: result.binary,
+      descriptionId: undefined,
+    },
+    {
+      label: 'Decimal',
+      result: result.decimal,
+      descriptionId: decimalDescriptionId,
+    },
+  ];
   return (
-    <>
-      <LabeledResultDisplay
-        label="Hexadecimal:"
-        precision={fixedPointPrecision}
-        result={result.hexString}
-      />
-
-      <LabeledResultDisplay
-        label="Binary:"
-        precision={fixedPointPrecision}
-        result={result.binaryString}
-      />
-
-      <div
-        aria-describedby={float64DescriptionId}
-        aria-label="Float64 conversion"
-        className="w-full mt-4"
-        role="group"
-      >
-        <LabeledResultDisplay
-          label="Float64:"
-          precision={float64Precision[result.float64.status]}
-          result={result.float64.status === 'overflow'
-            ? 'Out of range'
-            : result.float64.value}
-        />
-      </div>
-    </>
+    <div className="w-full grid gap-y-2">
+      {rows.map((row) => (
+        <div
+          aria-describedby={row.descriptionId}
+          aria-label={`${row.label} conversion`}
+          className="w-full"
+          key={row.label}
+          role="group"
+        >
+          <LabeledResultDisplay
+            label={`${row.label}:`}
+            precision={precisionLabels[row.result.status]}
+            result={row.result.status === 'overflow'
+              ? 'Out of range'
+              : row.result.value}
+          />
+        </div>
+      ))}
+    </div>
   );
 }

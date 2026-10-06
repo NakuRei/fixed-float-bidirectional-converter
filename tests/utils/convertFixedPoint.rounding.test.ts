@@ -27,11 +27,15 @@ function expectFloatConversion(
     });
     expect(outcome).toMatchObject({
       status: 'success',
-      inputWasRounded: false,
-      result: { binaryString },
+      result: {
+        binary: {
+          status: inputType === InputFormat.Binary ? 'original' : 'exact',
+          value: binaryString,
+        },
+      },
     });
     if (outcome.status === 'success') {
-      expect(outcome.result.float64).toEqual(expectedStatus === 'overflow'
+      expect(outcome.result.decimal).toEqual(expectedStatus === 'overflow'
         ? { status: 'overflow' }
         : {
           status: expectedStatus,
