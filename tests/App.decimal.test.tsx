@@ -18,14 +18,16 @@ describe('Decimal input in the converter', () => {
     });
     expect(rounding).toHaveValue(RoundingMode.NearestEven);
     fireEvent.change(input, { target: { value: '0.1' } });
-    expect(screen.getByText('0.125')).toBeInTheDocument();
+    expect(screen.getByText('0.1')).toBeInTheDocument();
+    expect(screen.queryByText('0.125')).not.toBeInTheDocument();
     expect(screen.getByText('02')).toBeInTheDocument();
 
     fireEvent.change(rounding, {
       target: { value: RoundingMode.TowardZero },
     });
     expect(input).toHaveValue('0.1');
-    expect(screen.getByText('0.0625')).toBeInTheDocument();
+    expect(screen.getByText('0.1')).toBeInTheDocument();
+    expect(screen.queryByText('0.0625')).not.toBeInTheDocument();
     expect(screen.getByText('01')).toBeInTheDocument();
 
     fireEvent.change(rounding, { target: { value: RoundingMode.Exact } });

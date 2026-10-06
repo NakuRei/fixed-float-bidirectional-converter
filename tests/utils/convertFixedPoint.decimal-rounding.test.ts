@@ -17,22 +17,23 @@ const decimalInput: ConversionInput = {
 
 describe('Decimal quantization', () => {
   it.each([
-    ['0.1', '02', '0.125'],
-    ['-0.1', 'FE', '-0.125'],
-    ['0.03125', '00', '0'],
-    ['-0.03125', '00', '0'],
-    ['0.09375', '02', '0.125'],
-    ['-0.09375', 'FE', '-0.125'],
-    ['0.15625', '02', '0.125'],
-    ['-0.15625', 'FE', '-0.125'],
-    ['0.21875', '04', '0.25'],
-    ['-0.21875', 'FC', '-0.25'],
-    ['0.0312500000000000000000000001', '01', '0.0625'],
-    ['-0.0312500000000000000000000001', 'FF', '-0.0625'],
-    ['0.0312499999999999999999999999', '00', '0'],
-    ['-0.0312499999999999999999999999', '00', '0'],
+    ['1.28', '14'],
+    ['0.1', '02'],
+    ['-0.1', 'FE'],
+    ['0.03125', '00'],
+    ['-0.03125', '00'],
+    ['0.09375', '02'],
+    ['-0.09375', 'FE'],
+    ['0.15625', '02'],
+    ['-0.15625', 'FE'],
+    ['0.21875', '04'],
+    ['-0.21875', 'FC'],
+    ['0.0312500000000000000000000001', '01'],
+    ['-0.0312500000000000000000000001', 'FF'],
+    ['0.0312499999999999999999999999', '00'],
+    ['-0.0312499999999999999999999999', '00'],
   ])('rounds %s to nearest, breaking ties to even', (
-    inputString, hexString, float64Value,
+    inputString, hexString,
   ) => {
     expect(convertFixedPoint({
       ...decimalInput,
@@ -40,37 +41,44 @@ describe('Decimal quantization', () => {
       roundingMode: RoundingMode.NearestEven,
     })).toMatchObject({
       status: 'success',
-      inputWasRounded: true,
       result: {
-        hexString,
-        float64: {
-          status: 'exact',
-          value: float64Value,
+        binary: { status: 'rounded' },
+        hex: {
+          status: 'rounded',
+          value: hexString,
+        },
+        decimal: {
+          status: 'original',
+          value: inputString,
         },
       },
     });
   });
 
   it.each([
-    ['0.1', '01', '0.0625'],
-    ['-0.1', 'FF', '-0.0625'],
-    ['0.03125', '00', '0'],
-    ['-0.03125', '00', '0'],
-    ['0.09375', '01', '0.0625'],
-    ['-0.09375', 'FF', '-0.0625'],
-  ])('truncates %s toward zero', (inputString, hexString, float64Value) => {
+    ['1.28', '14'],
+    ['0.1', '01'],
+    ['-0.1', 'FF'],
+    ['0.03125', '00'],
+    ['-0.03125', '00'],
+    ['0.09375', '01'],
+    ['-0.09375', 'FF'],
+  ])('truncates %s toward zero', (inputString, hexString) => {
     expect(convertFixedPoint({
       ...decimalInput,
       inputString,
       roundingMode: RoundingMode.TowardZero,
     })).toMatchObject({
       status: 'success',
-      inputWasRounded: true,
       result: {
-        hexString,
-        float64: {
-          status: 'exact',
-          value: float64Value,
+        binary: { status: 'rounded' },
+        hex: {
+          status: 'rounded',
+          value: hexString,
+        },
+        decimal: {
+          status: 'original',
+          value: inputString,
         },
       },
     });
@@ -103,13 +111,18 @@ describe('Decimal quantization', () => {
       roundingMode: RoundingMode.Exact,
     })).toEqual({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        hexString: '40000000000001',
-        binaryString: `01${'0'.repeat(53)}1`,
-        float64: {
-          status: 'rounded',
-          value: '1',
+        hex: {
+          status: 'exact',
+          value: '40000000000001',
+        },
+        binary: {
+          status: 'exact',
+          value: `01${'0'.repeat(53)}1`,
+        },
+        decimal: {
+          status: 'original',
+          value: '1.000000000000000055511151231257827021181583404541015625',
         },
       },
     });
@@ -124,12 +137,17 @@ describe('Decimal quantization', () => {
       roundingMode,
     })).toEqual({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        hexString: 'CD',
-        binaryString: '11001101',
-        float64: {
+        hex: {
           status: 'exact',
+          value: 'CD',
+        },
+        binary: {
+          status: 'exact',
+          value: '11001101',
+        },
+        decimal: {
+          status: 'original',
           value: '-3.1875',
         },
       },
@@ -173,13 +191,18 @@ describe('Decimal quantization', () => {
           roundingMode,
         })).toEqual({
           status: 'success',
-          inputWasRounded: true,
           result: {
-            hexString: '00',
-            binaryString: '00000000',
-            float64: {
-              status: 'exact',
-              value: '0',
+            hex: {
+              status: 'rounded',
+              value: '00',
+            },
+            binary: {
+              status: 'rounded',
+              value: '00000000',
+            },
+            decimal: {
+              status: 'original',
+              value: `${sign}1e-999999999999999999999`,
             },
           },
         });
@@ -207,12 +230,14 @@ describe('Decimal quantization', () => {
         inputString,
       })).toMatchObject({
         status: 'success',
-        inputWasRounded: false,
         result: {
-          hexString: '00',
-          float64: {
+          hex: {
             status: 'exact',
-            value: '0',
+            value: '00',
+          },
+          decimal: {
+            status: 'original',
+            value: inputString,
           },
         },
       });
@@ -227,12 +252,17 @@ describe('Decimal quantization', () => {
       fractionalBitsString: '0',
     })).toEqual({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        binaryString: '0'.repeat(16384),
-        hexString: '0'.repeat(4096),
-        float64: {
+        binary: {
           status: 'exact',
+          value: '0'.repeat(16384),
+        },
+        hex: {
+          status: 'exact',
+          value: '0'.repeat(4096),
+        },
+        decimal: {
+          status: 'original',
           value: '0',
         },
       },

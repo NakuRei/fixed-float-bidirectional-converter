@@ -3,33 +3,40 @@ import { ErrorDisplay } from './ErrorDisplay';
 import { ResultDisplay } from './ResultDisplay';
 
 interface ConversionOutputProps {
-  isDecimalInput: boolean;
   outcome: ConversionOutcome;
 }
 
-const float64DescriptionId = 'float64Description';
+const decimalDescriptionId = 'decimalDescription';
 
-const float64Descriptions = {
+const decimalDescriptions = {
   rounded: 'Precision was lost converting the fixed-point value to Float64.',
   overflow: 'The fixed-point value is outside the Float64 range. '
     + 'Hexadecimal and binary results remain valid.',
 };
 
 function PrecisionNotices(
-  { outcome }: Pick<ConversionOutputProps, 'outcome'>,
+  { outcome }: ConversionOutputProps,
 ): React.JSX.Element | null {
-  if (outcome.status !== 'success'
-    || (!outcome.inputWasRounded
-      && outcome.result.float64.status === 'exact')) {
+  if (outcome.status !== 'success') {
+    return null;
+  }
+  const fixedPointWasRounded = outcome.result.hex.status === 'rounded'
+    || outcome.result.binary.status === 'rounded';
+  const decimalStatus = outcome.result.decimal.status;
+  const decimalNotice = decimalStatus === 'rounded'
+    || decimalStatus === 'overflow'
+    ? decimalDescriptions[decimalStatus]
+    : null;
+  if (!fixedPointWasRounded && decimalNotice === null) {
     return null;
   }
   return (
     <div
-      className={outcome.result.float64.status === 'overflow'
+      className={outcome.result.decimal.status === 'overflow'
         ? 'text-sm mb-4'
         : 'sr-only'}
     >
-      {outcome.inputWasRounded
+      {fixedPointWasRounded
         ? (
           <p className="sr-only">
             The decimal input was rounded to fit the fixed-point format.
@@ -37,10 +44,10 @@ function PrecisionNotices(
         )
         : null}
 
-      {outcome.result.float64.status !== 'exact'
+      {decimalNotice !== null
         ? (
-          <p id={float64DescriptionId}>
-            {float64Descriptions[outcome.result.float64.status]}
+          <p id={decimalDescriptionId}>
+            {decimalNotice}
           </p>
         )
         : null}
@@ -49,12 +56,8 @@ function PrecisionNotices(
 }
 
 export function ConversionOutput(
-  { isDecimalInput, outcome }: ConversionOutputProps,
+  { outcome }: ConversionOutputProps,
 ): React.JSX.Element {
-  const fixedPointPrecision = outcome.status === 'success'
-    && outcome.inputWasRounded
-    ? 'Rounded'
-    : 'Exact';
   return (
     <div
       className={outcome.status === 'empty'
@@ -83,18 +86,18 @@ export function ConversionOutput(
           )
           : null}
 
-        <PrecisionNotices outcome={outcome} />
+        <PrecisionNotices
+          outcome={outcome}
+        />
       </div>
 
       {outcome.status === 'success'
         ? (
           <ResultDisplay
-            fixedPointPrecision={isDecimalInput
-              ? fixedPointPrecision
-              : undefined}
-            float64DescriptionId={outcome.result.float64.status === 'exact'
+            decimalDescriptionId={outcome.result.decimal.status === 'original'
+              || outcome.result.decimal.status === 'exact'
               ? undefined
-              : float64DescriptionId}
+              : decimalDescriptionId}
             result={outcome.result}
           />
         )

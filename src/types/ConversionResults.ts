@@ -6,7 +6,12 @@ export type Float64Result = {
 };
 
 export interface ConversionResults {
-  readonly hexString: string;
-  readonly binaryString: string;
-  readonly float64: Float64Result;
+  readonly hex: ConversionValue;
+  readonly binary: ConversionValue;
+  readonly decimal: ConversionValue | { readonly status: 'overflow' };
+}
+
+export interface ConversionValue {
+  readonly status: 'original' | 'exact' | 'rounded';
+  readonly value: string;
 }

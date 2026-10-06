@@ -44,7 +44,7 @@ describe('Wide fixed-point values in the converter', () => {
     expect(screen.getByText(overflowPattern)).toBeInTheDocument();
     expect(screen.getByText(`F${'0'.repeat(256)}`)).toBeInTheDocument();
     expect(screen.getByText('Out of range')).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Float64 conversion' }))
+    expect(screen.getByRole('group', { name: 'Decimal conversion' }))
       .toHaveAccessibleDescription(/outside the Float64 range/u);
     const status = screen.getByRole('status');
     expect(status).toHaveTextContent(/outside the Float64 range/u);

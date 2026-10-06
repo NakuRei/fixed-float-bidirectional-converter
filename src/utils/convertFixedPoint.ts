@@ -34,7 +34,6 @@ export type ConversionOutcome = {
   invalidFields: (keyof ConversionInput)[];
 } | {
   status: 'success';
-  inputWasRounded: boolean;
   result: ConversionResults;
 };
 
@@ -102,18 +101,6 @@ function toHexString(binaryString: string, isSigned: boolean): string {
   return hexString.toUpperCase();
 }
 
-function formatFixedPointResults(
-  binaryString: string,
-  fractionalBits: number,
-  isSigned: boolean,
-): ConversionResults {
-  return {
-    binaryString,
-    hexString: toHexString(binaryString, isSigned),
-    float64: decodeFixedPointFloat64(binaryString, fractionalBits, isSigned),
-  };
-}
-
 function convertFixedPointPattern(
   input: BitPatternInput,
   fractionalBits: number,
@@ -138,10 +125,24 @@ function convertFixedPointPattern(
   );
   return {
     status: 'success',
-    inputWasRounded: false,
-    result: formatFixedPointResults(
-      binaryString, fractionalBits, input.isSigned,
-    ),
+    result: {
+      hex: input.inputType === InputFormat.Hexadecimal
+        ? {
+          status: 'original',
+          value: input.inputString,
+        }
+        : {
+          status: 'exact',
+          value: toHexString(binaryString, input.isSigned),
+        },
+      binary: {
+        status: input.inputType === InputFormat.Binary ? 'original' : 'exact',
+        value: binaryString,
+      },
+      decimal: decodeFixedPointFloat64(
+        binaryString, fractionalBits, input.isSigned,
+      ),
+    },
   };
 }
 
@@ -163,12 +164,23 @@ function convertDecimalFixedPoint(
       invalidFields: ['inputString'],
     };
   }
+  const status = encoding.inputWasRounded ? 'rounded' : 'exact';
   return {
     status: 'success',
-    inputWasRounded: encoding.inputWasRounded,
-    result: formatFixedPointResults(
-      encoding.binaryString, fractionalBits, input.isSigned,
-    ),
+    result: {
+      hex: {
+        status,
+        value: toHexString(encoding.binaryString, input.isSigned),
+      },
+      binary: {
+        status,
+        value: encoding.binaryString,
+      },
+      decimal: {
+        status: 'original',
+        value: input.inputString,
+      },
+    },
   };
 }
 

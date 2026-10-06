@@ -19,22 +19,23 @@ function renderDecimalInput(integerBits: string, fractionalBits: string): void {
 
 describe('Conversion precision in the UI', () => {
   it.each([
-    ['0.125', '02', '00000010', '0.125', 'Exact'],
-    ['0.1', '02', '00000010', '0.125', 'Rounded'],
-    ['-0.1', 'FE', '11111110', '-0.125', 'Rounded'],
-    ['0.01', '00', '00000000', '0', 'Rounded'],
-    ['0', '00', '00000000', '0', 'Exact'],
+    ['0.125', '02', '00000010', 'Exact'],
+    ['0.1', '02', '00000010', 'rounded'],
+    ['-0.1', 'FE', '11111110', 'rounded'],
+    ['0.01', '00', '00000000', 'rounded'],
+    ['0', '00', '00000000', 'Exact'],
+    ['1.28', '14', '00010100', 'rounded'],
   ])('labels the conversion results for decimal input %s', (
-    input, hex, binary, float, precision,
+    input, hex, binary, precision,
   ) => {
     renderDecimalInput('4', '4');
     fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {
       target: { value: input },
     });
     for (const [label, value, expectedPrecision] of [
-      ['Hexadecimal:', hex, precision],
+      ['Hex:', hex, precision],
       ['Binary:', binary, precision],
-      ['Float64:', float, 'Exact'],
+      ['Decimal:', input, 'original'],
     ]) {
       const row = screen.getByText(label).parentElement;
       expect(row).toHaveTextContent(`${label}${value}${expectedPrecision}`);
@@ -42,7 +43,7 @@ describe('Conversion precision in the UI', () => {
     expect(screen.queryByText('Rounded to zero')).not.toBeInTheDocument();
   });
 
-  it('reports input rounding when Float64 displays the same decimal', () => {
+  it('reports rounding while preserving the original decimal', () => {
     renderDecimalInput('1', '55');
     const status = screen.getByRole('status');
     expect(status).toBeEmptyDOMElement();
@@ -61,7 +62,7 @@ describe('Conversion precision in the UI', () => {
     expect(status).not.toHaveTextContent(
       'Float64 represents the fixed-point value exactly.',
     );
-    const float64 = screen.getByRole('group', { name: 'Float64 conversion' });
+    const float64 = screen.getByRole('group', { name: 'Decimal conversion' });
     expect(within(float64).getByText('0.1')).toBeInTheDocument();
     expect(float64).not.toHaveAccessibleDescription();
 
@@ -131,14 +132,15 @@ describe('Conversion precision in the UI', () => {
     );
     expect(screen.getByRole('status')).toBe(status);
     expect(status).toBeEmptyDOMElement();
-    expect(screen.getByRole('group', { name: 'Float64 conversion' }))
+    expect(screen.getByRole('group', { name: 'Decimal conversion' }))
       .not.toHaveAccessibleDescription();
-    expect(screen.getAllByText('Exact')).toHaveLength(1);
-    expect(screen.queryByText('Rounded')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Exact')).toHaveLength(2);
+    expect(screen.getByText('original')).toBeVisible();
+    expect(screen.queryByText('rounded')).not.toBeInTheDocument();
     expect(status).not.toHaveTextContent(pattern);
   });
 
-  it('shows Float64 precision loss with Exact only fixed-point input', () => {
+  it('preserves wide decimal input and reports loss decoding hex', () => {
     renderDecimalInput('64', '0');
     fireEvent.change(screen.getByRole('combobox', {
       name: 'Fixed-point rounding',
@@ -146,20 +148,33 @@ describe('Conversion precision in the UI', () => {
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     fireEvent.change(input, { target: { value: '9007199254740993' } });
     expect(input).toBeValid();
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+    const decimal = screen.getByRole('group', { name: 'Decimal conversion' });
+    expect(within(decimal).getByText('9007199254740993')).toBeVisible();
+    expect(within(decimal).getByText('original')).toBeVisible();
+    expect(screen.queryByText('9007199254740992')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+      target: { value: InputFormat.Hexadecimal.toString() },
+    });
+    fireEvent.change(input, { target: { value: '0020000000000001' } });
+    expect(input).toBeValid();
     expect(screen.getByRole('status')).toHaveTextContent(
       /^Precision was lost converting the fixed-point value to Float64\.$/u,
     );
     expect(screen.getByText('0020000000000001')).toBeInTheDocument();
-    const float64 = screen.getByRole('group', { name: 'Float64 conversion' });
+    const float64 = screen.getByRole('group', { name: 'Decimal conversion' });
     expect(within(float64).getByText('9007199254740992')).toBeInTheDocument();
-    expect(within(float64).getByText('Rounded')).toBeVisible();
-    expect(screen.getAllByText('Exact')).toHaveLength(2);
+    expect(within(float64).getByText('rounded')).toBeVisible();
+    expect(screen.getAllByText('Exact')).toHaveLength(1);
+    expect(within(screen.getByRole('group', { name: 'Hex conversion' }))
+      .getByText('original')).toBeVisible();
     expect(float64).toHaveAccessibleDescription(
       'Precision was lost converting the fixed-point value to Float64.',
     );
   });
 
-  it('shows decimal conversion results when Float64 overflows', () => {
+  it('preserves original decimal input outside the Float64 range', () => {
     renderDecimalInput('1028', '0');
     fireEvent.change(screen.getByRole('combobox', {
       name: 'Fixed-point rounding',
@@ -168,37 +183,32 @@ describe('Conversion precision in the UI', () => {
     fireEvent.change(input, { target: { value: '1e309' } });
     expect(input).toBeValid();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'The fixed-point value is outside the Float64 range.',
-    );
-    expect(screen.getByRole('status')).not.toHaveTextContent(
-      /decimal input was rounded/u,
-    );
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
     expect(screen.getByText((10n ** 309n).toString(2).padStart(1028, '0')))
       .toBeInTheDocument();
-    const float64 = screen.getByRole('group', { name: 'Float64 conversion' });
-    expect(within(float64).getByText('Out of range')).toBeInTheDocument();
-    expect(within(float64).queryByText(/^(?:Exact|Rounded)$/u))
-      .not.toBeInTheDocument();
-    expect(float64).toHaveAccessibleDescription(
-      /Hexadecimal and binary results remain valid/u,
-    );
+    const decimal = screen.getByRole('group', { name: 'Decimal conversion' });
+    expect(within(decimal).getByText('1e309')).toBeVisible();
+    expect(within(decimal).getByText('original')).toBeVisible();
+    expect(decimal).not.toHaveAccessibleDescription();
+    expect(screen.getAllByText('Exact')).toHaveLength(2);
+    expect(screen.queryByText('Out of range')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).not.toHaveTextContent(
       (10n ** 309n).toString(2).padStart(1028, '0'),
     );
     expect(screen.getByRole('status')).not.toHaveTextContent('Out of range');
   });
 
-  it('updates Float64 precision without clearing fixed-point rounding', () => {
+  it('keeps decimal input original as the bit allocation changes', () => {
     renderDecimalInput('1', '60');
     const status = screen.getByRole('status');
     fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {
       target: { value: '0.1' },
     });
     expect(status).toHaveTextContent(/decimal input was rounded/u);
-    expect(status).toHaveTextContent(
-      'Precision was lost converting the fixed-point value to Float64.',
-    );
+    expect(status).not.toHaveTextContent(/Precision was lost/u);
+    expect(within(screen.getByRole('group', { name: 'Decimal conversion' }))
+      .getByText('original')).toBeVisible();
+    expect(screen.getAllByText('rounded')).toHaveLength(2);
 
     fireEvent.change(
       screen.getByRole('textbox', { name: 'Fractional Bits:' }),

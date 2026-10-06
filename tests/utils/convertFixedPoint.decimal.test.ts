@@ -43,12 +43,17 @@ describe('convertFixedPoint decimal encoding', () => {
       isSigned,
     })).toEqual({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        hexString,
-        binaryString,
-        float64: {
+        hex: {
           status: 'exact',
+          value: hexString,
+        },
+        binary: {
+          status: 'exact',
+          value: binaryString,
+        },
+        decimal: {
+          status: 'original',
           value: inputString,
         },
       },
@@ -56,29 +61,31 @@ describe('convertFixedPoint decimal encoding', () => {
   });
 
   it.each([
-    ['+3.1875', '33', '3.1875'],
-    ['003.187500', '33', '3.1875'],
-    ['.5', '08', '0.5'],
-    ['-.5', 'F8', '-0.5'],
-    ['3.', '30', '3'],
-    ['-0', '00', '0'],
-    ['-0.000', '00', '0'],
-    ['3.1875e0', '33', '3.1875'],
-    ['31875e-4', '33', '3.1875'],
-    ['-31875E-4', 'CD', '-3.1875'],
-    ['.031875e+2', '33', '3.1875'],
-  ])('accepts decimal notation %s', (inputString, hexString, float64Value) => {
+    ['+3.1875', '33'],
+    ['003.187500', '33'],
+    ['.5', '08'],
+    ['-.5', 'F8'],
+    ['3.', '30'],
+    ['-0', '00'],
+    ['-0.000', '00'],
+    ['3.1875e0', '33'],
+    ['31875e-4', '33'],
+    ['-31875E-4', 'CD'],
+    ['.031875e+2', '33'],
+  ])('accepts decimal notation %s', (inputString, hexString) => {
     expect(convertFixedPoint({
       ...decimalInput,
       inputString,
     })).toMatchObject({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        hexString,
-        float64: {
+        hex: {
           status: 'exact',
-          value: float64Value,
+          value: hexString,
+        },
+        decimal: {
+          status: 'original',
+          value: inputString,
         },
       },
     });
@@ -92,13 +99,18 @@ describe('convertFixedPoint decimal encoding', () => {
       fractionalBitsString: '0',
     })).toEqual({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        hexString: '0020000000000001',
-        binaryString: `00000000001${'0'.repeat(52)}1`,
-        float64: {
-          status: 'rounded',
-          value: '9007199254740992',
+        hex: {
+          status: 'exact',
+          value: '0020000000000001',
+        },
+        binary: {
+          status: 'exact',
+          value: `00000000001${'0'.repeat(52)}1`,
+        },
+        decimal: {
+          status: 'original',
+          value: '9007199254740993',
         },
       },
     });
@@ -115,11 +127,13 @@ describe('convertFixedPoint decimal encoding', () => {
       fractionalBitsString: '1500',
     })).toMatchObject({
       status: 'success',
-      inputWasRounded: false,
       result: {
-        binaryString,
-        float64: {
+        binary: {
           status: 'exact',
+          value: binaryString,
+        },
+        decimal: {
+          status: 'original',
           value: inputString,
         },
       },
@@ -141,12 +155,17 @@ describe('convertFixedPoint decimal encoding', () => {
           isSigned,
         })).toEqual({
           status: 'success',
-          inputWasRounded: false,
           result: {
-            hexString,
-            binaryString,
-            float64: {
+            hex: {
               status: 'exact',
+              value: hexString,
+            },
+            binary: {
+              status: 'exact',
+              value: binaryString,
+            },
+            decimal: {
+              status: 'original',
               value: value.toString(),
             },
           },

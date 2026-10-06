@@ -107,7 +107,9 @@ describe('App Component', () => {
       target: { value: InputFormat.Hexadecimal.toString() },
     });
     expect(screen.getByText('4.8125')).toBeInTheDocument();
-    expect(screen.getByText('4D')).toBeInTheDocument();
+    expect(screen.getByText('4d')).toBeInTheDocument();
+    expect(within(screen.getByRole('group', { name: 'Hex conversion' }))
+      .getByText('original')).toBeVisible();
     expect(input).toHaveValue('4d');
     expect(screen.getByText('01001101')).toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
@@ -140,7 +142,7 @@ describe('App Component', () => {
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
   });
 
-  it('extends hex output as bit width and sign change', () => {
+  it('preserves original hex as bit width and sign change', () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
@@ -163,8 +165,11 @@ describe('App Component', () => {
 
     fireEvent.click(screen.getByRole('checkbox'));
     expect(input).toHaveValue('FF');
-    expect(screen.getByText('3F')).toBeInTheDocument();
-    expect(screen.queryByText('FF')).not.toBeInTheDocument();
+    expect(screen.getByText('FF')).toBeInTheDocument();
+    expect(screen.queryByText('3F')).not.toBeInTheDocument();
+    expect(screen.getByText('111111')).toBeInTheDocument();
+    expect(within(screen.getByRole('group', { name: 'Hex conversion' }))
+      .getByText('original')).toBeVisible();
     expect(screen.getByText('7.875')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('checkbox'));
