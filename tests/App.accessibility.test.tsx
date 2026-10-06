@@ -39,7 +39,7 @@ describe('Accessible converter controls', () => {
       name: 'Fixed-Point Bit Pattern:',
     });
     expect(input).toHaveAttribute('inputmode', 'text');
-    expect(input).toHaveAccessibleDescription(/A–F or a–f, without 0x/u);
+    expect(input).toHaveAccessibleDescription(/optionally prefixed with 0x/u);
     expect(screen.getByRole('option', {
       name: 'Hexadecimal',
       selected: true,
@@ -97,9 +97,10 @@ describe('Accessible converter controls', () => {
 
   it.each([
     [InputFormat.Binary, 'invalid', /characters other than 0 and 1/u],
-    [InputFormat.Binary, '01', /length should be 8/u],
+    [InputFormat.Binary, '01', /digit count should be 8/u],
+    [InputFormat.Binary, '0x4D', /Select Hexadecimal/u],
     [InputFormat.Hexadecimal, 'GG', /characters other than 0-9 and A-F/u],
-    [InputFormat.Hexadecimal, 'F', /length should be 2/u],
+    [InputFormat.Hexadecimal, 'F', /digit count should be 2/u],
   ])('associates base %s input error %s and clears it after correction', (
     inputFormat, invalidValue, errorDescription,
   ) => {
@@ -126,7 +127,7 @@ describe('Accessible converter controls', () => {
     });
     expect(input).toBeValid();
     expect(input).not.toHaveAccessibleDescription(errorDescription);
-    expect(input).toHaveAccessibleDescription(/without/u);
+    expect(input).toHaveAccessibleDescription(/No separators/u);
     expect(screen.getByText('4.8125')).toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
   });
@@ -208,11 +209,11 @@ describe('Accessible converter controls', () => {
     });
     fireEvent.change(input, { target: { value: '01' } });
     expect(input).toBeInvalid();
-    expect(input).toHaveAccessibleDescription(/length should be 8/u);
+    expect(input).toHaveAccessibleDescription(/digit count should be 8/u);
 
     fireEvent.change(input, { target: { value: '' } });
     expect(input).toBeValid();
-    expect(input).not.toHaveAccessibleDescription(/length should be 8/u);
+    expect(input).not.toHaveAccessibleDescription(/digit count should be 8/u);
     expect(input).toHaveAccessibleDescription(/Use 0 or 1/u);
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Result' }))

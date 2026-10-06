@@ -3,6 +3,11 @@ import type { RoundingModeType } from '../constants/RoundingMode';
 import type { ConversionResults } from '../types/ConversionResults';
 import { encodeDecimalFixedPoint, MAX_DECIMAL_BITS } from './encodeDecimalFixedPoint';
 import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
+import {
+  findForeignPrefixMessage,
+  parseBitPattern,
+  type BitPatternFormat,
+} from './parseInputNotation';
 
 interface ConversionFields {
   inputString: string;
@@ -10,9 +15,6 @@ interface ConversionFields {
   integerBitsString: string;
   fractionalBitsString: string;
 }
-
-type BitPatternFormat = typeof InputFormat.Binary
-  | typeof InputFormat.Hexadecimal;
 
 interface BitPatternInput extends ConversionFields {
   inputType: BitPatternFormat;
@@ -47,42 +49,15 @@ function readBitCount(value: string): number | null {
     : null;
 }
 
-function validateFixedPointString(
-  inputString: string,
-  inputType: BitPatternFormat,
-  totalBits: number,
-): string | null {
-  const isBinary = inputType === InputFormat.Binary;
-  const allowedCharacters = isBinary
-    ? /^[01]+$/u
-    : /^[0-9A-Fa-f]+$/u;
-  if (!allowedCharacters.test(inputString)) {
-    return isBinary
-      ? 'Binary string contains characters other than 0 and 1'
-      : 'Hex string contains characters other than 0-9 and A-F';
-  }
-  const expectedLength = isBinary
-    ? totalBits
-    : Math.ceil(totalBits / 4);
-  if (inputString.length !== expectedLength) {
-    const inputName = isBinary
-      ? 'Binary'
-      : 'Hex';
-    return `${inputName} string length should be ${expectedLength.toString()}, `
-      + `but got ${inputString.length.toString()}`;
-  }
-  return null;
-}
-
 function toBinaryString(
-  inputString: string,
+  digits: string,
   inputType: BitPatternFormat,
   totalBits: number,
 ): string {
   if (inputType === InputFormat.Binary) {
-    return inputString;
+    return digits;
   }
-  return inputString
+  return digits
     .split('')
     .map((character) => parseInt(character, 16).toString(2)
       .padStart(4, '0'))
@@ -106,20 +81,20 @@ function convertFixedPointPattern(
   fractionalBits: number,
   totalBits: number,
 ): ConversionOutcome {
-  const message = validateFixedPointString(
+  const pattern = parseBitPattern(
     input.inputString,
     input.inputType,
     totalBits,
   );
-  if (message !== null) {
+  if (pattern.status === 'invalid') {
     return {
       status: 'invalid',
-      message,
+      message: pattern.message,
       invalidFields: ['inputString'],
     };
   }
   const binaryString = toBinaryString(
-    input.inputString,
+    pattern.digits,
     input.inputType,
     totalBits,
   );
@@ -135,10 +110,15 @@ function convertFixedPointPattern(
           status: 'exact',
           value: toHexString(binaryString, input.isSigned),
         },
-      binary: {
-        status: input.inputType === InputFormat.Binary ? 'original' : 'exact',
-        value: binaryString,
-      },
+      binary: input.inputType === InputFormat.Binary
+        ? {
+          status: 'original',
+          value: input.inputString,
+        }
+        : {
+          status: 'exact',
+          value: binaryString,
+        },
       decimal: decodeFixedPointFloat64(
         binaryString, fractionalBits, input.isSigned,
       ),
@@ -223,10 +203,26 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
       invalidFields: ['integerBitsString', 'fractionalBitsString'],
     };
   }
-  if (input.inputString === '') {
+  // Pasted values often carry surrounding whitespace or line breaks.
+  const trimmedInput = {
+    ...input,
+    inputString: input.inputString.trim(),
+  };
+  if (trimmedInput.inputString === '') {
     return { status: 'empty' };
   }
-  return input.inputType === InputFormat.Decimal
-    ? convertDecimalFixedPoint(input, fractionalBits, totalBits)
-    : convertFixedPointPattern(input, fractionalBits, totalBits);
+  const foreignPrefixMessage = findForeignPrefixMessage(
+    trimmedInput.inputString,
+    trimmedInput.inputType,
+  );
+  if (foreignPrefixMessage !== null) {
+    return {
+      status: 'invalid',
+      message: foreignPrefixMessage,
+      invalidFields: ['inputString'],
+    };
+  }
+  return trimmedInput.inputType === InputFormat.Decimal
+    ? convertDecimalFixedPoint(trimmedInput, fractionalBits, totalBits)
+    : convertFixedPointPattern(trimmedInput, fractionalBits, totalBits);
 }

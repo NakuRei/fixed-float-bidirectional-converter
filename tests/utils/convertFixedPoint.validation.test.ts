@@ -57,7 +57,7 @@ describe('convertFixedPoint input validation', () => {
     }, /Bit counts must|Total bit count (?:must|is)/u, invalidFields);
   });
 
-  it.each(['invalid', '01a01', '01001102', ' 1001101', '0100110 '])(
+  it.each(['invalid', '01a01', '01001102', '0100 1101', '0b0b0b0b'])(
     'rejects invalid binary characters in %s',
     (inputString) => {
       expect(convertFixedPoint({
@@ -71,7 +71,7 @@ describe('convertFixedPoint input validation', () => {
     },
   );
 
-  it.each(['GG', '0x4D', '-1', ' F', 'F '])(
+  it.each(['GG', '-1', '4 D', '0x0x4D'])(
     'rejects invalid hex characters in %s',
     (inputString) => {
       expect(convertFixedPoint({
@@ -94,7 +94,7 @@ describe('convertFixedPoint input validation', () => {
           ...validInput,
           inputString,
         },
-        /Binary string length/u,
+        /Binary digit count/u,
         ['inputString'],
       );
     },
@@ -105,7 +105,7 @@ describe('convertFixedPoint input validation', () => {
       ...validInput,
       inputString,
       inputType: InputFormat.Hexadecimal,
-    }, /Hex string length/u, ['inputString']);
+    }, /Hex digit count/u, ['inputString']);
   });
 
   it.each([
