@@ -1,4 +1,5 @@
 import type { ConversionResults } from '../types/ConversionResults';
+import { CopyButton } from './CopyButton';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 
 interface ResultDisplayProps {
@@ -40,7 +41,7 @@ export function ResultDisplay({
         <div
           aria-describedby={row.descriptionId}
           aria-label={`${row.label} conversion`}
-          className="w-full"
+          className="w-full flex items-start gap-3"
           key={row.label}
           role="group"
         >
@@ -51,6 +52,18 @@ export function ResultDisplay({
               ? 'Out of range'
               : row.result.value}
           />
+
+          <div className="w-8 shrink-0">
+            {row.result.status === 'overflow'
+              ? null
+              : (
+                <CopyButton
+                  key={row.result.value}
+                  label={row.label}
+                  value={row.result.value}
+                />
+              )}
+          </div>
         </div>
       ))}
     </div>
