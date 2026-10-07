@@ -1,4 +1,4 @@
-import type { ConversionResults } from '../types/ConversionResults';
+import type { ConversionResults } from '../conversion/convertFixedPoint';
 import { CopyButton } from './CopyButton';
 import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
 

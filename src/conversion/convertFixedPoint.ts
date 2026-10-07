@@ -1,6 +1,5 @@
-import { InputFormat, type InputFormatType } from '../constants/InputFormat';
-import type { RoundingModeType } from '../constants/RoundingMode';
-import type { ConversionResults } from '../types/ConversionResults';
+import { InputFormat, type InputFormatType } from './InputFormat';
+import type { RoundingModeType } from './RoundingMode';
 import { encodeDecimalFixedPoint, MAX_DECIMAL_BITS } from './encodeDecimalFixedPoint';
 import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
 import {
@@ -27,6 +26,17 @@ interface DecimalInput extends ConversionFields {
 }
 
 export type ConversionInput = BitPatternInput | DecimalInput;
+
+export interface ConversionValue {
+  readonly status: 'original' | 'exact' | 'rounded';
+  readonly value: string;
+}
+
+export interface ConversionResults {
+  readonly hex: ConversionValue;
+  readonly binary: ConversionValue;
+  readonly decimal: ConversionValue | { readonly status: 'overflow' };
+}
 
 export type ConversionOutcome = {
   status: 'empty';

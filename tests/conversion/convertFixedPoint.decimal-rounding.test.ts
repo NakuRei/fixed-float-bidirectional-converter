@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { InputFormat } from '../../src/constants/InputFormat';
-import { RoundingMode } from '../../src/constants/RoundingMode';
+import { InputFormat } from '../../src/conversion/InputFormat';
+import { RoundingMode } from '../../src/conversion/RoundingMode';
 import {
   convertFixedPoint,
   type ConversionInput,
-} from '../../src/utils/convertFixedPoint';
+} from '../../src/conversion/convertFixedPoint';
 
 const decimalInput: ConversionInput = {
   inputString: '0.1',

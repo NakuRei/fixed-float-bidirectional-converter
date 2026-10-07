@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { InputFormat } from '../../src/constants/InputFormat';
-import { RoundingMode } from '../../src/constants/RoundingMode';
-import type { Float64Result } from '../../src/types/ConversionResults';
+import { InputFormat } from '../../src/conversion/InputFormat';
+import { RoundingMode } from '../../src/conversion/RoundingMode';
 import {
   convertFixedPoint,
   type ConversionInput,
-} from '../../src/utils/convertFixedPoint';
+  type ConversionResults,
+} from '../../src/conversion/convertFixedPoint';
 
 const decimalInput: ConversionInput = {
   inputString: '0.1',
@@ -20,7 +20,7 @@ function expectEncodingAndDecoding(
   input: ConversionInput,
   expected: { binary: string;
     hex: string;
-    decimal: Float64Result; },
+    decimal: ConversionResults['decimal']; },
   fixedPointStatus: 'exact' | 'rounded',
 ): void {
   expect(convertFixedPoint(input)).toEqual({

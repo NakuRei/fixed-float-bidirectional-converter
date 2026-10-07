@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import App from '../src/App';
-import { InputFormat } from '../src/constants/InputFormat';
+import { InputFormat } from '../src/conversion/InputFormat';
 
 describe('App Component', () => {
   it('displays the title only once, as the banner heading', () => {

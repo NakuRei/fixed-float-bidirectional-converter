@@ -1,4 +1,4 @@
-import { InputFormat, type InputFormatType } from '../constants/InputFormat';
+import { InputFormat, type InputFormatType } from './InputFormat';
 
 export type BitPatternFormat = typeof InputFormat.Binary
   | typeof InputFormat.Hexadecimal;

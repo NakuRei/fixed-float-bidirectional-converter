@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import App from '../src/App';
-import { InputFormat } from '../src/constants/InputFormat';
+import { InputFormat } from '../src/conversion/InputFormat';
 
 describe('Accessible converter controls', () => {
   it('exposes the input names, instructions and selected format', () => {

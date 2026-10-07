@@ -1,4 +1,9 @@
-import type { Float64Result } from '../types/ConversionResults';
+type Float64Result = {
+  readonly status: 'exact' | 'rounded';
+  readonly value: string;
+} | {
+  readonly status: 'overflow';
+};
 
 const FLOAT64_SIGNIFICAND_BITS = 53;
 const FLOAT64_MAX_NORMAL_EXPONENT = 1023;
