@@ -19,7 +19,15 @@ export function CustomHeader(): React.JSX.Element {
         'flex flex-row gap-4 items-center justify-between',
       ].join(' ')}
     >
-      <div>Fixed-Float Bidirectional Converter</div>
+      <h1 className="flex flex-row gap-2 items-center font-bold">
+        <img
+          alt=""
+          className="size-6"
+          src={`${import.meta.env.BASE_URL}favicon.svg`}
+        />
+
+        <span>Fixed-Float Bidirectional Converter</span>
+      </h1>
 
       <div>
         <IconButton

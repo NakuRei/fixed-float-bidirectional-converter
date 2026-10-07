@@ -111,7 +111,7 @@ describe('Copying conversion results', () => {
     expect(screen.getByText('Hex value copied')).toBeInTheDocument();
 
     act(() => {
-      vi.advanceTimersByTime(2000);
+      vi.runAllTimers();
     });
     expect(screen.queryByText('Hex value copied')).not.toBeInTheDocument();
   });

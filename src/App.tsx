@@ -102,10 +102,6 @@ function App(): React.JSX.Element {
             'px-0 sm:px-24 py-12',
           ].join(' ')}
         >
-          <h1 className="text-2xl font-bold">
-            Fixed-Float Bidirectional Converter
-          </h1>
-
           <InputWithLabelContainer>
             <CustomLabel htmlFor="integerBits">
               Integer Bits:

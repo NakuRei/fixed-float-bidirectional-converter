@@ -4,19 +4,18 @@ import App from '../src/App';
 import { InputFormat } from '../src/constants/InputFormat';
 
 describe('App Component', () => {
-  it('displays the title in the banner and main heading', () => {
+  it('displays the title only once, as the banner heading', () => {
     render(<App />);
 
-    const headerTitle = within(screen.getByRole('banner')).getByText(
-      'Fixed-Float Bidirectional Converter',
-    );
-    expect(headerTitle).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
 
-    const mainTitle = screen.getByRole('heading', {
+    const title = within(screen.getByRole('banner')).getByRole('heading', {
       name: 'Fixed-Float Bidirectional Converter',
       level: 1,
     });
-    expect(mainTitle).toBeInTheDocument();
+    expect(title).toBeInTheDocument();
+    expect(screen.getAllByText('Fixed-Float Bidirectional Converter'))
+      .toHaveLength(1);
   });
 
   it('handles binary string input correctly and displays result', () => {
