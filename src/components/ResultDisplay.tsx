@@ -1,6 +1,6 @@
 import type { ConversionResults } from '../conversion/convertFixedPoint';
 import { CopyButton } from './CopyButton';
-import { LabeledResultDisplay } from '../components/LabeledResultDisplay';
+import { LabeledResultDisplay } from './LabeledResultDisplay';
 
 interface ResultDisplayProps {
   decimalDescriptionId: string | undefined;
