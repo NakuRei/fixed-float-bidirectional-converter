@@ -8,13 +8,13 @@ import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 import { ConversionOutput } from './components/ConversionOutput';
-import { InputFormat, type InputFormatType } from './constants/InputFormat';
-import { RoundingMode, type RoundingModeType } from './constants/RoundingMode';
+import { InputFormat, type InputFormatType } from './conversion/InputFormat';
+import { RoundingMode, type RoundingModeType } from './conversion/RoundingMode';
 
 import {
   convertFixedPoint,
   type ConversionInput,
-} from './utils/convertFixedPoint';
+} from './conversion/convertFixedPoint';
 
 const inputInstructions = {
   [InputFormat.Binary]: {

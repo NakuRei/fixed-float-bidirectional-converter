@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { InputFormat } from '../../src/constants/InputFormat';
-import { convertFixedPoint } from '../../src/utils/convertFixedPoint';
+import { InputFormat } from '../../src/conversion/InputFormat';
+import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 describe('convertFixedPoint', () => {
   it.each([

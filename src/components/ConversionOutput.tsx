@@ -1,4 +1,4 @@
-import type { ConversionOutcome } from '../utils/convertFixedPoint';
+import type { ConversionOutcome } from '../conversion/convertFixedPoint';
 import { ErrorDisplay } from './ErrorDisplay';
 import { ResultDisplay } from './ResultDisplay';
 

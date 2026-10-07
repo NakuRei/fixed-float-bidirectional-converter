@@ -7,7 +7,7 @@ import {
   within,
 } from '@testing-library/react';
 import App from '../src/App';
-import { InputFormat } from '../src/constants/InputFormat';
+import { InputFormat } from '../src/conversion/InputFormat';
 
 const writeText = vi.fn<(text: string) => Promise<void>>();
 

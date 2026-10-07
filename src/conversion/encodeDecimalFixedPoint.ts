@@ -1,4 +1,4 @@
-import { RoundingMode, type RoundingModeType } from '../constants/RoundingMode';
+import { RoundingMode, type RoundingModeType } from './RoundingMode';
 
 export const MAX_DECIMAL_BITS = 16384;
 
