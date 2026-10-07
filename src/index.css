@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant base-select (@supports (appearance: base-select));
+
 @theme {
   --color-primary-50: #f1fcf9;
   --color-primary-100: #d0f7ef;
