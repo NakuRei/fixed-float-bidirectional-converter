@@ -1,16 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from '../src/App';
 import { InputFormat } from '../src/conversion/InputFormat';
 import { RoundingMode } from '../src/conversion/RoundingMode';
 
 describe('Decimal input in the converter', () => {
+  it('offers each rounding mode by name', () => {
+    render(<App />);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+      target: { value: InputFormat.Decimal },
+    });
+    const rounding = screen.getByRole('combobox', {
+      name: 'Fixed-point rounding',
+    });
+    const optionNames = within(rounding).getAllByRole('option')
+      .map((option) => option.textContent);
+    expect(optionNames).toEqual([
+      'Nearest (ties to even)',
+      'Toward zero (truncate)',
+      'Exact only',
+    ]);
+  });
+
   it('recalculates the result when the rounding mode changes', () => {
     render(<App />);
     expect(screen.queryByRole('combobox', { name: 'Fixed-point rounding' }))
       .not.toBeInTheDocument();
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     const rounding = screen.getByRole('combobox', {
@@ -46,19 +63,19 @@ describe('Decimal input in the converter', () => {
     render(<App />);
     const format = screen.getByRole('combobox', { name: 'Input Type' });
     fireEvent.change(format, {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     fireEvent.change(
       screen.getByRole('combobox', { name: 'Fixed-point rounding' }),
       { target: { value: RoundingMode.Exact } },
     );
     fireEvent.change(format, {
-      target: { value: InputFormat.Hexadecimal.toString() },
+      target: { value: InputFormat.Hexadecimal },
     });
     expect(screen.queryByRole('combobox', { name: 'Fixed-point rounding' }))
       .not.toBeInTheDocument();
     fireEvent.change(format, {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     expect(screen.getByRole('combobox', { name: 'Fixed-point rounding' }))
       .toHaveValue(RoundingMode.Exact);
@@ -67,7 +84,7 @@ describe('Decimal input in the converter', () => {
   it('encodes the signed example and updates the input guidance', () => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     expect(input).toHaveAccessibleDescription(/decimal value/u);
@@ -88,7 +105,7 @@ describe('Decimal input in the converter', () => {
   it('revalidates a negative decimal when the sign mode changes', () => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     fireEvent.change(input, { target: { value: '-3.1875' } });
@@ -109,14 +126,14 @@ describe('Decimal input in the converter', () => {
     render(<App />);
     const format = screen.getByRole('combobox', { name: 'Input Type' });
     fireEvent.change(format, {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     fireEvent.change(input, { target: { value: '01' } });
     expect(screen.getByText('00010000')).toBeInTheDocument();
 
     fireEvent.change(format, {
-      target: { value: InputFormat.Hexadecimal.toString() },
+      target: { value: InputFormat.Hexadecimal },
     });
     expect(screen.getByRole('textbox', { name: 'Fixed-Point Bit Pattern:' }))
       .toHaveValue('01');
@@ -124,13 +141,13 @@ describe('Decimal input in the converter', () => {
     expect(screen.getByText('00000001')).toBeInTheDocument();
 
     fireEvent.change(format, {
-      target: { value: InputFormat.Binary.toString() },
+      target: { value: InputFormat.Binary },
     });
     expect(input).toBeInvalid();
     expect(input).toHaveAccessibleDescription(/digit count should be 8/u);
 
     fireEvent.change(format, {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     expect(input).toBeValid();
     expect(input).toHaveValue('01');
@@ -140,7 +157,7 @@ describe('Decimal input in the converter', () => {
   it('recalculates the encoding when the bit allocation changes', () => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {
       target: { value: '-3.1875' },
@@ -161,7 +178,7 @@ describe('Decimal input in the converter', () => {
   it('clears decimal errors and results when the input is cleared', () => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Decimal.toString() },
+      target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     fireEvent.change(input, { target: { value: 'invalid' } });
