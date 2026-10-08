@@ -1,7 +1,6 @@
 import { InputFormat, type InputFormatType } from './InputFormat';
 
-export type BitPatternFormat = typeof InputFormat.Binary
-  | typeof InputFormat.Hexadecimal;
+export type BitPatternFormat = keyof typeof bitPatternNotations;
 
 const binaryPrefix = {
   pattern: /^0b/iu,
@@ -14,9 +13,25 @@ const hexPrefix = {
     + 'Select Hexadecimal as the input type.',
 };
 
-const ownPrefixes = {
-  [InputFormat.Binary]: binaryPrefix,
-  [InputFormat.Hexadecimal]: hexPrefix,
+const bitPatternNotations = {
+  [InputFormat.Binary]: {
+    name: 'Binary',
+    prefix: binaryPrefix,
+    allowedCharacters: /^[01]*$/u,
+    invalidCharacterMessage:
+      'Binary string contains characters other than 0 and 1',
+    radix: 2,
+    bitsPerDigit: 1,
+  },
+  [InputFormat.Hexadecimal]: {
+    name: 'Hex',
+    prefix: hexPrefix,
+    allowedCharacters: /^[0-9A-Fa-f]*$/u,
+    invalidCharacterMessage:
+      'Hex string contains characters other than 0-9 and A-F',
+    radix: 16,
+    bitsPerDigit: 4,
+  },
 };
 
 const foreignPrefixes = {
@@ -37,7 +52,7 @@ export function findForeignPrefixMessage(
 
 type BitPatternParse = {
   status: 'valid';
-  digits: string;
+  binaryString: string;
 } | {
   status: 'invalid';
   message: string;
@@ -48,35 +63,32 @@ export function parseBitPattern(
   inputType: BitPatternFormat,
   totalBits: number,
 ): BitPatternParse {
-  const isBinary = inputType === InputFormat.Binary;
-  const digits = inputString.replace(ownPrefixes[inputType].pattern, '');
-  const allowedCharacters = isBinary
-    ? /^[01]*$/u
-    : /^[0-9A-Fa-f]*$/u;
-  if (!allowedCharacters.test(digits)) {
+  const notation = bitPatternNotations[inputType];
+  const digits = inputString.replace(notation.prefix.pattern, '');
+  if (!notation.allowedCharacters.test(digits)) {
     return {
       status: 'invalid',
-      message: isBinary
-        ? 'Binary string contains characters other than 0 and 1'
-        : 'Hex string contains characters other than 0-9 and A-F',
+      message: notation.invalidCharacterMessage,
     };
   }
-  const expectedLength = isBinary
-    ? totalBits
-    : Math.ceil(totalBits / 4);
+  const expectedLength = Math.ceil(totalBits / notation.bitsPerDigit);
   if (digits.length !== expectedLength) {
-    const inputName = isBinary
-      ? 'Binary'
-      : 'Hex';
     return {
       status: 'invalid',
-      message: `${inputName} digit count should be `
+      message: `${notation.name} digit count should be `
         + `${expectedLength.toString()}, `
         + `but got ${digits.length.toString()}`,
     };
   }
+  const binaryString = digits
+    .split('')
+    .map((character) => parseInt(character, notation.radix).toString(2)
+      .padStart(notation.bitsPerDigit, '0'))
+    .join('')
+    // Rounding up the digit count can leave excess leading bits.
+    .slice(-totalBits);
   return {
     status: 'valid',
-    digits,
+    binaryString,
   };
 }
