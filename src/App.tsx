@@ -169,10 +169,9 @@ function App(): React.JSX.Element {
             <CustomSelect
               id="inputType"
               onChange={(e) => {
-                const selectedFormat = Number(e.target.value);
-                if (selectedFormat === InputFormat.Binary
-                  || selectedFormat === InputFormat.Decimal
-                  || selectedFormat === InputFormat.Hexadecimal) {
+                const selectedFormat = Object.values(InputFormat)
+                  .find((format) => format === Number(e.target.value));
+                if (selectedFormat !== undefined) {
                   setInputType(selectedFormat);
                 }
               }}
