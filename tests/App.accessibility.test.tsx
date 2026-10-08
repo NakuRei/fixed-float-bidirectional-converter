@@ -22,7 +22,7 @@ describe('Accessible converter controls', () => {
     expect(input).toHaveAccessibleDescription(/Use 0 or 1/u);
     expect(input).toHaveAttribute('inputmode', 'numeric');
     expect(screen.getByRole('combobox', { name: 'Input Type' }))
-      .toHaveValue(InputFormat.Binary.toString());
+      .toHaveValue(InputFormat.Binary);
     expect(screen.getByRole('option', {
       name: 'Binary',
       selected: true,
@@ -33,7 +33,7 @@ describe('Accessible converter controls', () => {
     render(<App />);
     const inputFormat = screen.getByRole('combobox', { name: 'Input Type' });
     fireEvent.change(inputFormat, {
-      target: { value: InputFormat.Hexadecimal.toString() },
+      target: { value: InputFormat.Hexadecimal },
     });
     const input = screen.getByRole('textbox', {
       name: 'Fixed-Point Bit Pattern:',
@@ -46,7 +46,7 @@ describe('Accessible converter controls', () => {
     })).toBeInTheDocument();
 
     fireEvent.change(inputFormat, {
-      target: { value: InputFormat.Binary.toString() },
+      target: { value: InputFormat.Binary },
     });
     expect(input).toHaveAttribute('inputmode', 'numeric');
     expect(input).toHaveAccessibleDescription(/Use 0 or 1/u);
@@ -101,12 +101,12 @@ describe('Accessible converter controls', () => {
     [InputFormat.Binary, '0x4D', /Select Hexadecimal/u],
     [InputFormat.Hexadecimal, 'GG', /characters other than 0-9 and A-F/u],
     [InputFormat.Hexadecimal, 'F', /digit count should be 2/u],
-  ])('associates base %s input error %s and clears it after correction', (
+  ])('associates %s input error %s and clears it after correction', (
     inputFormat, invalidValue, errorDescription,
   ) => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: inputFormat.toString() },
+      target: { value: inputFormat },
     });
     const input = screen.getByRole('textbox', {
       name: 'Fixed-Point Bit Pattern:',
@@ -135,7 +135,7 @@ describe('Accessible converter controls', () => {
   it('converts signed hex and recovers after an invalid bit count', () => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Hexadecimal.toString() },
+      target: { value: InputFormat.Hexadecimal },
     });
     const inputName = 'Fixed-Point Bit Pattern:';
     fireEvent.change(screen.getByRole('textbox', { name: inputName }), {

@@ -103,7 +103,7 @@ describe('App Component', () => {
 
     const inputFormat = screen.getByRole('combobox', { name: 'Input Type' });
     fireEvent.change(inputFormat, {
-      target: { value: InputFormat.Hexadecimal.toString() },
+      target: { value: InputFormat.Hexadecimal },
     });
     expect(screen.getByText('4.8125')).toBeInTheDocument();
     expect(screen.getByText('4d')).toBeInTheDocument();
@@ -114,7 +114,7 @@ describe('App Component', () => {
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
 
     fireEvent.change(inputFormat, {
-      target: { value: InputFormat.Binary.toString() },
+      target: { value: InputFormat.Binary },
     });
     expect(screen.getByText('ERROR:')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Result' }))
@@ -145,7 +145,7 @@ describe('App Component', () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: InputFormat.Hexadecimal.toString() },
+      target: { value: InputFormat.Hexadecimal },
     });
     fireEvent.change(input, { target: { value: 'FF' } });
     expect(screen.getByText('FF')).toBeInTheDocument();

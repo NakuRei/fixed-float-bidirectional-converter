@@ -7,13 +7,13 @@ import {
   within,
 } from '@testing-library/react';
 import App from '../src/App';
-import { InputFormat } from '../src/conversion/InputFormat';
+import { InputFormat, type InputFormatType } from '../src/conversion/InputFormat';
 
 const writeText = vi.fn<(text: string) => Promise<void>>();
 
-function enterInput(format: number, input: string): void {
+function enterInput(format: InputFormatType, input: string): void {
   fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-    target: { value: format.toString() },
+    target: { value: format },
   });
   fireEvent.change(screen.getByRole('textbox', {
     name: format === InputFormat.Decimal

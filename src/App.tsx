@@ -16,26 +16,35 @@ import {
   type ConversionInput,
 } from './conversion/convertFixedPoint';
 
-const inputInstructions = {
+const inputFormatPresentation = {
   [InputFormat.Binary]: {
-    label: 'Fixed-Point Bit Pattern:',
+    optionLabel: 'Binary',
+    inputLabel: 'Fixed-Point Bit Pattern:',
     placeholder: 'Enter Fixed-Point Number',
     inputMode: 'numeric',
     hint: 'Use 0 or 1, optionally prefixed with 0b. No separators.',
   },
   [InputFormat.Decimal]: {
-    label: 'Decimal Value:',
+    optionLabel: 'Decimal',
+    inputLabel: 'Decimal Value:',
     placeholder: 'Enter Decimal Number',
     inputMode: 'text',
     hint: 'Enter a decimal value, such as -3.1875 or 1.25e-1.',
   },
   [InputFormat.Hexadecimal]: {
-    label: 'Fixed-Point Bit Pattern:',
+    optionLabel: 'Hexadecimal',
+    inputLabel: 'Fixed-Point Bit Pattern:',
     placeholder: 'Enter Fixed-Point Number',
     inputMode: 'text',
     hint: 'Use 0–9, A–F or a–f, optionally prefixed with 0x. '
       + 'No separators.',
   },
+} as const;
+
+const roundingModeLabels = {
+  [RoundingMode.NearestEven]: 'Nearest (ties to even)',
+  [RoundingMode.TowardZero]: 'Toward zero (truncate)',
+  [RoundingMode.Exact]: 'Exact only',
 } as const;
 
 function App(): React.JSX.Element {
@@ -49,7 +58,7 @@ function App(): React.JSX.Element {
   const [roundingMode, setRoundingMode] = useState<RoundingModeType>(
     RoundingMode.NearestEven,
   );
-  const instructions = inputInstructions[inputType];
+  const presentation = inputFormatPresentation[inputType];
 
   const conversionInput: ConversionInput = inputType === InputFormat.Decimal
     ? {
@@ -170,19 +179,19 @@ function App(): React.JSX.Element {
               id="inputType"
               onChange={(e) => {
                 const selectedFormat = Object.values(InputFormat)
-                  .find((format) => format === Number(e.target.value));
+                  .find((format) => format === e.target.value);
                 if (selectedFormat !== undefined) {
                   setInputType(selectedFormat);
                 }
               }}
               value={inputType}
             >
-              {Object.entries(InputFormat).map(([label, value]) => (
+              {Object.values(InputFormat).map((format) => (
                 <option
-                  key={value}
-                  value={value}
+                  key={format}
+                  value={format}
                 >
-                  {label}
+                  {inputFormatPresentation[format].optionLabel}
                 </option>
               ))}
             </CustomSelect>
@@ -199,24 +208,22 @@ function App(): React.JSX.Element {
                   aria-describedby="roundingHint"
                   id="roundingMode"
                   onChange={(e) => {
-                    const mode = e.target.value;
-                    if (mode === RoundingMode.NearestEven
-                      || mode === RoundingMode.TowardZero
-                      || mode === RoundingMode.Exact) {
-                      setRoundingMode(mode);
+                    const selectedMode = Object.values(RoundingMode)
+                      .find((mode) => mode === e.target.value);
+                    if (selectedMode !== undefined) {
+                      setRoundingMode(selectedMode);
                     }
                   }}
                   value={roundingMode}
                 >
-                  <option value={RoundingMode.NearestEven}>
-                    Nearest (ties to even)
-                  </option>
-
-                  <option value={RoundingMode.TowardZero}>
-                    Toward zero (truncate)
-                  </option>
-
-                  <option value={RoundingMode.Exact}>Exact only</option>
+                  {Object.values(RoundingMode).map((mode) => (
+                    <option
+                      key={mode}
+                      value={mode}
+                    >
+                      {roundingModeLabels[mode]}
+                    </option>
+                  ))}
                 </CustomSelect>
 
                 <p
@@ -234,7 +241,7 @@ function App(): React.JSX.Element {
 
           <InputWithLabelContainer>
             <CustomLabel htmlFor="inputString">
-              {instructions.label}
+              {presentation.inputLabel}
             </CustomLabel>
 
             <CustomInput
@@ -243,11 +250,11 @@ function App(): React.JSX.Element {
                 : 'inputStringHint'}
               aria-invalid={isInputStringInvalid}
               id="inputString"
-              inputMode={instructions.inputMode}
+              inputMode={presentation.inputMode}
               onChange={(e) => {
                 setInputString(e.target.value);
               }}
-              placeholder={instructions.placeholder}
+              placeholder={presentation.placeholder}
               type="text"
               value={inputString}
             />
@@ -256,7 +263,7 @@ function App(): React.JSX.Element {
               className="text-sm text-on-background"
               id="inputStringHint"
             >
-              {instructions.hint}
+              {presentation.hint}
             </p>
           </InputWithLabelContainer>
 
