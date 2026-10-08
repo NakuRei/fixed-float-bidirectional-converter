@@ -174,7 +174,7 @@ describe('convertFixedPoint input validation', () => {
       'Total bit count is too large.',
     ],
   ] as const)(
-    'explains unsupported base %s bit counts %s + %s',
+    'explains unsupported bit counts for %s input: %s + %s',
     (inputType, integerBitsString, fractionalBitsString, message) => {
       expect(convertFixedPoint({
         ...validInput,
@@ -192,7 +192,7 @@ describe('convertFixedPoint input validation', () => {
   it.each([
     [InputFormat.Binary, '0'.repeat(16388)],
     [InputFormat.Hexadecimal, '0'.repeat(4097)],
-  ] as const)('accepts base %s patterns beyond the Decimal bit limit', (
+  ] as const)('accepts %s patterns beyond the decimal input bit limit', (
     inputType, inputString,
   ) => {
     expect(convertFixedPoint({

@@ -101,7 +101,7 @@ describe('Accessible converter controls', () => {
     [InputFormat.Binary, '0x4D', /Select Hexadecimal/u],
     [InputFormat.Hexadecimal, 'GG', /characters other than 0-9 and A-F/u],
     [InputFormat.Hexadecimal, 'F', /digit count should be 2/u],
-  ])('associates %s input error %s and clears it after correction', (
+  ])('associates the error for %s input %j and clears it after correction', (
     inputFormat, invalidValue, errorDescription,
   ) => {
     render(<App />);
