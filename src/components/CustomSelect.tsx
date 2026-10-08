@@ -1,6 +1,6 @@
 interface CustomSelectProps extends React.ComponentPropsWithoutRef<'select'> {
   id: string;
-  value: string | number;
+  value: string;
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
