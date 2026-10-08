@@ -32,7 +32,7 @@ describe('convertFixedPoint pasted input', () => {
     [InputFormat.Hexadecimal, '0x4D'],
     [InputFormat.Hexadecimal, '0X4d'],
     [InputFormat.Hexadecimal, ' 4D\r\n'],
-  ] as const)('accepts base %s pattern %j', (inputType, inputString) => {
+  ] as const)('accepts %s pattern %j', (inputType, inputString) => {
     const originalValue = inputString.trim();
     expect(convertFixedPoint({
       ...validInput,
@@ -109,7 +109,7 @@ describe('convertFixedPoint pasted input', () => {
   it.each([
     [InputFormat.Binary, '0b'],
     [InputFormat.Hexadecimal, '0x'],
-  ] as const)('rejects base %s prefix %s without digits', (
+  ] as const)('rejects %s prefix %s without digits', (
     inputType, inputString,
   ) => {
     const outcome = convertFixedPoint({
@@ -127,7 +127,7 @@ describe('convertFixedPoint pasted input', () => {
   });
 
   it.each([InputFormat.Binary, InputFormat.Hexadecimal])(
-    'returns empty for whitespace-only base %s input',
+    'returns empty for whitespace-only %s input',
     (inputType) => {
       expect(convertFixedPoint({
         ...validInput,
