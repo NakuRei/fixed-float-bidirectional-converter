@@ -59,22 +59,6 @@ function readBitCount(value: string): number | null {
     : null;
 }
 
-function toBinaryString(
-  digits: string,
-  inputType: BitPatternFormat,
-  totalBits: number,
-): string {
-  if (inputType === InputFormat.Binary) {
-    return digits;
-  }
-  return digits
-    .split('')
-    .map((character) => parseInt(character, 16).toString(2)
-      .padStart(4, '0'))
-    .join('')
-    .slice(-totalBits);
-}
-
 function toHexString(binaryString: string, isSigned: boolean): string {
   const paddingBit = isSigned && binaryString.startsWith('1') ? '1' : '0';
   let hexString = '';
@@ -103,11 +87,7 @@ function convertFixedPointPattern(
       invalidFields: ['inputString'],
     };
   }
-  const binaryString = toBinaryString(
-    pattern.digits,
-    input.inputType,
-    totalBits,
-  );
+  const { binaryString } = pattern;
   return {
     status: 'success',
     result: {
