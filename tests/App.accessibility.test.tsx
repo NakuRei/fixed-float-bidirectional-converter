@@ -134,7 +134,8 @@ describe('Accessible converter controls', () => {
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
   });
 
-  it('converts signed hex and recovers after an invalid bit count', () => {
+  it('converts signed hexadecimal and recovers after an invalid '
+    + 'bit count', () => {
     render(<App />);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Hexadecimal },

@@ -33,7 +33,7 @@ export interface ConversionValue {
 }
 
 export interface ConversionResults {
-  readonly hex: ConversionValue;
+  readonly hexadecimal: ConversionValue;
   readonly binary: ConversionValue;
   readonly decimal: ConversionValue | { readonly status: 'overflow' };
 }
@@ -91,7 +91,7 @@ function convertFixedPointPattern(
   return {
     status: 'success',
     result: {
-      hex: input.inputFormat === InputFormat.Hexadecimal
+      hexadecimal: input.inputFormat === InputFormat.Hexadecimal
         ? {
           status: 'original',
           value: input.inputString,
@@ -138,7 +138,7 @@ function convertDecimalFixedPoint(
   return {
     status: 'success',
     result: {
-      hex: {
+      hexadecimal: {
         status,
         value: toHexString(encoding.binaryString, input.isSigned),
       },

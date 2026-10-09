@@ -49,7 +49,7 @@ describe('Copying conversion results', () => {
   });
 
   it.each([
-    ['Hex', 'cd'],
+    ['Hexadecimal', 'cd'],
     ['Binary', '11001101'],
     ['Decimal', '-3.1875'],
   ])('copies the displayed %s value', async(label, value) => {
@@ -87,7 +87,7 @@ describe('Copying conversion results', () => {
     });
     expect(within(decimalRow).getByText('Out of range')).toBeInTheDocument();
     expect(within(decimalRow).queryByRole('button')).not.toBeInTheDocument();
-    expect(copyButton('Hex')).toBeInTheDocument();
+    expect(copyButton('Hexadecimal')).toBeInTheDocument();
   });
 
   it('reports a clipboard failure', async() => {
@@ -95,11 +95,12 @@ describe('Copying conversion results', () => {
     render(<App />);
     enterInput(InputFormat.Hexadecimal, 'cd');
 
-    fireEvent.click(copyButton('Hex'));
+    fireEvent.click(copyButton('Hexadecimal'));
 
-    expect(await screen.findByText('Could not copy Hex value'))
+    expect(await screen.findByText('Could not copy Hexadecimal value'))
       .toBeInTheDocument();
-    expect(screen.queryByText('Hex value copied')).not.toBeInTheDocument();
+    expect(screen.queryByText('Hexadecimal value copied'))
+      .not.toBeInTheDocument();
   });
 
   it('clears the copied message after a short delay', async() => {
@@ -107,13 +108,14 @@ describe('Copying conversion results', () => {
     render(<App />);
     enterInput(InputFormat.Hexadecimal, 'cd');
 
-    await copyAndSettle('Hex');
-    expect(screen.getByText('Hex value copied')).toBeInTheDocument();
+    await copyAndSettle('Hexadecimal');
+    expect(screen.getByText('Hexadecimal value copied')).toBeInTheDocument();
 
     act(() => {
       vi.runAllTimers();
     });
-    expect(screen.queryByText('Hex value copied')).not.toBeInTheDocument();
+    expect(screen.queryByText('Hexadecimal value copied'))
+      .not.toBeInTheDocument();
   });
 
   it('restarts the copied message on a repeated copy', async() => {
@@ -121,27 +123,29 @@ describe('Copying conversion results', () => {
     render(<App />);
     enterInput(InputFormat.Hexadecimal, 'cd');
 
-    await copyAndSettle('Hex');
+    await copyAndSettle('Hexadecimal');
     act(() => {
       vi.advanceTimersByTime(1500);
     });
-    await copyAndSettle('Hex');
+    await copyAndSettle('Hexadecimal');
     act(() => {
       vi.advanceTimersByTime(1500);
     });
 
     expect(writeText).toHaveBeenCalledTimes(2);
-    expect(screen.getByText('Hex value copied')).toBeInTheDocument();
+    expect(screen.getByText('Hexadecimal value copied')).toBeInTheDocument();
   });
 
   it('clears the copied message when the result changes', async() => {
     render(<App />);
     enterInput(InputFormat.Hexadecimal, 'cd');
-    fireEvent.click(copyButton('Hex'));
-    expect(await screen.findByText('Hex value copied')).toBeInTheDocument();
+    fireEvent.click(copyButton('Hexadecimal'));
+    expect(await screen.findByText('Hexadecimal value copied'))
+      .toBeInTheDocument();
 
     enterInput(InputFormat.Hexadecimal, 'ce');
 
-    expect(screen.queryByText('Hex value copied')).not.toBeInTheDocument();
+    expect(screen.queryByText('Hexadecimal value copied'))
+      .not.toBeInTheDocument();
   });
 });

@@ -13,7 +13,7 @@ export function LabeledResultDisplay({
     <div
       className={[
         'w-full h-fit',
-        'grid grid-cols-[auto_minmax(0,1fr)] gap-x-3',
+        'grid md:grid-cols-[auto_minmax(0,1fr)] gap-x-3',
       ].join(' ')}
     >
       <span className="text-base text-gray-400">

@@ -79,7 +79,7 @@ describe('convertFixedPoint', () => {
     ['A', 2, 2, '2.5'],
     ['FF', 3, 3, '7.875'],
     ['FEDCBA9876543210', 32, 32, '4275878552.462222'],
-  ])('decodes unsigned hex %s with %i integer and %i fractional bits', (
+  ])('decodes unsigned hexadecimal %s with %i integer and %i fractional bits', (
     inputString,
     integerBits,
     fractionalBits,
@@ -136,7 +136,7 @@ describe('convertFixedPoint', () => {
             status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
             value: binaryString,
           },
-          hex: {
+          hexadecimal: {
             status: inputFormat === InputFormat.Hexadecimal
               ? 'original'
               : 'exact',
@@ -168,7 +168,7 @@ describe('convertFixedPoint', () => {
     ['F', 1, 1, false, '11', '1.5'],
     ['AB', 3, 2, false, '01011', '2.75'],
     ['00f', 8, 4, false, '000000001111', '0.9375'],
-  ])('extends hex %s for %i.%i signed=%s', (
+  ])('extends hexadecimal %s for %i.%i signed=%s', (
     inputString,
     integerBits,
     fractionalBits,
@@ -189,7 +189,7 @@ describe('convertFixedPoint', () => {
           status: 'exact',
           value: binaryString,
         },
-        hex: {
+        hexadecimal: {
           status: 'original',
           value: inputString,
         },
@@ -232,7 +232,7 @@ describe('convertFixedPoint', () => {
           status: 'original',
           value: inputString,
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: hexString,
         },
@@ -245,7 +245,7 @@ describe('convertFixedPoint', () => {
     [`${'0'.repeat(63)}1`, 0, 256, false, (2 ** -256).toString()],
     ['F'.repeat(64), 256, 0, true, '-1'],
     [`8${'0'.repeat(63)}`, 256, 0, true, (-(2 ** 255)).toString()],
-  ])('decodes wide hex %s with %i integer and %i fractional bits', (
+  ])('decodes wide hexadecimal %s with %i integer and %i fractional bits', (
     inputString,
     integerBits,
     fractionalBits,
