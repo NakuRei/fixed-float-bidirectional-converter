@@ -6,7 +6,7 @@ import { RoundingMode } from '../src/conversion/RoundingMode';
 
 function renderDecimalInput(integerBits: string, fractionalBits: string): void {
   render(<App />);
-  fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+  fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
     target: { value: InputFormat.Decimal },
   });
   fireEvent.change(screen.getByRole('textbox', { name: 'Integer Bits:' }), {
@@ -109,7 +109,7 @@ describe('Conversion precision in the UI', () => {
     [InputFormat.Hexadecimal, '0CCCCCCCCCCCCD'],
     [InputFormat.Binary, `0000${'1100'.repeat(12)}1101`],
   ])('clears decimal rounding when switching to %s input', (
-    inputType, pattern,
+    inputFormat, pattern,
   ) => {
     renderDecimalInput('1', '55');
     const status = screen.getByRole('status');
@@ -117,8 +117,8 @@ describe('Conversion precision in the UI', () => {
       target: { value: '0.1' },
     });
     expect(status).toHaveTextContent(/decimal input was rounded/u);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
-      target: { value: inputType },
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
+      target: { value: inputFormat },
     });
     fireEvent.change(
       screen.getByRole('textbox', { name: 'Fixed-Point Bit Pattern:' }),
@@ -147,7 +147,7 @@ describe('Conversion precision in the UI', () => {
     expect(within(decimal).getByText('original')).toBeVisible();
     expect(screen.queryByText('9007199254740992')).not.toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Hexadecimal },
     });
     fireEvent.change(input, { target: { value: '0020000000000001' } });

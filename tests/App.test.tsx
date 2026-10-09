@@ -101,7 +101,7 @@ describe('App Component', () => {
     });
     expect(screen.getByText('ERROR:')).toBeInTheDocument();
 
-    const inputFormat = screen.getByRole('combobox', { name: 'Input Type' });
+    const inputFormat = screen.getByRole('combobox', { name: 'Input Format' });
     fireEvent.change(inputFormat, {
       target: { value: InputFormat.Hexadecimal },
     });
@@ -144,7 +144,7 @@ describe('App Component', () => {
   it('preserves original hex as bit width and sign change', () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Hexadecimal },
     });
     fireEvent.change(input, { target: { value: 'FF' } });

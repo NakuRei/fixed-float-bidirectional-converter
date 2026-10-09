@@ -62,7 +62,7 @@ describe('Original and converted output values', () => {
     },
   ])('preserves $input entered as $format', ({ format, input, rows }) => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: format },
     });
     fireEvent.change(screen.getByRole('textbox', {
@@ -80,7 +80,7 @@ describe('Original and converted output values', () => {
 
   it('keeps Decimal original when changing the rounding mode for 1.28', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {

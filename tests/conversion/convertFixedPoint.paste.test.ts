@@ -8,7 +8,7 @@ import {
 
 const validInput: ConversionInput = {
   inputString: '01001101',
-  inputType: InputFormat.Binary,
+  inputFormat: InputFormat.Binary,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
@@ -16,7 +16,7 @@ const validInput: ConversionInput = {
 
 const decimalInput: ConversionInput = {
   inputString: '-3.1875',
-  inputType: InputFormat.Decimal,
+  inputFormat: InputFormat.Decimal,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
@@ -32,16 +32,16 @@ describe('convertFixedPoint pasted input', () => {
     [InputFormat.Hexadecimal, '0x4D'],
     [InputFormat.Hexadecimal, '0X4d'],
     [InputFormat.Hexadecimal, ' 4D\r\n'],
-  ] as const)('accepts %s pattern %j', (inputType, inputString) => {
+  ] as const)('accepts %s pattern %j', (inputFormat, inputString) => {
     const originalValue = inputString.trim();
     expect(convertFixedPoint({
       ...validInput,
-      inputType,
+      inputFormat,
       inputString,
     })).toEqual({
       status: 'success',
       result: {
-        binary: inputType === InputFormat.Binary
+        binary: inputFormat === InputFormat.Binary
           ? {
             status: 'original',
             value: originalValue,
@@ -50,7 +50,7 @@ describe('convertFixedPoint pasted input', () => {
             status: 'exact',
             value: '01001101',
           },
-        hex: inputType === InputFormat.Hexadecimal
+        hex: inputFormat === InputFormat.Hexadecimal
           ? {
             status: 'original',
             value: originalValue,
@@ -70,7 +70,7 @@ describe('convertFixedPoint pasted input', () => {
   it('reads a leading 0b in hex input as hex digits', () => {
     expect(convertFixedPoint({
       ...validInput,
-      inputType: InputFormat.Hexadecimal,
+      inputFormat: InputFormat.Hexadecimal,
       inputString: '0b',
       isSigned: false,
     })).toMatchObject({
@@ -110,11 +110,11 @@ describe('convertFixedPoint pasted input', () => {
     [InputFormat.Binary, '0b'],
     [InputFormat.Hexadecimal, '0x'],
   ] as const)('rejects %s prefix %s without digits', (
-    inputType, inputString,
+    inputFormat, inputString,
   ) => {
     const outcome = convertFixedPoint({
       ...validInput,
-      inputType,
+      inputFormat,
       inputString,
     });
     expect(outcome).toMatchObject({
@@ -128,10 +128,10 @@ describe('convertFixedPoint pasted input', () => {
 
   it.each([InputFormat.Binary, InputFormat.Hexadecimal])(
     'returns empty for whitespace-only %s input',
-    (inputType) => {
+    (inputFormat) => {
       expect(convertFixedPoint({
         ...validInput,
-        inputType,
+        inputFormat,
         inputString: ' \n\t',
       })).toEqual({ status: 'empty' });
     },

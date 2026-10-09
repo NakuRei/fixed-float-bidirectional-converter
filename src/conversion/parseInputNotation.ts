@@ -4,13 +4,13 @@ export type BitPatternFormat = keyof typeof bitPatternNotations;
 
 const binaryPrefix = {
   pattern: /^0b/iu,
-  message: 'The 0b prefix denotes binary. Select Binary as the input type.',
+  message: 'The 0b prefix denotes binary. Select Binary as the input format.',
 };
 
 const hexPrefix = {
   pattern: /^0x/iu,
   message: 'The 0x prefix denotes hexadecimal. '
-    + 'Select Hexadecimal as the input type.',
+    + 'Select Hexadecimal as the input format.',
 };
 
 const bitPatternNotations = {
@@ -43,9 +43,9 @@ const foreignPrefixes = {
 
 export function findForeignPrefixMessage(
   inputString: string,
-  inputType: InputFormatType,
+  inputFormat: InputFormatType,
 ): string | null {
-  const foreignPrefix = foreignPrefixes[inputType]
+  const foreignPrefix = foreignPrefixes[inputFormat]
     .find(({ pattern }) => pattern.test(inputString));
   return foreignPrefix?.message ?? null;
 }
@@ -60,10 +60,10 @@ type BitPatternParse = {
 
 export function parseBitPattern(
   inputString: string,
-  inputType: BitPatternFormat,
+  inputFormat: BitPatternFormat,
   totalBits: number,
 ): BitPatternParse {
-  const notation = bitPatternNotations[inputType];
+  const notation = bitPatternNotations[inputFormat];
   const digits = inputString.replace(notation.prefix.pattern, '');
   if (!notation.allowedCharacters.test(digits)) {
     return {

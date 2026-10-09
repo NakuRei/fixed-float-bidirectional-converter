@@ -51,22 +51,22 @@ function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
   const [fractionalBitsString, setFractionalBitsString] = useState<string>('4');
   const [isSigned, setIsSigned] = useState<boolean>(true);
-  const [inputType, setInputType] = useState<InputFormatType>(
+  const [inputFormat, setInputFormat] = useState<InputFormatType>(
     InputFormat.Binary,
   );
   const [inputString, setInputString] = useState<string>('');
   const [roundingMode, setRoundingMode] = useState<RoundingModeType>(
     RoundingMode.NearestEven,
   );
-  const presentation = inputFormatPresentation[inputType];
+  const presentation = inputFormatPresentation[inputFormat];
 
-  const conversionInput: ConversionInput = inputType === InputFormat.Decimal
+  const conversionInput: ConversionInput = inputFormat === InputFormat.Decimal
     ? {
       inputString,
       isSigned,
       integerBitsString,
       fractionalBitsString,
-      inputType,
+      inputFormat,
       roundingMode,
     }
     : {
@@ -74,7 +74,7 @@ function App(): React.JSX.Element {
       isSigned,
       integerBitsString,
       fractionalBitsString,
-      inputType,
+      inputFormat,
     };
   const outcome = convertFixedPoint(conversionInput);
 
@@ -173,18 +173,18 @@ function App(): React.JSX.Element {
           </div>
 
           <InputWithLabelContainer>
-            <CustomLabel htmlFor="inputType">Input Type</CustomLabel>
+            <CustomLabel htmlFor="inputFormat">Input Format</CustomLabel>
 
             <CustomSelect
-              id="inputType"
+              id="inputFormat"
               onChange={(e) => {
                 const selectedFormat = Object.values(InputFormat)
                   .find((format) => format === e.target.value);
                 if (selectedFormat !== undefined) {
-                  setInputType(selectedFormat);
+                  setInputFormat(selectedFormat);
                 }
               }}
-              value={inputType}
+              value={inputFormat}
             >
               {Object.values(InputFormat).map((format) => (
                 <option
@@ -197,7 +197,7 @@ function App(): React.JSX.Element {
             </CustomSelect>
           </InputWithLabelContainer>
 
-          {inputType === InputFormat.Decimal
+          {inputFormat === InputFormat.Decimal
             ? (
               <InputWithLabelContainer>
                 <CustomLabel htmlFor="roundingMode">

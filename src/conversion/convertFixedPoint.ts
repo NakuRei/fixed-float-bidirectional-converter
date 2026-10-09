@@ -16,12 +16,12 @@ interface ConversionFields {
 }
 
 interface BitPatternInput extends ConversionFields {
-  inputType: BitPatternFormat;
+  inputFormat: BitPatternFormat;
   roundingMode?: never;
 }
 
 interface DecimalInput extends ConversionFields {
-  inputType: typeof InputFormat.Decimal;
+  inputFormat: typeof InputFormat.Decimal;
   roundingMode: RoundingModeType;
 }
 
@@ -77,7 +77,7 @@ function convertFixedPointPattern(
 ): ConversionOutcome {
   const pattern = parseBitPattern(
     input.inputString,
-    input.inputType,
+    input.inputFormat,
     totalBits,
   );
   if (pattern.status === 'invalid') {
@@ -91,7 +91,7 @@ function convertFixedPointPattern(
   return {
     status: 'success',
     result: {
-      hex: input.inputType === InputFormat.Hexadecimal
+      hex: input.inputFormat === InputFormat.Hexadecimal
         ? {
           status: 'original',
           value: input.inputString,
@@ -100,7 +100,7 @@ function convertFixedPointPattern(
           status: 'exact',
           value: toHexString(binaryString, input.isSigned),
         },
-      binary: input.inputType === InputFormat.Binary
+      binary: input.inputFormat === InputFormat.Binary
         ? {
           status: 'original',
           value: input.inputString,
@@ -156,12 +156,12 @@ function convertDecimalFixedPoint(
 
 function validateTotalBitCount(
   totalBits: number,
-  inputType: InputFormatType,
+  inputFormat: InputFormatType,
 ): string | null {
   if (totalBits === 0) {
     return 'Total bit count must be at least 1.';
   }
-  if (inputType === InputFormat.Decimal && totalBits > MAX_DECIMAL_BITS) {
+  if (inputFormat === InputFormat.Decimal && totalBits > MAX_DECIMAL_BITS) {
     return 'Decimal conversion supports at most '
       + `${MAX_DECIMAL_BITS.toString()} total bits.`;
   }
@@ -185,7 +185,7 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
     };
   }
   const totalBits = integerBits + fractionalBits;
-  const message = validateTotalBitCount(totalBits, input.inputType);
+  const message = validateTotalBitCount(totalBits, input.inputFormat);
   if (message !== null) {
     return {
       status: 'invalid',
@@ -203,7 +203,7 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
   }
   const foreignPrefixMessage = findForeignPrefixMessage(
     trimmedInput.inputString,
-    trimmedInput.inputType,
+    trimmedInput.inputFormat,
   );
   if (foreignPrefixMessage !== null) {
     return {
@@ -212,7 +212,7 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
       invalidFields: ['inputString'],
     };
   }
-  return trimmedInput.inputType === InputFormat.Decimal
+  return trimmedInput.inputFormat === InputFormat.Decimal
     ? convertDecimalFixedPoint(trimmedInput, fractionalBits, totalBits)
     : convertFixedPointPattern(trimmedInput, fractionalBits, totalBits);
 }
