@@ -8,7 +8,7 @@ import {
 
 const decimalInput: ConversionInput = {
   inputString: '0.1',
-  inputType: InputFormat.Decimal,
+  inputFormat: InputFormat.Decimal,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',

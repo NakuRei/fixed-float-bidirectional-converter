@@ -7,7 +7,7 @@ import { RoundingMode } from '../src/conversion/RoundingMode';
 describe('Decimal input in the converter', () => {
   it('offers each rounding mode by name', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     const rounding = screen.getByRole('combobox', {
@@ -26,7 +26,7 @@ describe('Decimal input in the converter', () => {
     render(<App />);
     expect(screen.queryByRole('combobox', { name: 'Fixed-point rounding' }))
       .not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
@@ -61,7 +61,7 @@ describe('Decimal input in the converter', () => {
 
   it('retains the rounding selection when switching input formats', () => {
     render(<App />);
-    const format = screen.getByRole('combobox', { name: 'Input Type' });
+    const format = screen.getByRole('combobox', { name: 'Input Format' });
     fireEvent.change(format, {
       target: { value: InputFormat.Decimal },
     });
@@ -83,7 +83,7 @@ describe('Decimal input in the converter', () => {
 
   it('encodes the signed example and updates the input guidance', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
@@ -104,7 +104,7 @@ describe('Decimal input in the converter', () => {
 
   it('revalidates a negative decimal when the sign mode changes', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
@@ -124,7 +124,7 @@ describe('Decimal input in the converter', () => {
 
   it('reinterprets the same input when switching all three formats', () => {
     render(<App />);
-    const format = screen.getByRole('combobox', { name: 'Input Type' });
+    const format = screen.getByRole('combobox', { name: 'Input Format' });
     fireEvent.change(format, {
       target: { value: InputFormat.Decimal },
     });
@@ -156,7 +156,7 @@ describe('Decimal input in the converter', () => {
 
   it('recalculates the encoding when the bit allocation changes', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {
@@ -177,7 +177,7 @@ describe('Decimal input in the converter', () => {
 
   it('clears decimal errors and results when the input is cleared', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });

@@ -14,13 +14,13 @@ function expectFloatConversion(
     ? integer + (2n ** BigInt(totalBits))
     : integer;
   const binaryString = unsignedInteger.toString(2).padStart(totalBits, '0');
-  for (const inputType of [InputFormat.Binary, InputFormat.Hexadecimal]) {
-    const inputString = inputType === InputFormat.Binary
+  for (const inputFormat of [InputFormat.Binary, InputFormat.Hexadecimal]) {
+    const inputString = inputFormat === InputFormat.Binary
       ? binaryString
       : unsignedInteger.toString(16).padStart(Math.ceil(totalBits / 4), '0');
     const outcome = convertFixedPoint({
       inputString,
-      inputType,
+      inputFormat,
       isSigned,
       integerBitsString: (totalBits - fractionalBits).toString(),
       fractionalBitsString: fractionalBits.toString(),
@@ -29,7 +29,7 @@ function expectFloatConversion(
       status: 'success',
       result: {
         binary: {
-          status: inputType === InputFormat.Binary ? 'original' : 'exact',
+          status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
           value: binaryString,
         },
       },

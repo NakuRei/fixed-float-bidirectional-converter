@@ -7,7 +7,7 @@ import {
 
 const validInput: ConversionInput = {
   inputString: '01001101',
-  inputType: InputFormat.Binary,
+  inputFormat: InputFormat.Binary,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
@@ -77,7 +77,7 @@ describe('convertFixedPoint input validation', () => {
       expect(convertFixedPoint({
         ...validInput,
         inputString,
-        inputType: InputFormat.Hexadecimal,
+        inputFormat: InputFormat.Hexadecimal,
       })).toEqual({
         status: 'invalid',
         message: 'Hex string contains characters other than 0-9 and A-F',
@@ -104,7 +104,7 @@ describe('convertFixedPoint input validation', () => {
     expectInvalidConversion({
       ...validInput,
       inputString,
-      inputType: InputFormat.Hexadecimal,
+      inputFormat: InputFormat.Hexadecimal,
     }, /Hex digit count/u, ['inputString']);
   });
 
@@ -175,10 +175,10 @@ describe('convertFixedPoint input validation', () => {
     ],
   ] as const)(
     'explains unsupported bit counts for %s input: %s + %s',
-    (inputType, integerBitsString, fractionalBitsString, message) => {
+    (inputFormat, integerBitsString, fractionalBitsString, message) => {
       expect(convertFixedPoint({
         ...validInput,
-        inputType,
+        inputFormat,
         integerBitsString,
         fractionalBitsString,
       })).toEqual({
@@ -193,11 +193,11 @@ describe('convertFixedPoint input validation', () => {
     [InputFormat.Binary, '0'.repeat(16388)],
     [InputFormat.Hexadecimal, '0'.repeat(4097)],
   ] as const)('accepts %s patterns beyond the decimal input bit limit', (
-    inputType, inputString,
+    inputFormat, inputString,
   ) => {
     expect(convertFixedPoint({
       ...validInput,
-      inputType,
+      inputFormat,
       inputString,
       integerBitsString: '16388',
       fractionalBitsString: '0',
@@ -205,11 +205,13 @@ describe('convertFixedPoint input validation', () => {
       status: 'success',
       result: {
         binary: {
-          status: inputType === InputFormat.Binary ? 'original' : 'exact',
+          status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
           value: '0'.repeat(16388),
         },
         hex: {
-          status: inputType === InputFormat.Hexadecimal ? 'original' : 'exact',
+          status: inputFormat === InputFormat.Hexadecimal
+            ? 'original'
+            : 'exact',
           value: '0'.repeat(4097),
         },
         decimal: {

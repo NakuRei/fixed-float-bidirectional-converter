@@ -21,7 +21,7 @@ describe('Accessible converter controls', () => {
     expect(fractionalBits).toHaveValue('4');
     expect(input).toHaveAccessibleDescription(/Use 0 or 1/u);
     expect(input).toHaveAttribute('inputmode', 'numeric');
-    expect(screen.getByRole('combobox', { name: 'Input Type' }))
+    expect(screen.getByRole('combobox', { name: 'Input Format' }))
       .toHaveValue(InputFormat.Binary);
     expect(screen.getByRole('option', {
       name: 'Binary',
@@ -31,7 +31,7 @@ describe('Accessible converter controls', () => {
 
   it('updates the format instructions while keeping the input name', () => {
     render(<App />);
-    const inputFormat = screen.getByRole('combobox', { name: 'Input Type' });
+    const inputFormat = screen.getByRole('combobox', { name: 'Input Format' });
     fireEvent.change(inputFormat, {
       target: { value: InputFormat.Hexadecimal },
     });
@@ -105,7 +105,7 @@ describe('Accessible converter controls', () => {
     inputFormat, invalidValue, errorDescription,
   ) => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: inputFormat },
     });
     const input = screen.getByRole('textbox', {
@@ -134,7 +134,7 @@ describe('Accessible converter controls', () => {
 
   it('converts signed hex and recovers after an invalid bit count', () => {
     render(<App />);
-    fireEvent.change(screen.getByRole('combobox', { name: 'Input Type' }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Hexadecimal },
     });
     const inputName = 'Fixed-Point Bit Pattern:';

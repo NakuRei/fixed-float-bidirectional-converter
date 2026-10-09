@@ -9,7 +9,7 @@ import {
 
 const decimalInput: ConversionInput = {
   inputString: '0.1',
-  inputType: InputFormat.Decimal,
+  inputFormat: InputFormat.Decimal,
   isSigned: true,
   integerBitsString: '1',
   fractionalBitsString: '55',
@@ -40,12 +40,12 @@ function expectEncodingAndDecoding(
       },
     },
   });
-  for (const [inputType, inputString] of [
+  for (const [inputFormat, inputString] of [
     [InputFormat.Binary, expected.binary],
     [InputFormat.Hexadecimal, expected.hex],
   ] as const) {
     expect(convertFixedPoint({
-      inputType,
+      inputFormat,
       inputString,
       isSigned: input.isSigned,
       integerBitsString: input.integerBitsString,
@@ -54,11 +54,13 @@ function expectEncodingAndDecoding(
       status: 'success',
       result: {
         hex: {
-          status: inputType === InputFormat.Hexadecimal ? 'original' : 'exact',
+          status: inputFormat === InputFormat.Hexadecimal
+            ? 'original'
+            : 'exact',
           value: expected.hex,
         },
         binary: {
-          status: inputType === InputFormat.Binary ? 'original' : 'exact',
+          status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
           value: expected.binary,
         },
         decimal: expected.decimal,

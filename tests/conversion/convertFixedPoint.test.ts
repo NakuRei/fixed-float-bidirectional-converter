@@ -45,7 +45,7 @@ describe('convertFixedPoint', () => {
   ) => {
     expect(convertFixedPoint({
       inputString,
-      inputType: InputFormat.Binary,
+      inputFormat: InputFormat.Binary,
       isSigned: true,
       integerBitsString: integerBits.toString(),
       fractionalBitsString: fractionalBits.toString(),
@@ -87,7 +87,7 @@ describe('convertFixedPoint', () => {
   ) => {
     expect(convertFixedPoint({
       inputString,
-      inputType: InputFormat.Hexadecimal,
+      inputFormat: InputFormat.Hexadecimal,
       isSigned: false,
       integerBitsString: integerBits.toString(),
       fractionalBitsString: fractionalBits.toString(),
@@ -118,14 +118,14 @@ describe('convertFixedPoint', () => {
     isSigned,
     float64Value,
   ) => {
-    for (const [inputType, inputString] of [
+    for (const [inputFormat, inputString] of [
       [InputFormat.Binary, binaryString],
       [InputFormat.Hexadecimal, inputHexString],
       [InputFormat.Hexadecimal, hexString],
     ] as const) {
       expect(convertFixedPoint({
         inputString,
-        inputType,
+        inputFormat,
         isSigned,
         integerBitsString: integerBits.toString(),
         fractionalBitsString: fractionalBits.toString(),
@@ -133,14 +133,14 @@ describe('convertFixedPoint', () => {
         status: 'success',
         result: {
           binary: {
-            status: inputType === InputFormat.Binary ? 'original' : 'exact',
+            status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
             value: binaryString,
           },
           hex: {
-            status: inputType === InputFormat.Hexadecimal
+            status: inputFormat === InputFormat.Hexadecimal
               ? 'original'
               : 'exact',
-            value: inputType === InputFormat.Hexadecimal
+            value: inputFormat === InputFormat.Hexadecimal
               ? inputString
               : hexString,
           },
@@ -178,7 +178,7 @@ describe('convertFixedPoint', () => {
   ) => {
     expect(convertFixedPoint({
       inputString,
-      inputType: InputFormat.Hexadecimal,
+      inputFormat: InputFormat.Hexadecimal,
       isSigned,
       integerBitsString: integerBits.toString(),
       fractionalBitsString: fractionalBits.toString(),
@@ -221,7 +221,7 @@ describe('convertFixedPoint', () => {
   ) => {
     expect(convertFixedPoint({
       inputString,
-      inputType: InputFormat.Binary,
+      inputFormat: InputFormat.Binary,
       isSigned,
       integerBitsString: inputString.length.toString(),
       fractionalBitsString: '0',
@@ -254,7 +254,7 @@ describe('convertFixedPoint', () => {
   ) => {
     expect(convertFixedPoint({
       inputString,
-      inputType: InputFormat.Hexadecimal,
+      inputFormat: InputFormat.Hexadecimal,
       isSigned,
       integerBitsString: integerBits.toString(),
       fractionalBitsString: fractionalBits.toString(),
