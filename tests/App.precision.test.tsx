@@ -23,14 +23,14 @@ describe('Conversion precision in the UI', () => {
     ['0.1', '02', '00000010', 'rounded'],
     ['-0.1', 'FE', '11111110', 'rounded'],
   ])('labels the conversion results for decimal input %s', (
-    input, hex, binary, precision,
+    input, hexadecimal, binary, precision,
   ) => {
     renderDecimalInput('4', '4');
     fireEvent.change(screen.getByRole('textbox', { name: 'Decimal Value:' }), {
       target: { value: input },
     });
     for (const [label, value, expectedPrecision] of [
-      ['Hex', hex, precision],
+      ['Hexadecimal', hexadecimal, precision],
       ['Binary', binary, precision],
       ['Decimal', input, 'original'],
     ]) {
@@ -133,7 +133,8 @@ describe('Conversion precision in the UI', () => {
     expect(screen.queryByText('rounded')).not.toBeInTheDocument();
   });
 
-  it('preserves wide decimal input and reports loss decoding hex', () => {
+  it('preserves wide decimal input and reports loss decoding '
+    + 'hexadecimal', () => {
     renderDecimalInput('64', '0');
     fireEvent.change(screen.getByRole('combobox', {
       name: 'Fixed-point rounding',
@@ -160,7 +161,7 @@ describe('Conversion precision in the UI', () => {
     expect(within(float64).getByText('9007199254740992')).toBeInTheDocument();
     expect(within(float64).getByText('rounded')).toBeVisible();
     expect(screen.getAllByText('Exact')).toHaveLength(1);
-    expect(within(screen.getByRole('group', { name: 'Hex conversion' }))
+    expect(within(screen.getByRole('group', { name: 'Hexadecimal conversion' }))
       .getByText('original')).toBeVisible();
     expect(float64).toHaveAccessibleDescription(
       'Precision was lost converting the fixed-point value to Float64.',

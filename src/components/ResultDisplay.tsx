@@ -20,7 +20,7 @@ export function ResultDisplay({
 }: ResultDisplayProps): React.JSX.Element {
   const rows = [
     {
-      label: 'Hex',
+      label: 'Hexadecimal',
       result: result.hexadecimal,
       descriptionId: undefined,
     },

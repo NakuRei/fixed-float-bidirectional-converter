@@ -67,7 +67,7 @@ describe('convertFixedPoint pasted input', () => {
     });
   });
 
-  it('reads a leading 0b in hex input as hex digits', () => {
+  it('reads a leading 0b in hexadecimal input as hexadecimal digits', () => {
     expect(convertFixedPoint({
       ...validInput,
       inputFormat: InputFormat.Hexadecimal,

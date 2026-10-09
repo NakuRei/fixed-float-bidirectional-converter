@@ -10,7 +10,7 @@ describe('Original and converted output values', () => {
       format: InputFormat.Hexadecimal,
       input: 'cd',
       rows: [
-        ['Hex', 'cd', 'original'],
+        ['Hexadecimal', 'cd', 'original'],
         ['Binary', '11001101', 'Exact'],
         ['Decimal', '-3.1875', 'Exact'],
       ],
@@ -19,7 +19,7 @@ describe('Original and converted output values', () => {
       format: InputFormat.Hexadecimal,
       input: '0x14',
       rows: [
-        ['Hex', '0x14', 'original'],
+        ['Hexadecimal', '0x14', 'original'],
         ['Binary', '00010100', 'Exact'],
         ['Decimal', '1.25', 'Exact'],
       ],
@@ -28,7 +28,7 @@ describe('Original and converted output values', () => {
       format: InputFormat.Binary,
       input: '00010100',
       rows: [
-        ['Hex', '14', 'Exact'],
+        ['Hexadecimal', '14', 'Exact'],
         ['Binary', '00010100', 'original'],
         ['Decimal', '1.25', 'Exact'],
       ],
@@ -37,7 +37,7 @@ describe('Original and converted output values', () => {
       format: InputFormat.Binary,
       input: '0b00010100',
       rows: [
-        ['Hex', '14', 'Exact'],
+        ['Hexadecimal', '14', 'Exact'],
         ['Binary', '0b00010100', 'original'],
         ['Decimal', '1.25', 'Exact'],
       ],
@@ -46,7 +46,7 @@ describe('Original and converted output values', () => {
       format: InputFormat.Decimal,
       input: '+001.2800e0',
       rows: [
-        ['Hex', '14', 'rounded'],
+        ['Hexadecimal', '14', 'rounded'],
         ['Binary', '00010100', 'rounded'],
         ['Decimal', '+001.2800e0', 'original'],
       ],
@@ -55,7 +55,7 @@ describe('Original and converted output values', () => {
       format: InputFormat.Decimal,
       input: '-0.000',
       rows: [
-        ['Hex', '00', 'Exact'],
+        ['Hexadecimal', '00', 'Exact'],
         ['Binary', '00000000', 'Exact'],
         ['Decimal', '-0.000', 'original'],
       ],
@@ -92,7 +92,7 @@ describe('Original and converted output values', () => {
     for (const mode of [RoundingMode.NearestEven, RoundingMode.TowardZero]) {
       fireEvent.change(rounding, { target: { value: mode } });
       for (const [label, value, precision] of [
-        ['Hex', '14', 'rounded'],
+        ['Hexadecimal', '14', 'rounded'],
         ['Binary', '00010100', 'rounded'],
         ['Decimal', '1.28', 'original'],
       ]) {
