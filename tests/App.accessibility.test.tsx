@@ -173,7 +173,7 @@ describe('Accessible converter controls', () => {
     ['Integer Bits:', '01001101'],
     ['Fractional Bits:', ''],
     ['Fractional Bits:', '01001101'],
-  ])('keeps %s errors with initial pattern "%s" until correction', (
+  ])('keeps %j errors with initial pattern %j until correction', (
     bitCountName, initialPattern,
   ) => {
     render(<App />);
