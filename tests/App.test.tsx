@@ -109,7 +109,7 @@ describe('App Component', () => {
     });
     expect(screen.getByText('4.8125')).toBeInTheDocument();
     expect(screen.getByText('4d')).toBeInTheDocument();
-    expect(within(screen.getByRole('group', { name: 'Hex conversion' }))
+    expect(within(screen.getByRole('group', { name: 'Hexadecimal conversion' }))
       .getByText('original')).toBeVisible();
     expect(input).toHaveValue('4d');
     expect(screen.getByText('01001101')).toBeInTheDocument();
@@ -143,7 +143,7 @@ describe('App Component', () => {
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
   });
 
-  it('preserves original hex as bit width and sign change', () => {
+  it('preserves original hexadecimal as bit width and sign change', () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
@@ -169,7 +169,7 @@ describe('App Component', () => {
     expect(screen.getByText('FF')).toBeInTheDocument();
     expect(screen.queryByText('3F')).not.toBeInTheDocument();
     expect(screen.getByText('111111')).toBeInTheDocument();
-    expect(within(screen.getByRole('group', { name: 'Hex conversion' }))
+    expect(within(screen.getByRole('group', { name: 'Hexadecimal conversion' }))
       .getByText('original')).toBeVisible();
     expect(screen.getByText('7.875')).toBeInTheDocument();
 
@@ -180,7 +180,7 @@ describe('App Component', () => {
     expect(screen.getByText('-0.125')).toBeInTheDocument();
   });
 
-  it('extends binary input to hex according to the sign mode', () => {
+  it('extends binary input to hexadecimal according to the sign mode', () => {
     render(<App />);
     fireEvent.change(screen.getByPlaceholderText('Integer Bits'), {
       target: { value: '6' },

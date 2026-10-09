@@ -44,7 +44,7 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: hexString,
         },
@@ -79,7 +79,7 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: hexString,
         },
@@ -100,7 +100,7 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '0020000000000001',
         },
@@ -156,7 +156,7 @@ describe('convertFixedPoint decimal encoding', () => {
         })).toEqual({
           status: 'success',
           result: {
-            hex: {
+            hexadecimal: {
               status: 'exact',
               value: hexString,
             },

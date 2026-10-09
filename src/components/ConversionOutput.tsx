@@ -20,7 +20,7 @@ function PrecisionNotices(
   if (outcome.status !== 'success') {
     return null;
   }
-  const fixedPointWasRounded = outcome.result.hex.status === 'rounded'
+  const fixedPointWasRounded = outcome.result.hexadecimal.status === 'rounded'
     || outcome.result.binary.status === 'rounded';
   const decimalStatus = outcome.result.decimal.status;
   const decimalNotice = decimalStatus === 'rounded'

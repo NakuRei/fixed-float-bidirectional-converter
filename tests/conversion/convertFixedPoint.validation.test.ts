@@ -72,7 +72,7 @@ describe('convertFixedPoint input validation', () => {
   );
 
   it.each(['GG', '-1', '4 D', '0x0x4D'])(
-    'rejects invalid hex characters in %s',
+    'rejects invalid hexadecimal characters in %s',
     (inputString) => {
       expect(convertFixedPoint({
         ...validInput,
@@ -80,7 +80,8 @@ describe('convertFixedPoint input validation', () => {
         inputFormat: InputFormat.Hexadecimal,
       })).toEqual({
         status: 'invalid',
-        message: 'Hex string contains characters other than 0-9 and A-F',
+        message: 'Hexadecimal string contains characters '
+          + 'other than 0-9 and A-F',
         invalidFields: ['inputString'],
       });
     },
@@ -100,12 +101,12 @@ describe('convertFixedPoint input validation', () => {
     },
   );
 
-  it.each(['F', '0FF'])('rejects hex length %s', (inputString) => {
+  it.each(['F', '0FF'])('rejects hexadecimal length %s', (inputString) => {
     expectInvalidConversion({
       ...validInput,
       inputString,
       inputFormat: InputFormat.Hexadecimal,
-    }, /Hex digit count/u, ['inputString']);
+    }, /Hexadecimal digit count/u, ['inputString']);
   });
 
   it.each([
@@ -208,7 +209,7 @@ describe('convertFixedPoint input validation', () => {
           status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
           value: '0'.repeat(16388),
         },
-        hex: {
+        hexadecimal: {
           status: inputFormat === InputFormat.Hexadecimal
             ? 'original'
             : 'exact',
@@ -242,7 +243,7 @@ describe('convertFixedPoint input validation', () => {
           status: 'original',
           value: '01001101',
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '4D',
         },
@@ -263,7 +264,7 @@ describe('convertFixedPoint input validation', () => {
           status: 'original',
           value: '01001101',
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '4D',
         },

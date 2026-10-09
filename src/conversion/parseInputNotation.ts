@@ -24,11 +24,11 @@ const bitPatternNotations = {
     bitsPerDigit: 1,
   },
   [InputFormat.Hexadecimal]: {
-    name: 'Hex',
+    name: 'Hexadecimal',
     prefix: hexPrefix,
     allowedCharacters: /^[0-9A-Fa-f]*$/u,
     invalidCharacterMessage:
-      'Hex string contains characters other than 0-9 and A-F',
+      'Hexadecimal string contains characters other than 0-9 and A-F',
     radix: 16,
     bitsPerDigit: 4,
   },

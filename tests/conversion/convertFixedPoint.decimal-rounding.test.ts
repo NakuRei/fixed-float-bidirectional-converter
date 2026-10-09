@@ -43,7 +43,7 @@ describe('Decimal quantization', () => {
       status: 'success',
       result: {
         binary: { status: 'rounded' },
-        hex: {
+        hexadecimal: {
           status: 'rounded',
           value: hexString,
         },
@@ -72,7 +72,7 @@ describe('Decimal quantization', () => {
       status: 'success',
       result: {
         binary: { status: 'rounded' },
-        hex: {
+        hexadecimal: {
           status: 'rounded',
           value: hexString,
         },
@@ -112,7 +112,7 @@ describe('Decimal quantization', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '40000000000001',
         },
@@ -138,7 +138,7 @@ describe('Decimal quantization', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: 'CD',
         },
@@ -192,7 +192,7 @@ describe('Decimal quantization', () => {
         })).toEqual({
           status: 'success',
           result: {
-            hex: {
+            hexadecimal: {
               status: 'rounded',
               value: '00',
             },
@@ -231,7 +231,7 @@ describe('Decimal quantization', () => {
       })).toMatchObject({
         status: 'success',
         result: {
-          hex: {
+          hexadecimal: {
             status: 'exact',
             value: '00',
           },
@@ -257,7 +257,7 @@ describe('Decimal quantization', () => {
           status: 'exact',
           value: '0'.repeat(16384),
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '0'.repeat(4096),
         },
