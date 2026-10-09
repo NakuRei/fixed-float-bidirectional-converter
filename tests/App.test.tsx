@@ -101,8 +101,10 @@ describe('App Component', () => {
     });
     expect(screen.getByText('ERROR:')).toBeInTheDocument();
 
-    const inputFormat = screen.getByRole('combobox', { name: 'Input Format' });
-    fireEvent.change(inputFormat, {
+    const inputFormatCombobox = screen.getByRole('combobox', {
+      name: 'Input Format',
+    });
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Hexadecimal },
     });
     expect(screen.getByText('4.8125')).toBeInTheDocument();
@@ -113,7 +115,7 @@ describe('App Component', () => {
     expect(screen.getByText('01001101')).toBeInTheDocument();
     expect(screen.queryByText('ERROR:')).not.toBeInTheDocument();
 
-    fireEvent.change(inputFormat, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Binary },
     });
     expect(screen.getByText('ERROR:')).toBeInTheDocument();

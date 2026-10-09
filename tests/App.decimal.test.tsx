@@ -61,20 +61,22 @@ describe('Decimal input in the converter', () => {
 
   it('retains the rounding selection when switching input formats', () => {
     render(<App />);
-    const format = screen.getByRole('combobox', { name: 'Input Format' });
-    fireEvent.change(format, {
+    const inputFormatCombobox = screen.getByRole('combobox', {
+      name: 'Input Format',
+    });
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Decimal },
     });
     fireEvent.change(
       screen.getByRole('combobox', { name: 'Fixed-point rounding' }),
       { target: { value: RoundingMode.Exact } },
     );
-    fireEvent.change(format, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Hexadecimal },
     });
     expect(screen.queryByRole('combobox', { name: 'Fixed-point rounding' }))
       .not.toBeInTheDocument();
-    fireEvent.change(format, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Decimal },
     });
     expect(screen.getByRole('combobox', { name: 'Fixed-point rounding' }))
@@ -124,15 +126,17 @@ describe('Decimal input in the converter', () => {
 
   it('reinterprets the same input when switching all three formats', () => {
     render(<App />);
-    const format = screen.getByRole('combobox', { name: 'Input Format' });
-    fireEvent.change(format, {
+    const inputFormatCombobox = screen.getByRole('combobox', {
+      name: 'Input Format',
+    });
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Decimal },
     });
     const input = screen.getByRole('textbox', { name: 'Decimal Value:' });
     fireEvent.change(input, { target: { value: '01' } });
     expect(screen.getByText('00010000')).toBeInTheDocument();
 
-    fireEvent.change(format, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Hexadecimal },
     });
     expect(screen.getByRole('textbox', { name: 'Fixed-Point Bit Pattern:' }))
@@ -140,13 +144,13 @@ describe('Decimal input in the converter', () => {
     expect(input).toHaveAccessibleDescription(/A–F/u);
     expect(screen.getByText('00000001')).toBeInTheDocument();
 
-    fireEvent.change(format, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Binary },
     });
     expect(input).toBeInvalid();
     expect(input).toHaveAccessibleDescription(/digit count should be 8/u);
 
-    fireEvent.change(format, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Decimal },
     });
     expect(input).toBeValid();

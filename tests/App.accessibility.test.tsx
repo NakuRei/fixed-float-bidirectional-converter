@@ -31,8 +31,10 @@ describe('Accessible converter controls', () => {
 
   it('updates the format instructions while keeping the input name', () => {
     render(<App />);
-    const inputFormat = screen.getByRole('combobox', { name: 'Input Format' });
-    fireEvent.change(inputFormat, {
+    const inputFormatCombobox = screen.getByRole('combobox', {
+      name: 'Input Format',
+    });
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Hexadecimal },
     });
     const input = screen.getByRole('textbox', {
@@ -45,7 +47,7 @@ describe('Accessible converter controls', () => {
       selected: true,
     })).toBeInTheDocument();
 
-    fireEvent.change(inputFormat, {
+    fireEvent.change(inputFormatCombobox, {
       target: { value: InputFormat.Binary },
     });
     expect(input).toHaveAttribute('inputmode', 'numeric');
