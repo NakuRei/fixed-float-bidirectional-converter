@@ -208,7 +208,7 @@ describe('convertFixedPoint input validation', () => {
           status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
           value: '0'.repeat(16388),
         },
-        hex: {
+        hexadecimal: {
           status: inputFormat === InputFormat.Hexadecimal
             ? 'original'
             : 'exact',
@@ -242,7 +242,7 @@ describe('convertFixedPoint input validation', () => {
           status: 'original',
           value: '01001101',
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '4D',
         },
@@ -263,7 +263,7 @@ describe('convertFixedPoint input validation', () => {
           status: 'original',
           value: '01001101',
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: '4D',
         },

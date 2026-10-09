@@ -21,7 +21,7 @@ export function ResultDisplay({
   const rows = [
     {
       label: 'Hex',
-      result: result.hex,
+      result: result.hexadecimal,
       descriptionId: undefined,
     },
     {

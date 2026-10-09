@@ -136,7 +136,7 @@ describe('convertFixedPoint', () => {
             status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
             value: binaryString,
           },
-          hex: {
+          hexadecimal: {
             status: inputFormat === InputFormat.Hexadecimal
               ? 'original'
               : 'exact',
@@ -189,7 +189,7 @@ describe('convertFixedPoint', () => {
           status: 'exact',
           value: binaryString,
         },
-        hex: {
+        hexadecimal: {
           status: 'original',
           value: inputString,
         },
@@ -232,7 +232,7 @@ describe('convertFixedPoint', () => {
           status: 'original',
           value: inputString,
         },
-        hex: {
+        hexadecimal: {
           status: 'exact',
           value: hexString,
         },

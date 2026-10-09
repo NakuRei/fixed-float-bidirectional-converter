@@ -50,7 +50,7 @@ describe('convertFixedPoint pasted input', () => {
             status: 'exact',
             value: '01001101',
           },
-        hex: inputFormat === InputFormat.Hexadecimal
+        hexadecimal: inputFormat === InputFormat.Hexadecimal
           ? {
             status: 'original',
             value: originalValue,
@@ -153,7 +153,7 @@ describe('convertFixedPoint pasted input', () => {
       })).toEqual({
         status: 'success',
         result: {
-          hex: {
+          hexadecimal: {
             status: 'exact',
             value: 'CD',
           },
