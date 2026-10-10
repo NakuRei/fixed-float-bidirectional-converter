@@ -116,8 +116,6 @@ export default defineConfig(
           html: true,
         },
       ],
-      // JSXのpropsのソートを強制
-      '@stylistic/jsx-sort-props': 'error',
       '@stylistic/jsx-tag-spacing': [
         'error',
         {
