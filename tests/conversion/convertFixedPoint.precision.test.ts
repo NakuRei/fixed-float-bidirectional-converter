@@ -4,8 +4,8 @@ import { RoundingMode } from '../../src/conversion/RoundingMode';
 import {
   convertFixedPoint,
   type ConversionInput,
-  type ConversionResults,
 } from '../../src/conversion/convertFixedPoint';
+import type { Float64Result } from '../../src/conversion/decodeFixedPointFloat64';
 
 const decimalInput: ConversionInput = {
   inputString: '0.1',
@@ -20,23 +20,18 @@ function expectEncodingAndDecoding(
   input: ConversionInput,
   expected: { binary: string;
     hexadecimal: string;
-    decimal: ConversionResults['decimal']; },
+    float64: Float64Result; },
   fixedPointStatus: 'exact' | 'rounded',
 ): void {
   expect(convertFixedPoint(input)).toEqual({
     status: 'success',
     result: {
-      hexadecimal: {
+      inputFormat: InputFormat.Decimal,
+      inputString: input.inputString,
+      fixedPoint: {
         status: fixedPointStatus,
-        value: expected.hexadecimal,
-      },
-      binary: {
-        status: fixedPointStatus,
-        value: expected.binary,
-      },
-      decimal: {
-        status: 'original',
-        value: input.inputString,
+        hexadecimal: expected.hexadecimal,
+        binary: expected.binary,
       },
     },
   });
@@ -53,17 +48,14 @@ function expectEncodingAndDecoding(
     })).toEqual({
       status: 'success',
       result: {
-        hexadecimal: {
-          status: inputFormat === InputFormat.Hexadecimal
-            ? 'original'
-            : 'exact',
-          value: expected.hexadecimal,
+        inputFormat,
+        inputString,
+        fixedPoint: {
+          status: 'exact',
+          hexadecimal: expected.hexadecimal,
+          binary: expected.binary,
         },
-        binary: {
-          status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
-          value: expected.binary,
-        },
-        decimal: expected.decimal,
+        float64: expected.float64,
       },
     });
   }
@@ -76,7 +68,7 @@ describe('Fixed-point and Float64 precision', () => {
       roundingMode: RoundingMode.NearestEven,
       integer: 3602879701896397n,
       hexadecimal: '0CCCCCCCCCCCCD',
-      decimal: {
+      float64: {
         status: 'exact',
         value: '0.1',
       },
@@ -86,7 +78,7 @@ describe('Fixed-point and Float64 precision', () => {
       roundingMode: RoundingMode.TowardZero,
       integer: 3602879701896396n,
       hexadecimal: '0CCCCCCCCCCCCC',
-      decimal: {
+      float64: {
         status: 'exact',
         value: '0.09999999999999998',
       },
@@ -96,7 +88,7 @@ describe('Fixed-point and Float64 precision', () => {
       roundingMode: RoundingMode.NearestEven,
       integer: 115292150460684698n,
       hexadecimal: '019999999999999A',
-      decimal: {
+      float64: {
         status: 'rounded',
         value: '0.1',
       },
@@ -104,7 +96,7 @@ describe('Fixed-point and Float64 precision', () => {
   ] as const)(
     'distinguishes quantization from Float64 with $fractionalBits bits, '
     + '$roundingMode',
-    ({ fractionalBits, roundingMode, integer, hexadecimal, decimal }) => {
+    ({ fractionalBits, roundingMode, integer, hexadecimal, float64 }) => {
       expectEncodingAndDecoding({
         ...decimalInput,
         fractionalBitsString: fractionalBits.toString(),
@@ -112,7 +104,7 @@ describe('Fixed-point and Float64 precision', () => {
       }, {
         binary: integer.toString(2).padStart(fractionalBits + 1, '0'),
         hexadecimal,
-        decimal,
+        float64,
       }, 'rounded');
     },
   );
@@ -137,7 +129,7 @@ describe('Fixed-point and Float64 precision', () => {
     }, {
       hexadecimal: '0020000000000001',
       binary: `00000000001${'0'.repeat(52)}1`,
-      decimal: {
+      float64: {
         status: 'rounded',
         value: '9007199254740992',
       },
@@ -160,7 +152,7 @@ describe('Fixed-point and Float64 precision', () => {
       hexadecimal: unsignedInteger.toString(16).padStart(257, '0')
         .toUpperCase(),
       binary: unsignedInteger.toString(2).padStart(1028, '0'),
-      decimal: { status: 'overflow' },
+      float64: { status: 'overflow' },
     }, 'exact');
   });
 
@@ -178,7 +170,7 @@ describe('Fixed-point and Float64 precision', () => {
     }, {
       hexadecimal: hexString,
       binary: binaryString,
-      decimal: {
+      float64: {
         status: 'rounded',
         value: '0',
       },

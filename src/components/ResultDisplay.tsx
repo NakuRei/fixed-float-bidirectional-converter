@@ -1,4 +1,5 @@
 import type { ConversionResults } from '../conversion/convertFixedPoint';
+import { InputFormat } from '../conversion/InputFormat';
 import { CopyButton } from './CopyButton';
 import { LabeledResultDisplay } from './LabeledResultDisplay';
 
@@ -18,20 +19,37 @@ export function ResultDisplay({
   decimalDescriptionId,
   result,
 }: ResultDisplayProps): React.JSX.Element {
+  const original = {
+    status: 'original',
+    value: result.inputString,
+  } as const;
+  const { fixedPoint } = result;
   const rows = [
     {
       label: 'Hexadecimal',
-      result: result.hexadecimal,
+      result: result.inputFormat === InputFormat.Hexadecimal
+        ? original
+        : {
+          status: fixedPoint.status,
+          value: fixedPoint.hexadecimal,
+        },
       descriptionId: undefined,
     },
     {
       label: 'Binary',
-      result: result.binary,
+      result: result.inputFormat === InputFormat.Binary
+        ? original
+        : {
+          status: fixedPoint.status,
+          value: fixedPoint.binary,
+        },
       descriptionId: undefined,
     },
     {
       label: 'Decimal',
-      result: result.decimal,
+      result: result.inputFormat === InputFormat.Decimal
+        ? original
+        : result.float64,
       descriptionId: decimalDescriptionId,
     },
   ];

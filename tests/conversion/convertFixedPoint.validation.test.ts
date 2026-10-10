@@ -205,17 +205,14 @@ describe('convertFixedPoint input validation', () => {
     })).toEqual({
       status: 'success',
       result: {
-        binary: {
-          status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
-          value: '0'.repeat(16388),
+        inputFormat,
+        inputString,
+        fixedPoint: {
+          status: 'exact',
+          hexadecimal: '0'.repeat(4097),
+          binary: '0'.repeat(16388),
         },
-        hexadecimal: {
-          status: inputFormat === InputFormat.Hexadecimal
-            ? 'original'
-            : 'exact',
-          value: '0'.repeat(4097),
-        },
-        decimal: {
+        float64: {
           status: 'exact',
           value: '0',
         },
@@ -239,15 +236,14 @@ describe('convertFixedPoint input validation', () => {
     })).toEqual({
       status: 'success',
       result: {
-        binary: {
-          status: 'original',
-          value: '01001101',
-        },
-        hexadecimal: {
+        inputFormat: InputFormat.Binary,
+        inputString: '01001101',
+        fixedPoint: {
           status: 'exact',
-          value: '4D',
+          hexadecimal: '4D',
+          binary: '01001101',
         },
-        decimal: {
+        float64: {
           status: 'exact',
           value: '4.8125',
         },
@@ -260,15 +256,14 @@ describe('convertFixedPoint input validation', () => {
     const expected = {
       status: 'success',
       result: {
-        binary: {
-          status: 'original',
-          value: '01001101',
-        },
-        hexadecimal: {
+        inputFormat: InputFormat.Binary,
+        inputString: '01001101',
+        fixedPoint: {
           status: 'exact',
-          value: '4D',
+          hexadecimal: '4D',
+          binary: '01001101',
         },
-        decimal: {
+        float64: {
           status: 'exact',
           value: '4.8125',
         },

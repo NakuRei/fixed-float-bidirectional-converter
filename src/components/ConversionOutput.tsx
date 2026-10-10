@@ -1,9 +1,19 @@
-import type { ConversionOutcome } from '../conversion/convertFixedPoint';
+import type {
+  ConversionOutcome,
+  ConversionResults,
+} from '../conversion/convertFixedPoint';
 import { ErrorDisplay } from './ErrorDisplay';
 import { ResultDisplay } from './ResultDisplay';
 
 interface ConversionOutputProps {
   outcome: ConversionOutcome;
+}
+
+type Float64PrecisionLoss = 'rounded' | 'overflow';
+
+interface PrecisionNoticesProps {
+  float64PrecisionLoss: Float64PrecisionLoss | null;
+  inputWasRounded: boolean;
 }
 
 const decimalDescriptionId = 'decimalDescription';
@@ -14,29 +24,28 @@ const decimalDescriptions = {
     + 'Hexadecimal and binary results remain valid.',
 };
 
-function PrecisionNotices(
-  { outcome }: ConversionOutputProps,
-): React.JSX.Element | null {
-  if (outcome.status !== 'success') {
-    return null;
-  }
-  const fixedPointWasRounded = outcome.result.hexadecimal.status === 'rounded'
-    || outcome.result.binary.status === 'rounded';
-  const decimalStatus = outcome.result.decimal.status;
-  const decimalNotice = decimalStatus === 'rounded'
-    || decimalStatus === 'overflow'
-    ? decimalDescriptions[decimalStatus]
+function findFloat64PrecisionLoss(
+  result: ConversionResults,
+): Float64PrecisionLoss | null {
+  return 'float64' in result && result.float64.status !== 'exact'
+    ? result.float64.status
     : null;
-  if (!fixedPointWasRounded && decimalNotice === null) {
+}
+
+function PrecisionNotices({
+  float64PrecisionLoss,
+  inputWasRounded,
+}: PrecisionNoticesProps): React.JSX.Element | null {
+  if (!inputWasRounded && float64PrecisionLoss === null) {
     return null;
   }
   return (
     <div
-      className={outcome.result.decimal.status === 'overflow'
+      className={float64PrecisionLoss === 'overflow'
         ? 'text-sm mb-4'
         : 'sr-only'}
     >
-      {fixedPointWasRounded
+      {inputWasRounded
         ? (
           <p className="sr-only">
             The decimal input was rounded to fit the fixed-point format.
@@ -44,10 +53,10 @@ function PrecisionNotices(
         )
         : null}
 
-      {decimalNotice !== null
+      {float64PrecisionLoss !== null
         ? (
           <p id={decimalDescriptionId}>
-            {decimalNotice}
+            {decimalDescriptions[float64PrecisionLoss]}
           </p>
         )
         : null}
@@ -58,6 +67,9 @@ function PrecisionNotices(
 export function ConversionOutput(
   { outcome }: ConversionOutputProps,
 ): React.JSX.Element {
+  const float64PrecisionLoss = outcome.status === 'success'
+    ? findFloat64PrecisionLoss(outcome.result)
+    : null;
   return (
     <div
       className={outcome.status === 'empty'
@@ -86,16 +98,20 @@ export function ConversionOutput(
           )
           : null}
 
-        <PrecisionNotices
-          outcome={outcome}
-        />
+        {outcome.status === 'success'
+          ? (
+            <PrecisionNotices
+              float64PrecisionLoss={float64PrecisionLoss}
+              inputWasRounded={outcome.result.fixedPoint.status === 'rounded'}
+            />
+          )
+          : null}
       </div>
 
       {outcome.status === 'success'
         ? (
           <ResultDisplay
-            decimalDescriptionId={outcome.result.decimal.status === 'original'
-              || outcome.result.decimal.status === 'exact'
+            decimalDescriptionId={float64PrecisionLoss === null
               ? undefined
               : decimalDescriptionId}
             result={outcome.result}

@@ -1,7 +1,10 @@
 import { InputFormat, type InputFormatType } from './InputFormat';
 import type { RoundingModeType } from './RoundingMode';
 import { encodeDecimalFixedPoint, MAX_DECIMAL_BITS } from './encodeDecimalFixedPoint';
-import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
+import {
+  decodeFixedPointFloat64,
+  type Float64Result,
+} from './decodeFixedPointFloat64';
 import {
   findForeignPrefixMessage,
   parseBitPattern,
@@ -27,16 +30,22 @@ interface DecimalInput extends ConversionFields {
 
 export type ConversionInput = BitPatternInput | DecimalInput;
 
-export interface ConversionValue {
-  readonly status: 'original' | 'exact' | 'rounded';
-  readonly value: string;
+interface FixedPointValue {
+  readonly status: 'exact' | 'rounded';
+  readonly hexadecimal: string;
+  readonly binary: string;
 }
 
-export interface ConversionResults {
-  readonly hexadecimal: ConversionValue;
-  readonly binary: ConversionValue;
-  readonly decimal: ConversionValue | { readonly status: 'overflow' };
-}
+export type ConversionResults = {
+  readonly inputFormat: typeof InputFormat.Decimal;
+  readonly inputString: string;
+  readonly fixedPoint: FixedPointValue;
+} | {
+  readonly inputFormat: BitPatternFormat;
+  readonly inputString: string;
+  readonly fixedPoint: FixedPointValue;
+  readonly float64: Float64Result;
+};
 
 export type ConversionOutcome = {
   status: 'empty';
@@ -91,25 +100,14 @@ function convertFixedPointPattern(
   return {
     status: 'success',
     result: {
-      hexadecimal: input.inputFormat === InputFormat.Hexadecimal
-        ? {
-          status: 'original',
-          value: input.inputString,
-        }
-        : {
-          status: 'exact',
-          value: toHexString(binaryString, input.isSigned),
-        },
-      binary: input.inputFormat === InputFormat.Binary
-        ? {
-          status: 'original',
-          value: input.inputString,
-        }
-        : {
-          status: 'exact',
-          value: binaryString,
-        },
-      decimal: decodeFixedPointFloat64(
+      inputFormat: input.inputFormat,
+      inputString: input.inputString,
+      fixedPoint: {
+        status: 'exact',
+        hexadecimal: toHexString(binaryString, input.isSigned),
+        binary: binaryString,
+      },
+      float64: decodeFixedPointFloat64(
         binaryString, fractionalBits, input.isSigned,
       ),
     },
@@ -134,21 +132,15 @@ function convertDecimalFixedPoint(
       invalidFields: ['inputString'],
     };
   }
-  const status = encoding.inputWasRounded ? 'rounded' : 'exact';
   return {
     status: 'success',
     result: {
-      hexadecimal: {
-        status,
-        value: toHexString(encoding.binaryString, input.isSigned),
-      },
-      binary: {
-        status,
-        value: encoding.binaryString,
-      },
-      decimal: {
-        status: 'original',
-        value: input.inputString,
+      inputFormat: input.inputFormat,
+      inputString: input.inputString,
+      fixedPoint: {
+        status: encoding.inputWasRounded ? 'rounded' : 'exact',
+        hexadecimal: toHexString(encoding.binaryString, input.isSigned),
+        binary: encoding.binaryString,
       },
     },
   };
