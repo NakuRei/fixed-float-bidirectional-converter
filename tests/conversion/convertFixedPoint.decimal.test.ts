@@ -44,17 +44,12 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString,
+        fixedPoint: {
           status: 'exact',
-          value: hexString,
-        },
-        binary: {
-          status: 'exact',
-          value: binaryString,
-        },
-        decimal: {
-          status: 'original',
-          value: inputString,
+          hexadecimal: hexString,
+          binary: binaryString,
         },
       },
     });
@@ -79,13 +74,11 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString,
+        fixedPoint: {
           status: 'exact',
-          value: hexString,
-        },
-        decimal: {
-          status: 'original',
-          value: inputString,
+          hexadecimal: hexString,
         },
       },
     });
@@ -100,17 +93,12 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString: '9007199254740993',
+        fixedPoint: {
           status: 'exact',
-          value: '0020000000000001',
-        },
-        binary: {
-          status: 'exact',
-          value: `00000000001${'0'.repeat(52)}1`,
-        },
-        decimal: {
-          status: 'original',
-          value: '9007199254740993',
+          hexadecimal: '0020000000000001',
+          binary: `00000000001${'0'.repeat(52)}1`,
         },
       },
     });
@@ -128,13 +116,11 @@ describe('convertFixedPoint decimal encoding', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        binary: {
+        inputFormat: InputFormat.Decimal,
+        inputString,
+        fixedPoint: {
           status: 'exact',
-          value: binaryString,
-        },
-        decimal: {
-          status: 'original',
-          value: inputString,
+          binary: binaryString,
         },
       },
     });
@@ -156,17 +142,12 @@ describe('convertFixedPoint decimal encoding', () => {
         })).toEqual({
           status: 'success',
           result: {
-            hexadecimal: {
+            inputFormat: InputFormat.Decimal,
+            inputString: value.toString(),
+            fixedPoint: {
               status: 'exact',
-              value: hexString,
-            },
-            binary: {
-              status: 'exact',
-              value: binaryString,
-            },
-            decimal: {
-              status: 'original',
-              value: value.toString(),
+              hexadecimal: hexString,
+              binary: binaryString,
             },
           },
         });

@@ -28,20 +28,23 @@ function expectFloatConversion(
     expect(outcome).toMatchObject({
       status: 'success',
       result: {
-        binary: {
-          status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
-          value: binaryString,
+        inputFormat,
+        inputString,
+        fixedPoint: {
+          status: 'exact',
+          binary: binaryString,
         },
       },
     });
-    if (outcome.status === 'success') {
-      expect(outcome.result.decimal).toEqual(expectedStatus === 'overflow'
+    expect(outcome).toHaveProperty(
+      ['result', 'float64'],
+      expectedStatus === 'overflow'
         ? { status: 'overflow' }
         : {
           status: expectedStatus,
           value: expectedValue.toString(),
-        });
-    }
+        },
+    );
   }
 }
 

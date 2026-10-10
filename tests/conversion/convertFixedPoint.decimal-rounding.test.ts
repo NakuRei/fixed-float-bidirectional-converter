@@ -42,14 +42,11 @@ describe('Decimal quantization', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        binary: { status: 'rounded' },
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString,
+        fixedPoint: {
           status: 'rounded',
-          value: hexString,
-        },
-        decimal: {
-          status: 'original',
-          value: inputString,
+          hexadecimal: hexString,
         },
       },
     });
@@ -71,14 +68,11 @@ describe('Decimal quantization', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        binary: { status: 'rounded' },
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString,
+        fixedPoint: {
           status: 'rounded',
-          value: hexString,
-        },
-        decimal: {
-          status: 'original',
-          value: inputString,
+          hexadecimal: hexString,
         },
       },
     });
@@ -112,17 +106,12 @@ describe('Decimal quantization', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString: '1.000000000000000055511151231257827021181583404541015625',
+        fixedPoint: {
           status: 'exact',
-          value: '40000000000001',
-        },
-        binary: {
-          status: 'exact',
-          value: `01${'0'.repeat(53)}1`,
-        },
-        decimal: {
-          status: 'original',
-          value: '1.000000000000000055511151231257827021181583404541015625',
+          hexadecimal: '40000000000001',
+          binary: `01${'0'.repeat(53)}1`,
         },
       },
     });
@@ -138,17 +127,12 @@ describe('Decimal quantization', () => {
     })).toEqual({
       status: 'success',
       result: {
-        hexadecimal: {
+        inputFormat: InputFormat.Decimal,
+        inputString: '-3.1875',
+        fixedPoint: {
           status: 'exact',
-          value: 'CD',
-        },
-        binary: {
-          status: 'exact',
-          value: '11001101',
-        },
-        decimal: {
-          status: 'original',
-          value: '-3.1875',
+          hexadecimal: 'CD',
+          binary: '11001101',
         },
       },
     });
@@ -192,17 +176,12 @@ describe('Decimal quantization', () => {
         })).toEqual({
           status: 'success',
           result: {
-            hexadecimal: {
+            inputFormat: InputFormat.Decimal,
+            inputString: `${sign}1e-999999999999999999999`,
+            fixedPoint: {
               status: 'rounded',
-              value: '00',
-            },
-            binary: {
-              status: 'rounded',
-              value: '00000000',
-            },
-            decimal: {
-              status: 'original',
-              value: `${sign}1e-999999999999999999999`,
+              hexadecimal: '00',
+              binary: '00000000',
             },
           },
         });
@@ -231,13 +210,11 @@ describe('Decimal quantization', () => {
       })).toMatchObject({
         status: 'success',
         result: {
-          hexadecimal: {
+          inputFormat: InputFormat.Decimal,
+          inputString,
+          fixedPoint: {
             status: 'exact',
-            value: '00',
-          },
-          decimal: {
-            status: 'original',
-            value: inputString,
+            hexadecimal: '00',
           },
         },
       });
@@ -253,17 +230,12 @@ describe('Decimal quantization', () => {
     })).toEqual({
       status: 'success',
       result: {
-        binary: {
+        inputFormat: InputFormat.Decimal,
+        inputString: '0',
+        fixedPoint: {
           status: 'exact',
-          value: '0'.repeat(16384),
-        },
-        hexadecimal: {
-          status: 'exact',
-          value: '0'.repeat(4096),
-        },
-        decimal: {
-          status: 'original',
-          value: '0',
+          hexadecimal: '0'.repeat(4096),
+          binary: '0'.repeat(16384),
         },
       },
     });

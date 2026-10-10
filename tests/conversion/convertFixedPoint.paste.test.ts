@@ -41,25 +41,14 @@ describe('convertFixedPoint pasted input', () => {
     })).toEqual({
       status: 'success',
       result: {
-        binary: inputFormat === InputFormat.Binary
-          ? {
-            status: 'original',
-            value: originalValue,
-          }
-          : {
-            status: 'exact',
-            value: '01001101',
-          },
-        hexadecimal: inputFormat === InputFormat.Hexadecimal
-          ? {
-            status: 'original',
-            value: originalValue,
-          }
-          : {
-            status: 'exact',
-            value: '4D',
-          },
-        decimal: {
+        inputFormat,
+        inputString: originalValue,
+        fixedPoint: {
+          status: 'exact',
+          hexadecimal: '4D',
+          binary: '01001101',
+        },
+        float64: {
           status: 'exact',
           value: '4.8125',
         },
@@ -76,9 +65,9 @@ describe('convertFixedPoint pasted input', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        binary: {
+        fixedPoint: {
           status: 'exact',
-          value: '00001011',
+          binary: '00001011',
         },
       },
     });
@@ -153,17 +142,12 @@ describe('convertFixedPoint pasted input', () => {
       })).toEqual({
         status: 'success',
         result: {
-          hexadecimal: {
+          inputFormat: InputFormat.Decimal,
+          inputString: '-3.1875',
+          fixedPoint: {
             status: 'exact',
-            value: 'CD',
-          },
-          binary: {
-            status: 'exact',
-            value: '11001101',
-          },
-          decimal: {
-            status: 'original',
-            value: '-3.1875',
+            hexadecimal: 'CD',
+            binary: '11001101',
           },
         },
       });

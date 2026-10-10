@@ -1,4 +1,4 @@
-type Float64Result = {
+export type Float64Result = {
   readonly status: 'exact' | 'rounded';
   readonly value: string;
 } | {

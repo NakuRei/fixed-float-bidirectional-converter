@@ -52,11 +52,13 @@ describe('convertFixedPoint', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        binary: {
-          status: 'original',
-          value: inputString,
+        inputFormat: InputFormat.Binary,
+        inputString,
+        fixedPoint: {
+          status: 'exact',
+          binary: inputString,
         },
-        decimal: {
+        float64: {
           status: 'exact',
           value: float64Value,
         },
@@ -94,7 +96,7 @@ describe('convertFixedPoint', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        decimal: { value: float64Value },
+        float64: { value: float64Value },
       },
     });
   });
@@ -132,19 +134,14 @@ describe('convertFixedPoint', () => {
       })).toEqual({
         status: 'success',
         result: {
-          binary: {
-            status: inputFormat === InputFormat.Binary ? 'original' : 'exact',
-            value: binaryString,
+          inputFormat,
+          inputString,
+          fixedPoint: {
+            status: 'exact',
+            hexadecimal: hexString,
+            binary: binaryString,
           },
-          hexadecimal: {
-            status: inputFormat === InputFormat.Hexadecimal
-              ? 'original'
-              : 'exact',
-            value: inputFormat === InputFormat.Hexadecimal
-              ? inputString
-              : hexString,
-          },
-          decimal: {
+          float64: {
             status: 'exact',
             value: float64Value,
           },
@@ -154,26 +151,27 @@ describe('convertFixedPoint', () => {
   });
 
   it.each([
-    ['4d', 4, 4, true, '01001101', '4.8125'],
-    ['cd', 4, 4, true, '11001101', '-3.1875'],
-    ['cd', 4, 4, false, '11001101', '12.8125'],
-    ['FF', 3, 3, false, '111111', '7.875'],
-    ['FF', 3, 3, true, '111111', '-0.125'],
-    ['ff', 3, 3, false, '111111', '7.875'],
-    ['ff', 3, 3, true, '111111', '-0.125'],
-    ['3F', 3, 3, true, '111111', '-0.125'],
-    ['DF', 3, 3, true, '011111', '3.875'],
-    ['E0', 3, 3, true, '100000', '-4'],
-    ['E0', 3, 3, false, '100000', '4'],
-    ['F', 1, 1, false, '11', '1.5'],
-    ['AB', 3, 2, false, '01011', '2.75'],
-    ['00f', 8, 4, false, '000000001111', '0.9375'],
+    ['4d', 4, 4, true, '01001101', '4D', '4.8125'],
+    ['cd', 4, 4, true, '11001101', 'CD', '-3.1875'],
+    ['cd', 4, 4, false, '11001101', 'CD', '12.8125'],
+    ['FF', 3, 3, false, '111111', '3F', '7.875'],
+    ['FF', 3, 3, true, '111111', 'FF', '-0.125'],
+    ['ff', 3, 3, false, '111111', '3F', '7.875'],
+    ['ff', 3, 3, true, '111111', 'FF', '-0.125'],
+    ['3F', 3, 3, true, '111111', 'FF', '-0.125'],
+    ['DF', 3, 3, true, '011111', '1F', '3.875'],
+    ['E0', 3, 3, true, '100000', 'E0', '-4'],
+    ['E0', 3, 3, false, '100000', '20', '4'],
+    ['F', 1, 1, false, '11', '3', '1.5'],
+    ['AB', 3, 2, false, '01011', '0B', '2.75'],
+    ['00f', 8, 4, false, '000000001111', '00F', '0.9375'],
   ])('extends hexadecimal %s for %i.%i signed=%s', (
     inputString,
     integerBits,
     fractionalBits,
     isSigned,
     binaryString,
+    hexString,
     float64Value,
   ) => {
     expect(convertFixedPoint({
@@ -185,15 +183,14 @@ describe('convertFixedPoint', () => {
     })).toEqual({
       status: 'success',
       result: {
-        binary: {
+        inputFormat: InputFormat.Hexadecimal,
+        inputString,
+        fixedPoint: {
           status: 'exact',
-          value: binaryString,
+          hexadecimal: hexString,
+          binary: binaryString,
         },
-        hexadecimal: {
-          status: 'original',
-          value: inputString,
-        },
-        decimal: {
+        float64: {
           status: 'exact',
           value: float64Value,
         },
@@ -228,13 +225,12 @@ describe('convertFixedPoint', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        binary: {
-          status: 'original',
-          value: inputString,
-        },
-        hexadecimal: {
+        inputFormat: InputFormat.Binary,
+        inputString,
+        fixedPoint: {
           status: 'exact',
-          value: hexString,
+          hexadecimal: hexString,
+          binary: inputString,
         },
       },
     });
@@ -261,7 +257,7 @@ describe('convertFixedPoint', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        decimal: { value: float64Value },
+        float64: { value: float64Value },
       },
     });
   });
