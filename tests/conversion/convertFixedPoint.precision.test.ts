@@ -127,7 +127,7 @@ describe('Fixed-point and Float64 precision', () => {
     });
   });
 
-  it('allows Float64 precision loss in Exact only mode', () => {
+  it('allows Float64 precision loss in exact mode', () => {
     expectEncodingAndDecoding({
       ...decimalInput,
       inputString: '9007199254740993',
