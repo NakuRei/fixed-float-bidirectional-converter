@@ -3,7 +3,7 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import App from '../src/App';
 import { InputFormat } from '../src/conversion/InputFormat';
 
-describe('App Component', () => {
+describe('Converter output as the controls change', () => {
   it('displays the title only once, as the banner heading', () => {
     render(<App />);
 
@@ -20,11 +20,13 @@ describe('App Component', () => {
 
   it('handles binary string input correctly and displays result', () => {
     render(<App />);
-    const binaryInput = screen.getByPlaceholderText(
-      /Enter Fixed-Point Number/iu,
-    );
-    const integerInput = screen.getByPlaceholderText(/Integer Bits/iu);
-    const fractionalInput = screen.getByPlaceholderText(/Fractional Bits/iu);
+    const binaryInput = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
+    const integerInput = screen.getByRole('textbox', { name: 'Integer Bits:' });
+    const fractionalInput = screen.getByRole('textbox', {
+      name: 'Fractional Bits:',
+    });
 
     fireEvent.change(integerInput, { target: { value: '4' } });
     fireEvent.change(fractionalInput, { target: { value: '4' } });
@@ -41,7 +43,9 @@ describe('App Component', () => {
 
   it('replaces results and errors as the input changes', () => {
     render(<App />);
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
 
     fireEvent.change(input, { target: { value: '01001101' } });
     expect(screen.getByText('4.8125')).toBeInTheDocument();
@@ -62,7 +66,9 @@ describe('App Component', () => {
     value,
   ) => {
     render(<App />);
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
     fireEvent.change(input, { target: { value } });
     fireEvent.change(input, { target: { value: '' } });
     expect(screen.queryByRole('heading', { name: 'Result' }))
@@ -76,7 +82,9 @@ describe('App Component', () => {
       name: 'Signed (two\'s complement)',
     });
     expect(toggle).toBeChecked();
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
     fireEvent.change(input, {
       target: { value: '11001101' },
     });
@@ -95,7 +103,9 @@ describe('App Component', () => {
 
   it('recalculates the output when the input format changes', () => {
     render(<App />);
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
     fireEvent.change(input, {
       target: { value: '4d' },
     });
@@ -125,9 +135,13 @@ describe('App Component', () => {
 
   it('recalculates the output when either bit count changes', () => {
     render(<App />);
-    const integerInput = screen.getByPlaceholderText(/Integer Bits/iu);
-    const fractionalInput = screen.getByPlaceholderText(/Fractional Bits/iu);
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
+    const integerInput = screen.getByRole('textbox', { name: 'Integer Bits:' });
+    const fractionalInput = screen.getByRole('textbox', {
+      name: 'Fractional Bits:',
+    });
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
     fireEvent.change(input, {
       target: { value: '01001101' },
     });
@@ -145,19 +159,22 @@ describe('App Component', () => {
 
   it('preserves original hexadecimal as bit width and sign change', () => {
     render(<App />);
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
+    });
     fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
       target: { value: InputFormat.Hexadecimal },
     });
     fireEvent.change(input, { target: { value: 'FF' } });
     expect(screen.getByText('FF')).toBeInTheDocument();
 
-    fireEvent.change(screen.getByPlaceholderText('Integer Bits'), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Integer Bits:' }), {
       target: { value: '3' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Fractional Bits'), {
-      target: { value: '3' },
-    });
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Fractional Bits:' }),
+      { target: { value: '3' } },
+    );
     expect(input).toHaveValue('FF');
     expect(screen.getByText('FF')).toBeInTheDocument();
     expect(screen.queryByText('3F')).not.toBeInTheDocument();
@@ -182,13 +199,16 @@ describe('App Component', () => {
 
   it('extends binary input to hexadecimal according to the sign mode', () => {
     render(<App />);
-    fireEvent.change(screen.getByPlaceholderText('Integer Bits'), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Integer Bits:' }), {
       target: { value: '6' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Fractional Bits'), {
-      target: { value: '0' },
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Fractional Bits:' }),
+      { target: { value: '0' } },
+    );
+    const input = screen.getByRole('textbox', {
+      name: 'Fixed-Point Bit Pattern:',
     });
-    const input = screen.getByPlaceholderText(/Enter Fixed-Point Number/iu);
     fireEvent.change(input, { target: { value: '111111' } });
     expect(screen.getByText('FF')).toBeInTheDocument();
     expect(screen.getByText('-1')).toBeInTheDocument();
@@ -205,15 +225,15 @@ describe('App Component', () => {
     expect(screen.getByText('-1')).toBeInTheDocument();
   });
 
-  it.each(['Integer Bits', 'Fractional Bits'])(
+  it.each(['Integer Bits:', 'Fractional Bits:'])(
     'allows clearing and restoring %s',
-    (placeholder) => {
+    (label) => {
       render(<App />);
       fireEvent.change(
-        screen.getByPlaceholderText(/Enter Fixed-Point Number/iu),
+        screen.getByRole('textbox', { name: 'Fixed-Point Bit Pattern:' }),
         { target: { value: '01001101' } },
       );
-      const input = screen.getByPlaceholderText(placeholder);
+      const input = screen.getByRole('textbox', { name: label });
       fireEvent.change(input, { target: { value: '' } });
       expect(input).toHaveValue('');
       expect(screen.getByText('ERROR:')).toBeInTheDocument();

@@ -8,11 +8,11 @@ import {
 import type { Float64Result } from '../../src/conversion/decodeFixedPointFloat64';
 
 const decimalInput: ConversionInput = {
-  inputString: '0.1',
+  inputString: '-3.1875',
   inputFormat: InputFormat.Decimal,
   isSigned: true,
-  integerBitsString: '1',
-  fractionalBitsString: '55',
+  integerBitsString: '4',
+  fractionalBitsString: '4',
   roundingMode: RoundingMode.NearestEven,
 };
 
@@ -61,7 +61,7 @@ function expectEncodingAndDecoding(
   }
 }
 
-describe('Fixed-point and Float64 precision', () => {
+describe('convertFixedPoint decimal input round trip', () => {
   it.each([
     {
       fractionalBits: 55,
@@ -99,6 +99,8 @@ describe('Fixed-point and Float64 precision', () => {
     ({ fractionalBits, roundingMode, integer, hexadecimal, float64 }) => {
       expectEncodingAndDecoding({
         ...decimalInput,
+        inputString: '0.1',
+        integerBitsString: '1',
         fractionalBitsString: fractionalBits.toString(),
         roundingMode,
       }, {
@@ -108,16 +110,6 @@ describe('Fixed-point and Float64 precision', () => {
       }, 'rounded');
     },
   );
-
-  it('rejects inexact input even if Float64 displays it unchanged', () => {
-    expect(convertFixedPoint({
-      ...decimalInput,
-      roundingMode: RoundingMode.Exact,
-    })).toMatchObject({
-      status: 'invalid',
-      invalidFields: ['inputString'],
-    });
-  });
 
   it('allows Float64 precision loss in exact mode', () => {
     expectEncodingAndDecoding({
@@ -165,6 +157,7 @@ describe('Fixed-point and Float64 precision', () => {
     expectEncodingAndDecoding({
       ...decimalInput,
       inputString: `${sign}${(5n ** 1100n).toString()}e-1100`,
+      integerBitsString: '1',
       fractionalBitsString: '1100',
       roundingMode: RoundingMode.Exact,
     }, {

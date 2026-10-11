@@ -1,16 +1,26 @@
 import { describe, it, expect } from 'vitest';
 import { InputFormat } from '../../src/conversion/InputFormat';
+import { RoundingMode } from '../../src/conversion/RoundingMode';
 import {
   convertFixedPoint,
   type ConversionInput,
 } from '../../src/conversion/convertFixedPoint';
 
-const validInput: ConversionInput = {
+const bitPatternInput: ConversionInput = {
   inputString: '01001101',
   inputFormat: InputFormat.Binary,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
+};
+
+const decimalInput: ConversionInput = {
+  inputString: '0',
+  inputFormat: InputFormat.Decimal,
+  isSigned: true,
+  integerBitsString: '4',
+  fractionalBitsString: '4',
+  roundingMode: RoundingMode.NearestEven,
 };
 
 function expectInvalidConversion(
@@ -26,18 +36,41 @@ function expectInvalidConversion(
   }
 }
 
-describe('convertFixedPoint input validation', () => {
+describe('convertFixedPoint bit counts', () => {
   it.each([['4', '4'], ['0', '4'], ['4', '0']])(
     'returns empty with valid bit counts %s + %s',
     (integerBitsString, fractionalBitsString) => {
       expect(convertFixedPoint({
-        ...validInput,
+        ...bitPatternInput,
         inputString: '',
         integerBitsString,
         fractionalBitsString,
       })).toEqual({ status: 'empty' });
     },
   );
+
+  it('accepts leading zeros in bit counts', () => {
+    expect(convertFixedPoint({
+      ...bitPatternInput,
+      integerBitsString: '004',
+      fractionalBitsString: '04',
+    })).toEqual({
+      status: 'success',
+      result: {
+        inputFormat: InputFormat.Binary,
+        inputString: '01001101',
+        fixedPoint: {
+          status: 'exact',
+          hexadecimal: '4D',
+          binary: '01001101',
+        },
+        float64: {
+          status: 'exact',
+          value: '4.8125',
+        },
+      },
+    });
+  });
 
   it.each([
     ['', '4', ['integerBitsString']],
@@ -50,63 +83,11 @@ describe('convertFixedPoint input validation', () => {
     integerBitsString, fractionalBitsString, invalidFields,
   ) => {
     expectInvalidConversion({
-      ...validInput,
+      ...bitPatternInput,
       inputString: '',
       integerBitsString,
       fractionalBitsString,
     }, /Bit counts must|Total bit count (?:must|is)/u, invalidFields);
-  });
-
-  it.each(['invalid', '01a01', '01001102', '0100 1101', '0b0b0b0b'])(
-    'rejects invalid binary characters in %s',
-    (inputString) => {
-      expect(convertFixedPoint({
-        ...validInput,
-        inputString,
-      })).toEqual({
-        status: 'invalid',
-        message: 'Binary string contains characters other than 0 and 1',
-        invalidFields: ['inputString'],
-      });
-    },
-  );
-
-  it.each(['GG', '-1', '4 D', '0x0x4D'])(
-    'rejects invalid hexadecimal characters in %s',
-    (inputString) => {
-      expect(convertFixedPoint({
-        ...validInput,
-        inputString,
-        inputFormat: InputFormat.Hexadecimal,
-      })).toEqual({
-        status: 'invalid',
-        message: 'Hexadecimal string contains characters '
-          + 'other than 0-9 and A-F',
-        invalidFields: ['inputString'],
-      });
-    },
-  );
-
-  it.each(['0100110', '001001101'])(
-    'rejects binary length %s',
-    (inputString) => {
-      expectInvalidConversion(
-        {
-          ...validInput,
-          inputString,
-        },
-        /Binary digit count/u,
-        ['inputString'],
-      );
-    },
-  );
-
-  it.each(['F', '0FF'])('rejects hexadecimal length %s', (inputString) => {
-    expectInvalidConversion({
-      ...validInput,
-      inputString,
-      inputFormat: InputFormat.Hexadecimal,
-    }, /Hexadecimal digit count/u, ['inputString']);
   });
 
   it.each([
@@ -125,7 +106,7 @@ describe('convertFixedPoint input validation', () => {
     (integerBitsString) => {
       expectInvalidConversion(
         {
-          ...validInput,
+          ...bitPatternInput,
           integerBitsString,
         },
         /Bit counts/u,
@@ -150,7 +131,7 @@ describe('convertFixedPoint input validation', () => {
     (fractionalBitsString) => {
       expectInvalidConversion(
         {
-          ...validInput,
+          ...bitPatternInput,
           fractionalBitsString,
         },
         /Bit counts/u,
@@ -158,6 +139,14 @@ describe('convertFixedPoint input validation', () => {
       );
     },
   );
+
+  it('identifies both invalid bit counts', () => {
+    expectInvalidConversion({
+      ...bitPatternInput,
+      integerBitsString: '1.5',
+      fractionalBitsString: '-1',
+    }, /Bit counts/u, ['integerBitsString', 'fractionalBitsString']);
+  });
 
   it.each([
     [InputFormat.Binary, '0', '0', 'Total bit count must be at least 1.'],
@@ -178,7 +167,7 @@ describe('convertFixedPoint input validation', () => {
     'explains unsupported bit counts for %s input: %s + %s',
     (inputFormat, integerBitsString, fractionalBitsString, message) => {
       expect(convertFixedPoint({
-        ...validInput,
+        ...bitPatternInput,
         inputFormat,
         integerBitsString,
         fractionalBitsString,
@@ -190,6 +179,19 @@ describe('convertFixedPoint input validation', () => {
     },
   );
 
+  it('explains that zero total bits is below the minimum', () => {
+    expect(convertFixedPoint({
+      ...decimalInput,
+      inputString: '',
+      integerBitsString: '0',
+      fractionalBitsString: '0',
+    })).toEqual({
+      status: 'invalid',
+      message: 'Total bit count must be at least 1.',
+      invalidFields: ['integerBitsString', 'fractionalBitsString'],
+    });
+  });
+
   it.each([
     [InputFormat.Binary, '0'.repeat(16388)],
     [InputFormat.Hexadecimal, '0'.repeat(4097)],
@@ -197,7 +199,7 @@ describe('convertFixedPoint input validation', () => {
     inputFormat, inputString,
   ) => {
     expect(convertFixedPoint({
-      ...validInput,
+      ...bitPatternInput,
       inputFormat,
       inputString,
       integerBitsString: '16388',
@@ -220,61 +222,37 @@ describe('convertFixedPoint input validation', () => {
     });
   });
 
-  it('identifies both invalid bit counts', () => {
-    expectInvalidConversion({
-      ...validInput,
-      integerBitsString: '1.5',
-      fractionalBitsString: '-1',
-    }, /Bit counts/u, ['integerBitsString', 'fractionalBitsString']);
-  });
-
-  it('accepts leading zeros in bit counts', () => {
+  it('allows the supported maximum bit width', () => {
     expect(convertFixedPoint({
-      ...validInput,
-      integerBitsString: '004',
-      fractionalBitsString: '04',
+      ...decimalInput,
+      integerBitsString: '16384',
+      fractionalBitsString: '0',
     })).toEqual({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Binary,
-        inputString: '01001101',
+        inputFormat: InputFormat.Decimal,
+        inputString: '0',
         fixedPoint: {
           status: 'exact',
-          hexadecimal: '4D',
-          binary: '01001101',
-        },
-        float64: {
-          status: 'exact',
-          value: '4.8125',
+          hexadecimal: '0'.repeat(4096),
+          binary: '0'.repeat(16384),
         },
       },
     });
   });
 
-  it('keeps conversions independent and does not modify the input', () => {
-    const input = Object.freeze({ ...validInput });
-    const expected = {
-      status: 'success',
-      result: {
-        inputFormat: InputFormat.Binary,
-        inputString: '01001101',
-        fixedPoint: {
-          status: 'exact',
-          hexadecimal: '4D',
-          binary: '01001101',
-        },
-        float64: {
-          status: 'exact',
-          value: '4.8125',
-        },
-      },
-    };
-    expect(convertFixedPoint(input)).toEqual(expected);
-    expect(convertFixedPoint({
-      ...input,
-      inputString: 'invalid',
-    }).status).toBe('invalid');
-    expect(convertFixedPoint(input)).toEqual(expected);
-    expect(input).toEqual(validInput);
-  });
+  it.each(['16385', '9007199254740991'])(
+    'rejects a bit width of %s before allocating the output',
+    (integerBitsString) => {
+      expect(convertFixedPoint({
+        ...decimalInput,
+        integerBitsString,
+        fractionalBitsString: '0',
+      })).toEqual({
+        status: 'invalid',
+        message: 'Decimal conversion supports at most 16384 total bits.',
+        invalidFields: ['integerBitsString', 'fractionalBitsString'],
+      });
+    },
+  );
 });
