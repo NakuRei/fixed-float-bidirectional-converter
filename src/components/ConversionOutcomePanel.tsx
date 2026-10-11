@@ -3,9 +3,9 @@ import type {
   ConversionResults,
 } from '../conversion/convertFixedPoint';
 import { ErrorDisplay } from './ErrorDisplay';
-import { ResultDisplay } from './ResultDisplay';
+import { ConversionResultList } from './ConversionResultList';
 
-interface ConversionOutputProps {
+interface ConversionOutcomePanelProps {
   errorId: string;
   outcome: ConversionOutcome;
 }
@@ -65,8 +65,8 @@ function PrecisionNotices({
   );
 }
 
-export function ConversionOutput(
-  { errorId, outcome }: ConversionOutputProps,
+export function ConversionOutcomePanel(
+  { errorId, outcome }: ConversionOutcomePanelProps,
 ): React.JSX.Element {
   const float64PrecisionLoss = outcome.status === 'success'
     ? findFloat64PrecisionLoss(outcome.result)
@@ -111,7 +111,7 @@ export function ConversionOutput(
 
       {outcome.status === 'success'
         ? (
-          <ResultDisplay
+          <ConversionResultList
             decimalDescriptionId={float64PrecisionLoss === null
               ? undefined
               : float64PrecisionLossDescriptionId}

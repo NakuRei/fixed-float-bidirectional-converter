@@ -2,7 +2,7 @@ import { GithubLogoIcon } from '@phosphor-icons/react';
 
 import { IconButton } from './IconButton';
 
-export function CustomHeader(): React.JSX.Element {
+export function AppHeader(): React.JSX.Element {
   function openLink(url: string): void {
     window.open(url, '_blank', 'noopener,noreferrer');
   }

@@ -1,7 +1,7 @@
 import { useId } from 'react';
 
-import { CustomInput } from './CustomInput';
-import { CustomLabel } from './CustomLabel';
+import { Input } from './Input';
+import { Label } from './Label';
 import { InputWithLabelContainer } from './InputWithLabelContainer';
 
 interface TextFieldProps {
@@ -34,9 +34,9 @@ export function TextField({
 
   return (
     <InputWithLabelContainer>
-      <CustomLabel htmlFor={inputId}>{label}</CustomLabel>
+      <Label htmlFor={inputId}>{label}</Label>
 
-      <CustomInput
+      <Input
         aria-describedby={describedBy === '' ? undefined : describedBy}
         aria-invalid={invalid}
         id={inputId}

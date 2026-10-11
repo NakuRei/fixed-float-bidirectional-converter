@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import {
+  fireEvent, render, screen, within,
+} from '@testing-library/react';
 import App from '../src/App';
 
 describe('Wide fixed-point values in the converter', () => {
@@ -43,8 +45,12 @@ describe('Wide fixed-point values in the converter', () => {
     expect(input).toBeValid();
     expect(screen.getByText(overflowPattern)).toBeInTheDocument();
     expect(screen.getByText(`F${'0'.repeat(256)}`)).toBeInTheDocument();
-    expect(screen.getByText('Out of range')).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Decimal conversion' }))
+    const decimalRow = screen.getByRole('group', {
+      name: 'Decimal conversion',
+    });
+    expect(within(decimalRow).getByText('Out of range')).toBeInTheDocument();
+    expect(within(decimalRow).queryByRole('button')).not.toBeInTheDocument();
+    expect(decimalRow)
       .toHaveAccessibleDescription(/outside the Float64 range/u);
     const status = screen.getByRole('status');
     expect(status).toHaveTextContent(/outside the Float64 range/u);

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
-import { CustomHeader } from './components/CustomHeader';
-import { CustomFooter } from './components/CustomFooter';
-import { CustomSelect } from './components/CustomSelect';
-import { CustomLabel } from './components/CustomLabel';
-import { CustomToggle } from './components/CustomToggle';
+import { AppHeader } from './components/AppHeader';
+import { AppFooter } from './components/AppFooter';
+import { Select } from './components/Select';
+import { Label } from './components/Label';
+import { Toggle } from './components/Toggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 import { TextField } from './components/TextField';
-import { ConversionOutput } from './components/ConversionOutput';
+import { ConversionOutcomePanel } from './components/ConversionOutcomePanel';
 import { InputFormat, type InputFormatType } from './conversion/InputFormat';
 import { RoundingMode, type RoundingModeType } from './conversion/RoundingMode';
 
@@ -92,7 +92,7 @@ function App(): React.JSX.Element {
     <div
       className={['w-full h-svh', 'grid grid-rows-[auto_1fr]'].join(' ')}
     >
-      <CustomHeader />
+      <AppHeader />
 
       <main
         className={[
@@ -139,7 +139,7 @@ function App(): React.JSX.Element {
           />
 
           <div className="w-full h-fit">
-            <CustomToggle
+            <Toggle
               checked={isSigned}
               id="isSignedToggle"
               onChange={(e) => {
@@ -147,13 +147,13 @@ function App(): React.JSX.Element {
               }}
             >
               Signed (two&apos;s complement)
-            </CustomToggle>
+            </Toggle>
           </div>
 
           <InputWithLabelContainer>
-            <CustomLabel htmlFor="inputFormat">Input Format</CustomLabel>
+            <Label htmlFor="inputFormat">Input Format</Label>
 
-            <CustomSelect
+            <Select
               id="inputFormat"
               onChange={(e) => {
                 const selectedFormat = Object.values(InputFormat)
@@ -172,17 +172,17 @@ function App(): React.JSX.Element {
                   {inputFormatPresentation[format].optionLabel}
                 </option>
               ))}
-            </CustomSelect>
+            </Select>
           </InputWithLabelContainer>
 
           {inputFormat === InputFormat.Decimal
             ? (
               <InputWithLabelContainer>
-                <CustomLabel htmlFor="roundingMode">
+                <Label htmlFor="roundingMode">
                   Fixed-point rounding
-                </CustomLabel>
+                </Label>
 
-                <CustomSelect
+                <Select
                   aria-describedby="roundingHint"
                   id="roundingMode"
                   onChange={(e) => {
@@ -202,7 +202,7 @@ function App(): React.JSX.Element {
                       {roundingModeLabels[mode]}
                     </option>
                   ))}
-                </CustomSelect>
+                </Select>
 
                 <p
                   className="text-sm text-on-background"
@@ -230,14 +230,14 @@ function App(): React.JSX.Element {
             value={inputString}
           />
 
-          <ConversionOutput
+          <ConversionOutcomePanel
             errorId={conversionErrorId}
             outcome={outcome}
           />
         </div>
       </main>
 
-      <CustomFooter />
+      <AppFooter />
     </div>
   );
 }

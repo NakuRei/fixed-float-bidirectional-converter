@@ -1,4 +1,4 @@
-export function CustomFooter(): React.JSX.Element {
+export function AppFooter(): React.JSX.Element {
   return (
     <footer
       className={[

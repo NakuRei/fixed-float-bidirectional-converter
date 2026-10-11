@@ -19,7 +19,7 @@ function renderDecimalInput(integerBits: string, fractionalBits: string): void {
 
 describe('Conversion precision in the UI', () => {
   it.each([
-    ['0.125', '02', '00000010', 'Exact'],
+    ['0.125', '02', '00000010', 'exact'],
     ['0.1', '02', '00000010', 'rounded'],
     ['-0.1', 'FE', '11111110', 'rounded'],
   ])('labels the conversion results for decimal input %s', (
@@ -128,7 +128,7 @@ describe('Conversion precision in the UI', () => {
     expect(status).toBeEmptyDOMElement();
     expect(screen.getByRole('group', { name: 'Decimal conversion' }))
       .not.toHaveAccessibleDescription();
-    expect(screen.getAllByText('Exact')).toHaveLength(2);
+    expect(screen.getAllByText('exact')).toHaveLength(2);
     expect(screen.getByText('original')).toBeVisible();
     expect(screen.queryByText('rounded')).not.toBeInTheDocument();
   });
@@ -160,7 +160,7 @@ describe('Conversion precision in the UI', () => {
     const float64 = screen.getByRole('group', { name: 'Decimal conversion' });
     expect(within(float64).getByText('9007199254740992')).toBeInTheDocument();
     expect(within(float64).getByText('rounded')).toBeVisible();
-    expect(screen.getAllByText('Exact')).toHaveLength(1);
+    expect(screen.getAllByText('exact')).toHaveLength(1);
     expect(within(screen.getByRole('group', { name: 'Hexadecimal conversion' }))
       .getByText('original')).toBeVisible();
     expect(float64).toHaveAccessibleDescription(
@@ -184,7 +184,7 @@ describe('Conversion precision in the UI', () => {
     expect(within(decimal).getByText('1e309')).toBeVisible();
     expect(within(decimal).getByText('original')).toBeVisible();
     expect(decimal).not.toHaveAccessibleDescription();
-    expect(screen.getAllByText('Exact')).toHaveLength(2);
+    expect(screen.getAllByText('exact')).toHaveLength(2);
     expect(screen.queryByText('Out of range')).not.toBeInTheDocument();
   });
 
