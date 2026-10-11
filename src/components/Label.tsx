@@ -1,14 +1,14 @@
-interface CustomLabelProps {
+interface LabelProps {
   children: React.ReactNode;
   htmlFor?: string;
   className?: string;
 }
 
-export function CustomLabel({
+export function Label({
   children,
   htmlFor,
   className = '',
-}: CustomLabelProps): React.JSX.Element {
+}: LabelProps): React.JSX.Element {
   return (
     <label
       className={['text-on-background text-sm font-medium', className].join(

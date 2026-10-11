@@ -11,8 +11,8 @@ describe('Original and converted output values', () => {
       input: 'cd',
       rows: [
         ['Hexadecimal', 'cd', 'original'],
-        ['Binary', '11001101', 'Exact'],
-        ['Decimal', '-3.1875', 'Exact'],
+        ['Binary', '11001101', 'exact'],
+        ['Decimal', '-3.1875', 'exact'],
       ],
     },
     {
@@ -20,26 +20,26 @@ describe('Original and converted output values', () => {
       input: '0x14',
       rows: [
         ['Hexadecimal', '0x14', 'original'],
-        ['Binary', '00010100', 'Exact'],
-        ['Decimal', '1.25', 'Exact'],
+        ['Binary', '00010100', 'exact'],
+        ['Decimal', '1.25', 'exact'],
       ],
     },
     {
       format: InputFormat.Binary,
       input: '00010100',
       rows: [
-        ['Hexadecimal', '14', 'Exact'],
+        ['Hexadecimal', '14', 'exact'],
         ['Binary', '00010100', 'original'],
-        ['Decimal', '1.25', 'Exact'],
+        ['Decimal', '1.25', 'exact'],
       ],
     },
     {
       format: InputFormat.Binary,
       input: '0b00010100',
       rows: [
-        ['Hexadecimal', '14', 'Exact'],
+        ['Hexadecimal', '14', 'exact'],
         ['Binary', '0b00010100', 'original'],
-        ['Decimal', '1.25', 'Exact'],
+        ['Decimal', '1.25', 'exact'],
       ],
     },
     {
@@ -55,8 +55,8 @@ describe('Original and converted output values', () => {
       format: InputFormat.Decimal,
       input: '-0.000',
       rows: [
-        ['Hexadecimal', '00', 'Exact'],
-        ['Binary', '00000000', 'Exact'],
+        ['Hexadecimal', '00', 'exact'],
+        ['Binary', '00000000', 'exact'],
         ['Decimal', '-0.000', 'original'],
       ],
     },

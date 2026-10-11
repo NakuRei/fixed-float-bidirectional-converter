@@ -1,14 +1,14 @@
-interface CustomInputProps extends React.ComponentPropsWithoutRef<'input'> {
+interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
   id: string;
   type: React.HTMLInputTypeAttribute;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export function CustomInput({
+export function Input({
   className = '',
   ...inputProps
-}: CustomInputProps): React.JSX.Element {
+}: InputProps): React.JSX.Element {
   return (
     <input
       {...inputProps}

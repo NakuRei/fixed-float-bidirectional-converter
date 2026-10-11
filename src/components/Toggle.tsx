@@ -1,6 +1,6 @@
-import { CustomLabel } from './CustomLabel';
+import { Label } from './Label';
 
-interface CustomToggleProps {
+interface ToggleProps {
   id: string;
   checked: boolean;
   children?: React.ReactNode;
@@ -8,15 +8,15 @@ interface CustomToggleProps {
   className?: string;
 }
 
-export function CustomToggle({
+export function Toggle({
   id,
   checked,
   children,
   onChange,
   className = '',
-}: CustomToggleProps): React.JSX.Element {
+}: ToggleProps): React.JSX.Element {
   return (
-    <CustomLabel
+    <Label
       className={[
         'w-full h-fit',
         'flex flex-row',
@@ -59,6 +59,6 @@ export function CustomToggle({
       />
 
       {children}
-    </CustomLabel>
+    </Label>
   );
 }

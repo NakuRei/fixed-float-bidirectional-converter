@@ -1,13 +1,13 @@
-interface CustomSelectProps extends React.ComponentPropsWithoutRef<'select'> {
+interface SelectProps extends React.ComponentPropsWithoutRef<'select'> {
   id: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export function CustomSelect({
+export function Select({
   className = '',
   ...selectProps
-}: CustomSelectProps): React.JSX.Element {
+}: SelectProps): React.JSX.Element {
   return (
     <select
       {...selectProps}
