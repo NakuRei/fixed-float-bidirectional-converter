@@ -1,10 +1,10 @@
-interface ErrorDisplayProps {
+interface ConversionErrorMessageProps {
   id: string;
-  error: string;
+  message: string;
 }
 
-export function ErrorDisplay(
-  { id, error }: ErrorDisplayProps,
+export function ConversionErrorMessage(
+  { id, message }: ConversionErrorMessageProps,
 ): React.JSX.Element {
   return (
     <div
@@ -18,7 +18,7 @@ export function ErrorDisplay(
       id={id}
     >
       <p className="text-sm">ERROR:</p>
-      <p className="text-base">{error}</p>
+      <p className="text-base">{message}</p>
     </div>
   );
 }
