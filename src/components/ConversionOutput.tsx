@@ -17,9 +17,9 @@ interface PrecisionNoticesProps {
   inputWasRounded: boolean;
 }
 
-const decimalDescriptionId = 'decimalDescription';
+const float64PrecisionLossDescriptionId = 'float64PrecisionLossDescription';
 
-const decimalDescriptions = {
+const float64PrecisionLossDescriptions = {
   rounded: 'Precision was lost converting the fixed-point value to Float64.',
   overflow: 'The fixed-point value is outside the Float64 range. '
     + 'Hexadecimal and binary results remain valid.',
@@ -56,8 +56,8 @@ function PrecisionNotices({
 
       {float64PrecisionLoss !== null
         ? (
-          <p id={decimalDescriptionId}>
-            {decimalDescriptions[float64PrecisionLoss]}
+          <p id={float64PrecisionLossDescriptionId}>
+            {float64PrecisionLossDescriptions[float64PrecisionLoss]}
           </p>
         )
         : null}
@@ -114,7 +114,7 @@ export function ConversionOutput(
           <ResultDisplay
             decimalDescriptionId={float64PrecisionLoss === null
               ? undefined
-              : decimalDescriptionId}
+              : float64PrecisionLossDescriptionId}
             result={outcome.result}
           />
         )
