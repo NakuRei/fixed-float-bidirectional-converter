@@ -2,11 +2,11 @@ import { useState } from 'react';
 
 import { CustomHeader } from './components/CustomHeader';
 import { CustomFooter } from './components/CustomFooter';
-import { CustomInput } from './components/CustomInput';
 import { CustomSelect } from './components/CustomSelect';
 import { CustomLabel } from './components/CustomLabel';
 import { CustomToggle } from './components/CustomToggle';
 import { InputWithLabelContainer } from './components/InputWithLabelContainer';
+import { TextField } from './components/TextField';
 import { ConversionOutput } from './components/ConversionOutput';
 import { InputFormat, type InputFormatType } from './conversion/InputFormat';
 import { RoundingMode, type RoundingModeType } from './conversion/RoundingMode';
@@ -40,6 +40,8 @@ const inputFormatPresentation = {
       + 'No separators.',
   },
 } as const;
+
+const conversionErrorId = 'conversionError';
 
 const roundingModeLabels = {
   [RoundingMode.NearestEven]: 'Nearest (ties to even)',
@@ -111,54 +113,30 @@ function App(): React.JSX.Element {
             'px-0 sm:px-24 py-12',
           ].join(' ')}
         >
-          <InputWithLabelContainer>
-            <CustomLabel htmlFor="integerBits">
-              Integer Bits:
-            </CustomLabel>
+          <TextField
+            errorId={conversionErrorId}
+            hint="Includes the sign bit when signed."
+            inputMode="numeric"
+            invalid={isIntegerBitsInvalid}
+            label="Integer Bits:"
+            onChange={(e) => {
+              setIntegerBitsString(e.target.value);
+            }}
+            placeholder="Integer Bits"
+            value={integerBitsString}
+          />
 
-            <CustomInput
-              aria-describedby={isIntegerBitsInvalid
-                ? 'integerBitsHint conversionError'
-                : 'integerBitsHint'}
-              aria-invalid={isIntegerBitsInvalid}
-              id="integerBits"
-              inputMode="numeric"
-              onChange={(e) => {
-                setIntegerBitsString(e.target.value);
-              }}
-              placeholder="Integer Bits"
-              type="text"
-              value={integerBitsString}
-            />
-
-            <p
-              className="text-sm text-on-background"
-              id="integerBitsHint"
-            >
-              Includes the sign bit when signed.
-            </p>
-          </InputWithLabelContainer>
-
-          <InputWithLabelContainer>
-            <CustomLabel htmlFor="fractionalBits">
-              Fractional Bits:
-            </CustomLabel>
-
-            <CustomInput
-              aria-describedby={isFractionalBitsInvalid
-                ? 'conversionError'
-                : undefined}
-              aria-invalid={isFractionalBitsInvalid}
-              id="fractionalBits"
-              inputMode="numeric"
-              onChange={(e) => {
-                setFractionalBitsString(e.target.value);
-              }}
-              placeholder="Fractional Bits"
-              type="text"
-              value={fractionalBitsString}
-            />
-          </InputWithLabelContainer>
+          <TextField
+            errorId={conversionErrorId}
+            inputMode="numeric"
+            invalid={isFractionalBitsInvalid}
+            label="Fractional Bits:"
+            onChange={(e) => {
+              setFractionalBitsString(e.target.value);
+            }}
+            placeholder="Fractional Bits"
+            value={fractionalBitsString}
+          />
 
           <div className="w-full h-fit">
             <CustomToggle
@@ -239,35 +217,21 @@ function App(): React.JSX.Element {
             )
             : null}
 
-          <InputWithLabelContainer>
-            <CustomLabel htmlFor="inputString">
-              {presentation.inputLabel}
-            </CustomLabel>
-
-            <CustomInput
-              aria-describedby={isInputStringInvalid
-                ? 'inputStringHint conversionError'
-                : 'inputStringHint'}
-              aria-invalid={isInputStringInvalid}
-              id="inputString"
-              inputMode={presentation.inputMode}
-              onChange={(e) => {
-                setInputString(e.target.value);
-              }}
-              placeholder={presentation.placeholder}
-              type="text"
-              value={inputString}
-            />
-
-            <p
-              className="text-sm text-on-background"
-              id="inputStringHint"
-            >
-              {presentation.hint}
-            </p>
-          </InputWithLabelContainer>
+          <TextField
+            errorId={conversionErrorId}
+            hint={presentation.hint}
+            inputMode={presentation.inputMode}
+            invalid={isInputStringInvalid}
+            label={presentation.inputLabel}
+            onChange={(e) => {
+              setInputString(e.target.value);
+            }}
+            placeholder={presentation.placeholder}
+            value={inputString}
+          />
 
           <ConversionOutput
+            errorId={conversionErrorId}
             outcome={outcome}
           />
         </div>

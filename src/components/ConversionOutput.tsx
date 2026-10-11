@@ -6,6 +6,7 @@ import { ErrorDisplay } from './ErrorDisplay';
 import { ResultDisplay } from './ResultDisplay';
 
 interface ConversionOutputProps {
+  errorId: string;
   outcome: ConversionOutcome;
 }
 
@@ -65,7 +66,7 @@ function PrecisionNotices({
 }
 
 export function ConversionOutput(
-  { outcome }: ConversionOutputProps,
+  { errorId, outcome }: ConversionOutputProps,
 ): React.JSX.Element {
   const float64PrecisionLoss = outcome.status === 'success'
     ? findFloat64PrecisionLoss(outcome.result)
@@ -93,7 +94,7 @@ export function ConversionOutput(
           ? (
             <ErrorDisplay
               error={outcome.message}
-              id="conversionError"
+              id={errorId}
             />
           )
           : null}
