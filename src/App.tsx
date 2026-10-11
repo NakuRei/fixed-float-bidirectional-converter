@@ -41,6 +41,8 @@ const inputFormatPresentation = {
   },
 } as const;
 
+const conversionErrorId = 'conversionError';
+
 const roundingModeLabels = {
   [RoundingMode.NearestEven]: 'Nearest (ties to even)',
   [RoundingMode.TowardZero]: 'Toward zero (truncate)',
@@ -118,7 +120,7 @@ function App(): React.JSX.Element {
 
             <CustomInput
               aria-describedby={isIntegerBitsInvalid
-                ? 'integerBitsHint conversionError'
+                ? `integerBitsHint ${conversionErrorId}`
                 : 'integerBitsHint'}
               aria-invalid={isIntegerBitsInvalid}
               id="integerBits"
@@ -146,7 +148,7 @@ function App(): React.JSX.Element {
 
             <CustomInput
               aria-describedby={isFractionalBitsInvalid
-                ? 'conversionError'
+                ? conversionErrorId
                 : undefined}
               aria-invalid={isFractionalBitsInvalid}
               id="fractionalBits"
@@ -246,7 +248,7 @@ function App(): React.JSX.Element {
 
             <CustomInput
               aria-describedby={isInputStringInvalid
-                ? 'inputStringHint conversionError'
+                ? `inputStringHint ${conversionErrorId}`
                 : 'inputStringHint'}
               aria-invalid={isInputStringInvalid}
               id="inputString"
@@ -268,6 +270,7 @@ function App(): React.JSX.Element {
           </InputWithLabelContainer>
 
           <ConversionOutput
+            errorId={conversionErrorId}
             outcome={outcome}
           />
         </div>
