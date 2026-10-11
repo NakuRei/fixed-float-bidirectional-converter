@@ -2,7 +2,7 @@ import type {
   ConversionOutcome,
   ConversionResults,
 } from '../conversion/convertFixedPoint';
-import { ErrorDisplay } from './ErrorDisplay';
+import { ConversionErrorMessage } from './ConversionErrorMessage';
 import { ConversionResultList } from './ConversionResultList';
 
 interface ConversionOutcomePanelProps {
@@ -92,9 +92,9 @@ export function ConversionOutcomePanel(
       >
         {outcome.status === 'invalid'
           ? (
-            <ErrorDisplay
-              error={outcome.message}
+            <ConversionErrorMessage
               id={errorId}
+              message={outcome.message}
             />
           )
           : null}
