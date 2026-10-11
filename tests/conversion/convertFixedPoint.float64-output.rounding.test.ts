@@ -48,7 +48,7 @@ function expectFloatConversion(
   }
 }
 
-describe('convertFixedPoint binary64 rounding', () => {
+describe('convertFixedPoint Float64 output rounding', () => {
   it.each([
     {
       name: 'zero with 1025 integer bits',

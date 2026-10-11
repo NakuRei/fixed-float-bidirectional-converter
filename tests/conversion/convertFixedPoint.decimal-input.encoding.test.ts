@@ -15,7 +15,7 @@ const decimalInput: ConversionInput = {
   roundingMode: RoundingMode.NearestEven,
 };
 
-describe('convertFixedPoint decimal encoding', () => {
+describe('convertFixedPoint decimal input encoding', () => {
   it.each([
     ['-3.1875', 4, 4, true, 'CD', '11001101'],
     ['3.1875', 4, 4, true, '33', '00110011'],
@@ -55,77 +55,6 @@ describe('convertFixedPoint decimal encoding', () => {
     });
   });
 
-  it.each([
-    ['+3.1875', '33'],
-    ['003.187500', '33'],
-    ['.5', '08'],
-    ['-.5', 'F8'],
-    ['3.', '30'],
-    ['-0', '00'],
-    ['-0.000', '00'],
-    ['3.1875e0', '33'],
-    ['31875e-4', '33'],
-    ['-31875E-4', 'CD'],
-    ['.031875e+2', '33'],
-  ])('accepts decimal notation %s', (inputString, hexString) => {
-    expect(convertFixedPoint({
-      ...decimalInput,
-      inputString,
-    })).toMatchObject({
-      status: 'success',
-      result: {
-        inputFormat: InputFormat.Decimal,
-        inputString,
-        fixedPoint: {
-          status: 'exact',
-          hexadecimal: hexString,
-        },
-      },
-    });
-  });
-
-  it('preserves integer bits beyond floating-point precision', () => {
-    expect(convertFixedPoint({
-      ...decimalInput,
-      inputString: '9007199254740993',
-      integerBitsString: '64',
-      fractionalBitsString: '0',
-    })).toEqual({
-      status: 'success',
-      result: {
-        inputFormat: InputFormat.Decimal,
-        inputString: '9007199254740993',
-        fixedPoint: {
-          status: 'exact',
-          hexadecimal: '0020000000000001',
-          binary: `00000000001${'0'.repeat(52)}1`,
-        },
-      },
-    });
-  });
-
-  it.each(['1', '-1'])('encodes %s with a wide fraction', (inputString) => {
-    const binaryString = inputString === '1'
-      ? `01${'0'.repeat(1500)}`
-      : `11${'0'.repeat(1500)}`;
-    expect(convertFixedPoint({
-      ...decimalInput,
-      inputString,
-      integerBitsString: '2',
-      fractionalBitsString: '1500',
-    })).toMatchObject({
-      status: 'success',
-      result: {
-        inputFormat: InputFormat.Decimal,
-        inputString,
-        fixedPoint: {
-          status: 'exact',
-          binary: binaryString,
-        },
-      },
-    });
-  });
-
   it('round-trips every signed and unsigned 8-bit fixed-point value', () => {
     for (const isSigned of [false, true]) {
       for (let integer = 0; integer < 256; integer += 1) {
@@ -155,44 +84,6 @@ describe('convertFixedPoint decimal encoding', () => {
     }
   });
 
-  it('returns empty when the decimal input is cleared', () => {
-    expect(convertFixedPoint({
-      ...decimalInput,
-      inputString: '',
-    })).toEqual({ status: 'empty' });
-  });
-
-  it.each([
-    '- 3.1875',
-    '.',
-    '+',
-    '-',
-    '1.2.3',
-    '1e',
-    '1e+',
-    '1e1.5',
-    'NaN',
-    'Infinity',
-    '-Infinity',
-    '1_000',
-    '1,5',
-    '3.1875x',
-    '--1',
-    '+-1',
-  ])('rejects malformed decimal input %s', (inputString) => {
-    const outcome = convertFixedPoint({
-      ...decimalInput,
-      inputString,
-    });
-    expect(outcome).toMatchObject({
-      status: 'invalid',
-      invalidFields: ['inputString'],
-    });
-    if (outcome.status === 'invalid') {
-      expect(outcome.message).toMatch(/decimal/iu);
-    }
-  });
-
   it.each([
     ['8', true],
     ['-8.0625', true],
@@ -213,5 +104,107 @@ describe('convertFixedPoint decimal encoding', () => {
     if (outcome.status === 'invalid') {
       expect(outcome.message).toMatch(/fixed-point range/iu);
     }
+  });
+
+  it.each(Object.values(RoundingMode))('rejects overflow before rounding: %s', (
+    roundingMode,
+  ) => {
+    for (const [inputString, isSigned] of [
+      ['7.93750000000000000001', true],
+      ['-8.00000000000000000001', true],
+      ['15.93750000000000000001', false],
+      ['-0.00000000000000000001', false],
+      ['1e999999999999999999999', true],
+      ['-1e-999999999999999999999', false],
+    ] as const) {
+      const outcome = convertFixedPoint({
+        ...decimalInput,
+        inputString,
+        isSigned,
+        roundingMode,
+      });
+      expect(outcome).toMatchObject({
+        status: 'invalid',
+        invalidFields: ['inputString'],
+      });
+      if (outcome.status === 'invalid') {
+        expect(outcome.message).toMatch(/fixed-point range/u);
+      }
+    }
+  });
+
+  it('rejects positive input when the single bit is the sign bit', () => {
+    expect(convertFixedPoint({
+      ...decimalInput,
+      inputString: '1e-999999999999999999999',
+      integerBitsString: '0',
+      fractionalBitsString: '1',
+    })).toMatchObject({
+      status: 'invalid',
+      invalidFields: ['inputString'],
+    });
+  });
+
+  it('preserves integer bits beyond floating-point precision', () => {
+    expect(convertFixedPoint({
+      ...decimalInput,
+      inputString: '9007199254740993',
+      integerBitsString: '64',
+      fractionalBitsString: '0',
+    })).toEqual({
+      status: 'success',
+      result: {
+        inputFormat: InputFormat.Decimal,
+        inputString: '9007199254740993',
+        fixedPoint: {
+          status: 'exact',
+          hexadecimal: '0020000000000001',
+          binary: `00000000001${'0'.repeat(52)}1`,
+        },
+      },
+    });
+  });
+
+  it('encodes an exact fraction beyond floating-point precision', () => {
+    expect(convertFixedPoint({
+      ...decimalInput,
+      inputString: '1.000000000000000055511151231257827021181583404541015625',
+      integerBitsString: '2',
+      fractionalBitsString: '54',
+      roundingMode: RoundingMode.Exact,
+    })).toEqual({
+      status: 'success',
+      result: {
+        inputFormat: InputFormat.Decimal,
+        inputString: '1.000000000000000055511151231257827021181583404541015625',
+        fixedPoint: {
+          status: 'exact',
+          hexadecimal: '40000000000001',
+          binary: `01${'0'.repeat(53)}1`,
+        },
+      },
+    });
+  });
+
+  it.each(['1', '-1'])('encodes %s with a wide fraction', (inputString) => {
+    const binaryString = inputString === '1'
+      ? `01${'0'.repeat(1500)}`
+      : `11${'0'.repeat(1500)}`;
+    expect(convertFixedPoint({
+      ...decimalInput,
+      inputString,
+      integerBitsString: '2',
+      fractionalBitsString: '1500',
+    })).toMatchObject({
+      status: 'success',
+      result: {
+        inputFormat: InputFormat.Decimal,
+        inputString,
+        fixedPoint: {
+          status: 'exact',
+          binary: binaryString,
+        },
+      },
+    });
   });
 });
