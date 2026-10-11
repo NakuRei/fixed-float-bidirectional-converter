@@ -17,7 +17,7 @@ export function ConversionResultList({
   } as const;
   const { fixedPoint } = result;
   return (
-    <div className="w-full grid gap-y-2">
+    <div className="w-full grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2">
       <ConversionResultRow
         descriptionId={undefined}
         label="Hexadecimal"

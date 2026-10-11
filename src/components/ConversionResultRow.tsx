@@ -31,7 +31,7 @@ export function ConversionResultRow({
     <div
       aria-describedby={descriptionId}
       aria-label={`${label} conversion`}
-      className="w-full flex items-start gap-3"
+      className="col-span-2 grid grid-cols-subgrid items-start"
       role="group"
     >
       <div
@@ -66,7 +66,7 @@ export function ConversionResultRow({
         </div>
       </div>
 
-      <div className="w-8 shrink-0">
+      <div>
         {result.status === 'overflow'
           ? null
           : (
