@@ -9,7 +9,7 @@ import { encodeDecimalFixedPoint, MAX_DECIMAL_BITS } from './encodeDecimalFixedP
 import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
 import { readFixedPointFormat, type FixedPointFormat } from './fixedPointFormat';
 import {
-  findForeignPrefixMessage,
+  findForeignPrefixFormat,
   parseBitPattern,
 } from './parseInputNotation';
 
@@ -32,16 +32,23 @@ function readConversionFormat(input: ConversionInput): ConversionFormatReading {
       || reading.format.totalBits > MAX_DECIMAL_BITS)) {
     return {
       status: 'invalid',
-      message: 'Decimal conversion supports at most '
-        + `${MAX_DECIMAL_BITS.toString()} total bits.`,
-      invalidFields: ['integerBitsString', 'fractionalBitsString'],
+      diagnostic: {
+        code: 'total-bits-exceeded',
+        inputFormat: input.inputFormat,
+        maximum: MAX_DECIMAL_BITS,
+        fields: ['integerBitsString', 'fractionalBitsString'],
+      },
     };
   }
   if (reading.status === 'unsafe-total-bits') {
     return {
       status: 'invalid',
-      message: 'Total bit count is too large.',
-      invalidFields: ['integerBitsString', 'fractionalBitsString'],
+      diagnostic: {
+        code: 'total-bits-exceeded',
+        inputFormat: input.inputFormat,
+        maximum: Number.MAX_SAFE_INTEGER,
+        fields: ['integerBitsString', 'fractionalBitsString'],
+      },
     };
   }
   return reading;
@@ -69,11 +76,7 @@ function convertFixedPointPattern(
     format.totalBits,
   );
   if (pattern.status === 'invalid') {
-    return {
-      status: 'invalid',
-      message: pattern.message,
-      invalidFields: ['inputString'],
-    };
+    return pattern;
   }
   const { binaryString } = pattern;
   const original = {
@@ -111,10 +114,7 @@ function convertDecimalFixedPoint(
     roundingMode,
   );
   if (encoding.status === 'invalid') {
-    return {
-      ...encoding,
-      invalidFields: ['inputString'],
-    };
+    return encoding;
   }
   const status = encoding.inputWasRounded ? 'rounded' : 'exact';
   return {
@@ -147,15 +147,15 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
   if (inputString === '') {
     return { status: 'empty' };
   }
-  const foreignPrefixMessage = findForeignPrefixMessage(
-    inputString,
-    input.inputFormat,
-  );
-  if (foreignPrefixMessage !== null) {
+  const prefixFormat = findForeignPrefixFormat(inputString, input.inputFormat);
+  if (prefixFormat !== null) {
     return {
       status: 'invalid',
-      message: foreignPrefixMessage,
-      invalidFields: ['inputString'],
+      diagnostic: {
+        code: 'foreign-prefix',
+        prefixFormat,
+        fields: ['inputString'],
+      },
     };
   }
   return input.inputFormat === InputFormat.Decimal

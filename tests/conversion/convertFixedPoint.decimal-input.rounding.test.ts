@@ -145,13 +145,13 @@ describe('convertFixedPoint decimal input rounding', () => {
         inputString,
         roundingMode: RoundingMode.Exact,
       });
-      expect(outcome).toMatchObject({
+      expect(outcome).toEqual({
         status: 'invalid',
-        invalidFields: ['inputString'],
+        diagnostic: {
+          code: 'inexact-value',
+          fields: ['inputString'],
+        },
       });
-      if (outcome.status === 'invalid') {
-        expect(outcome.message).toMatch(/cannot be represented exactly/u);
-      }
     },
   );
 
@@ -162,9 +162,12 @@ describe('convertFixedPoint decimal input rounding', () => {
       integerBitsString: '1',
       fractionalBitsString: '55',
       roundingMode: RoundingMode.Exact,
-    })).toMatchObject({
+    })).toEqual({
       status: 'invalid',
-      invalidFields: ['inputString'],
+      diagnostic: {
+        code: 'inexact-value',
+        fields: ['inputString'],
+      },
     });
   });
 });

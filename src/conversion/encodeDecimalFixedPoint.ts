@@ -1,4 +1,8 @@
-import { RoundingMode, type RoundingModeType } from './contracts';
+import {
+  RoundingMode,
+  type ConversionDiagnostic,
+  type RoundingModeType,
+} from './contracts';
 import type { FixedPointFormat } from './fixedPointFormat';
 
 export const MAX_DECIMAL_BITS = 16384;
@@ -10,12 +14,18 @@ interface DecimalValue {
 
 const rangeError = {
   status: 'invalid',
-  message: 'Value is outside the selected fixed-point range.',
+  diagnostic: {
+    code: 'out-of-range',
+    fields: ['inputString'],
+  },
 } as const;
 
 const precisionError = {
   status: 'invalid',
-  message: 'Value cannot be represented exactly with these fractional bits.',
+  diagnostic: {
+    code: 'inexact-value',
+    fields: ['inputString'],
+  },
 } as const;
 
 type DecimalEncoding = {
@@ -24,7 +34,9 @@ type DecimalEncoding = {
   inputWasRounded: boolean;
 } | {
   status: 'invalid';
-  message: string;
+  diagnostic: Extract<ConversionDiagnostic, {
+    code: 'malformed-decimal' | 'out-of-range' | 'inexact-value';
+  }>;
 };
 
 interface RoundedDecimalInteger {
@@ -147,7 +159,10 @@ export function encodeDecimalFixedPoint(
   if (value === null) {
     return {
       status: 'invalid',
-      message: 'Enter a valid decimal number.',
+      diagnostic: {
+        code: 'malformed-decimal',
+        fields: ['inputString'],
+      },
     };
   }
   if (value.coefficient === 0n) {
