@@ -28,21 +28,19 @@ const precisionError = {
   },
 } as const;
 
+interface RoundedDecimalInteger {
+  integer: bigint;
+  inputWasRounded: boolean;
+}
+
 type DecimalEncoding = {
   status: 'success';
-  binaryString: string;
-  inputWasRounded: boolean;
-} | {
+} & RoundedDecimalInteger | {
   status: 'invalid';
   diagnostic: Extract<ConversionDiagnostic, {
     code: 'malformed-decimal' | 'out-of-range' | 'inexact-value';
   }>;
 };
-
-interface RoundedDecimalInteger {
-  integer: bigint;
-  inputWasRounded: boolean;
-}
 
 type DecimalQuantization = {
   status: 'success';
@@ -168,7 +166,7 @@ export function encodeDecimalFixedPoint(
   if (value.coefficient === 0n) {
     return {
       status: 'success',
-      binaryString: '0'.repeat(totalBits),
+      integer: 0n,
       inputWasRounded: false,
     };
   }
@@ -176,16 +174,5 @@ export function encodeDecimalFixedPoint(
     || (isSigned && totalBits === 1 && value.coefficient > 0n)) {
     return rangeError;
   }
-  const quantization = quantizeDecimalValue(
-    value, format, roundingMode,
-  );
-  if (quantization.status === 'invalid') {
-    return quantization;
-  }
-  return {
-    status: 'success',
-    binaryString: BigInt.asUintN(totalBits, quantization.integer).toString(2)
-      .padStart(totalBits, '0'),
-    inputWasRounded: quantization.inputWasRounded,
-  };
+  return quantizeDecimalValue(value, format, roundingMode);
 }
