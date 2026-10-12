@@ -21,7 +21,7 @@ const bitPatternNotations = {
     prefix: binaryPrefix,
     allowedCharacters: /^[01]*$/u,
     invalidCharacterMessage:
-      'Binary string contains characters other than 0 and 1',
+      'Binary string contains characters other than 0 and 1.',
     radix: 2,
     bitsPerDigit: 1,
   },
@@ -30,7 +30,7 @@ const bitPatternNotations = {
     prefix: hexPrefix,
     allowedCharacters: /^[0-9A-Fa-f]*$/u,
     invalidCharacterMessage:
-      'Hexadecimal string contains characters other than 0-9 and A-F',
+      'Hexadecimal string contains characters other than 0-9 and A-F.',
     radix: 16,
     bitsPerDigit: 4,
   },
@@ -79,7 +79,7 @@ export function parseBitPattern(
       status: 'invalid',
       message: `${notation.name} digit count should be `
         + `${expectedLength.toString()}, `
-        + `but got ${digits.length.toString()}`,
+        + `but got ${digits.length.toString()}.`,
     };
   }
   const binaryString = digits
