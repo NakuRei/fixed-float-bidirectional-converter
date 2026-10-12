@@ -1,9 +1,8 @@
 import { useId } from 'react';
 
-import type {
-  ConversionOutcome,
-  ConversionResults,
-} from '../conversion/convertFixedPoint';
+import type { ConversionOutcome } from '../conversion/convertFixedPoint';
+import type { Float64Result } from '../conversion/decodeFixedPointFloat64';
+import { InputFormat } from '../conversion/InputFormat';
 import { ConversionErrorMessage } from './ConversionErrorMessage';
 import { ConversionResultList } from './ConversionResultList';
 
@@ -27,11 +26,9 @@ const float64PrecisionLossDescriptions = {
 };
 
 function findFloat64PrecisionLoss(
-  result: ConversionResults,
+  float64: Float64Result,
 ): Float64PrecisionLoss | null {
-  return 'float64' in result && result.float64.status !== 'exact'
-    ? result.float64.status
-    : null;
+  return float64.status === 'exact' ? null : float64.status;
 }
 
 function PrecisionNotices({
@@ -70,9 +67,13 @@ function PrecisionNotices({
 export function ConversionOutcomePanel(
   { errorId, outcome }: ConversionOutcomePanelProps,
 ): React.JSX.Element {
-  const float64PrecisionLoss = outcome.status === 'success'
-    ? findFloat64PrecisionLoss(outcome.result)
-    : null;
+  let float64PrecisionLoss: Float64PrecisionLoss | null = null;
+  if (
+    outcome.status === 'success'
+    && outcome.result.inputFormat !== InputFormat.Decimal
+  ) {
+    float64PrecisionLoss = findFloat64PrecisionLoss(outcome.result.float64);
+  }
   const float64PrecisionLossDescriptionId = useId();
 
   return (
