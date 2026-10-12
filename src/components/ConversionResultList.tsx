@@ -1,7 +1,4 @@
-import {
-  InputFormat,
-  type ConversionResults,
-} from '../conversion/contracts';
+import type { ConversionResults } from '../conversion/contracts';
 import { ConversionResultRow } from './ConversionResultRow';
 
 interface ConversionResultListProps {
@@ -13,41 +10,24 @@ export function ConversionResultList({
   decimalDescriptionId,
   result,
 }: ConversionResultListProps): React.JSX.Element {
-  const original = {
-    status: 'original',
-    value: result.inputString,
-  } as const;
-  const { fixedPoint } = result;
   return (
     <div className="w-full grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2">
       <ConversionResultRow
         descriptionId={undefined}
         label="Hexadecimal"
-        result={result.inputFormat === InputFormat.Hexadecimal
-          ? original
-          : {
-            status: fixedPoint.status,
-            value: fixedPoint.hexadecimal,
-          }}
+        result={result.hexadecimal}
       />
 
       <ConversionResultRow
         descriptionId={undefined}
         label="Binary"
-        result={result.inputFormat === InputFormat.Binary
-          ? original
-          : {
-            status: fixedPoint.status,
-            value: fixedPoint.binary,
-          }}
+        result={result.binary}
       />
 
       <ConversionResultRow
         descriptionId={decimalDescriptionId}
         label="Decimal"
-        result={result.inputFormat === InputFormat.Decimal
-          ? original
-          : result.float64}
+        result={result.decimal}
       />
     </div>
   );

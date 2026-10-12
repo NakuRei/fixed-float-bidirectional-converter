@@ -28,30 +28,57 @@ function expectInvalidConversion(
 
 describe('convertFixedPoint bit pattern input notation', () => {
   it.each([
-    [InputFormat.Binary, '0b01001101'],
-    [InputFormat.Binary, '0B01001101'],
-    [InputFormat.Binary, ' 01001101\n'],
-    [InputFormat.Binary, '\t0b01001101 '],
-    [InputFormat.Hexadecimal, '0x4D'],
-    [InputFormat.Hexadecimal, '0X4d'],
-    [InputFormat.Hexadecimal, ' 4D\r\n'],
-  ] as const)('accepts %s pattern %j', (inputFormat, inputString) => {
-    const originalValue = inputString.trim();
+    ['0b01001101', '0b01001101'],
+    ['0B01001101', '0B01001101'],
+    [' 01001101\n', '01001101'],
+    ['\t0b01001101 ', '0b01001101'],
+  ])('accepts binary pattern %j as original %j', (inputString, original) => {
     expect(convertFixedPoint({
       ...bitPatternInput,
-      inputFormat,
+      inputFormat: InputFormat.Binary,
       inputString,
     })).toEqual({
       status: 'success',
       result: {
-        inputFormat,
-        inputString: originalValue,
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: '4D',
-          binary: '01001101',
+          value: '4D',
         },
-        float64: {
+        binary: {
+          status: 'original',
+          value: original,
+        },
+        decimal: {
+          status: 'exact',
+          value: '4.8125',
+        },
+      },
+    });
+  });
+
+  it.each([
+    ['0x4D', '0x4D'],
+    ['0X4d', '0X4d'],
+    [' 4D\r\n', '4D'],
+  ])('accepts hexadecimal pattern %j as original %j', (
+    inputString, original,
+  ) => {
+    expect(convertFixedPoint({
+      ...bitPatternInput,
+      inputFormat: InputFormat.Hexadecimal,
+      inputString,
+    })).toEqual({
+      status: 'success',
+      result: {
+        hexadecimal: {
+          status: 'original',
+          value: original,
+        },
+        binary: {
+          status: 'exact',
+          value: '01001101',
+        },
+        decimal: {
           status: 'exact',
           value: '4.8125',
         },
@@ -68,9 +95,9 @@ describe('convertFixedPoint bit pattern input notation', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        fixedPoint: {
+        binary: {
           status: 'exact',
-          binary: '00001011',
+          value: '00001011',
         },
       },
     });
@@ -181,14 +208,15 @@ describe('convertFixedPoint bit pattern input notation', () => {
     const expected = {
       status: 'success',
       result: {
-        inputFormat: InputFormat.Binary,
-        inputString: '01001101',
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: '4D',
-          binary: '01001101',
+          value: '4D',
         },
-        float64: {
+        binary: {
+          status: 'original',
+          value: '01001101',
+        },
+        decimal: {
           status: 'exact',
           value: '4.8125',
         },

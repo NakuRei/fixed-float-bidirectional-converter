@@ -22,10 +22,41 @@ describe('convertFixedPoint bit pattern input sign extension', () => {
     isSigned,
     float64Value,
   ) => {
-    for (const [inputFormat, inputString] of [
-      [InputFormat.Binary, binaryString],
-      [InputFormat.Hexadecimal, inputHexString],
-      [InputFormat.Hexadecimal, hexString],
+    const exactBinary = {
+      status: 'exact',
+      value: binaryString,
+    } as const;
+    for (const [inputFormat, inputString, hexadecimal, binary] of [
+      [
+        InputFormat.Binary,
+        binaryString,
+        {
+          status: 'exact',
+          value: hexString,
+        },
+        {
+          status: 'original',
+          value: binaryString,
+        },
+      ],
+      [
+        InputFormat.Hexadecimal,
+        inputHexString,
+        {
+          status: 'original',
+          value: inputHexString,
+        },
+        exactBinary,
+      ],
+      [
+        InputFormat.Hexadecimal,
+        hexString,
+        {
+          status: 'original',
+          value: hexString,
+        },
+        exactBinary,
+      ],
     ] as const) {
       expect(convertFixedPoint({
         inputString,
@@ -36,14 +67,9 @@ describe('convertFixedPoint bit pattern input sign extension', () => {
       })).toEqual({
         status: 'success',
         result: {
-          inputFormat,
-          inputString,
-          fixedPoint: {
-            status: 'exact',
-            hexadecimal: hexString,
-            binary: binaryString,
-          },
-          float64: {
+          hexadecimal,
+          binary,
+          decimal: {
             status: 'exact',
             value: float64Value,
           },
@@ -53,27 +79,26 @@ describe('convertFixedPoint bit pattern input sign extension', () => {
   });
 
   it.each([
-    ['4d', 4, 4, true, '01001101', '4D', '4.8125'],
-    ['cd', 4, 4, true, '11001101', 'CD', '-3.1875'],
-    ['cd', 4, 4, false, '11001101', 'CD', '12.8125'],
-    ['FF', 3, 3, false, '111111', '3F', '7.875'],
-    ['FF', 3, 3, true, '111111', 'FF', '-0.125'],
-    ['ff', 3, 3, false, '111111', '3F', '7.875'],
-    ['ff', 3, 3, true, '111111', 'FF', '-0.125'],
-    ['3F', 3, 3, true, '111111', 'FF', '-0.125'],
-    ['DF', 3, 3, true, '011111', '1F', '3.875'],
-    ['E0', 3, 3, true, '100000', 'E0', '-4'],
-    ['E0', 3, 3, false, '100000', '20', '4'],
-    ['F', 1, 1, false, '11', '3', '1.5'],
-    ['AB', 3, 2, false, '01011', '0B', '2.75'],
-    ['00f', 8, 4, false, '000000001111', '00F', '0.9375'],
+    ['4d', 4, 4, true, '01001101', '4.8125'],
+    ['cd', 4, 4, true, '11001101', '-3.1875'],
+    ['cd', 4, 4, false, '11001101', '12.8125'],
+    ['FF', 3, 3, false, '111111', '7.875'],
+    ['FF', 3, 3, true, '111111', '-0.125'],
+    ['ff', 3, 3, false, '111111', '7.875'],
+    ['ff', 3, 3, true, '111111', '-0.125'],
+    ['3F', 3, 3, true, '111111', '-0.125'],
+    ['DF', 3, 3, true, '011111', '3.875'],
+    ['E0', 3, 3, true, '100000', '-4'],
+    ['E0', 3, 3, false, '100000', '4'],
+    ['F', 1, 1, false, '11', '1.5'],
+    ['AB', 3, 2, false, '01011', '2.75'],
+    ['00f', 8, 4, false, '000000001111', '0.9375'],
   ])('extends hexadecimal %s for %i.%i signed=%s', (
     inputString,
     integerBits,
     fractionalBits,
     isSigned,
     binaryString,
-    hexString,
     float64Value,
   ) => {
     expect(convertFixedPoint({
@@ -85,14 +110,15 @@ describe('convertFixedPoint bit pattern input sign extension', () => {
     })).toEqual({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Hexadecimal,
-        inputString,
-        fixedPoint: {
-          status: 'exact',
-          hexadecimal: hexString,
-          binary: binaryString,
+        hexadecimal: {
+          status: 'original',
+          value: inputString,
         },
-        float64: {
+        binary: {
+          status: 'exact',
+          value: binaryString,
+        },
+        decimal: {
           status: 'exact',
           value: float64Value,
         },
@@ -127,12 +153,13 @@ describe('convertFixedPoint bit pattern input sign extension', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Binary,
-        inputString,
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: hexString,
-          binary: inputString,
+          value: hexString,
+        },
+        binary: {
+          status: 'original',
+          value: inputString,
         },
       },
     });

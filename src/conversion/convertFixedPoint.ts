@@ -76,17 +76,26 @@ function convertFixedPointPattern(
     };
   }
   const { binaryString } = pattern;
+  const original = {
+    status: 'original',
+    value: inputString,
+  } as const;
   return {
     status: 'success',
     result: {
-      inputFormat,
-      inputString,
-      fixedPoint: {
-        status: 'exact',
-        hexadecimal: toHexString(binaryString, format.isSigned),
-        binary: binaryString,
-      },
-      float64: decodeFixedPointFloat64(binaryString, format),
+      hexadecimal: inputFormat === InputFormat.Hexadecimal
+        ? original
+        : {
+          status: 'exact',
+          value: toHexString(binaryString, format.isSigned),
+        },
+      binary: inputFormat === InputFormat.Binary
+        ? original
+        : {
+          status: 'exact',
+          value: binaryString,
+        },
+      decimal: decodeFixedPointFloat64(binaryString, format),
     },
   };
 }
@@ -107,15 +116,21 @@ function convertDecimalFixedPoint(
       invalidFields: ['inputString'],
     };
   }
+  const status = encoding.inputWasRounded ? 'rounded' : 'exact';
   return {
     status: 'success',
     result: {
-      inputFormat: InputFormat.Decimal,
-      inputString,
-      fixedPoint: {
-        status: encoding.inputWasRounded ? 'rounded' : 'exact',
-        hexadecimal: toHexString(encoding.binaryString, format.isSigned),
-        binary: encoding.binaryString,
+      hexadecimal: {
+        status,
+        value: toHexString(encoding.binaryString, format.isSigned),
+      },
+      binary: {
+        status,
+        value: encoding.binaryString,
+      },
+      decimal: {
+        status: 'original',
+        value: inputString,
       },
     },
   };

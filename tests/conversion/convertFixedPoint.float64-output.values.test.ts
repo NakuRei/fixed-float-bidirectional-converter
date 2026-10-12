@@ -52,13 +52,11 @@ describe('convertFixedPoint Float64 output values', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Binary,
-        inputString,
-        fixedPoint: {
-          status: 'exact',
-          binary: inputString,
+        binary: {
+          status: 'original',
+          value: inputString,
         },
-        float64: {
+        decimal: {
           status: 'exact',
           value: float64Value,
         },
@@ -96,7 +94,7 @@ describe('convertFixedPoint Float64 output values', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        float64: { value: float64Value },
+        decimal: { value: float64Value },
       },
     });
   });
@@ -122,7 +120,7 @@ describe('convertFixedPoint Float64 output values', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        float64: { value: float64Value },
+        decimal: { value: float64Value },
       },
     });
   });
