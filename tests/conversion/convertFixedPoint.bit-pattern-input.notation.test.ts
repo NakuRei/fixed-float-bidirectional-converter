@@ -95,7 +95,7 @@ describe('convertFixedPoint bit pattern input notation', () => {
         inputString,
       })).toEqual({
         status: 'invalid',
-        message: 'Binary string contains characters other than 0 and 1',
+        message: 'Binary string contains characters other than 0 and 1.',
         invalidFields: ['inputString'],
       });
     },
@@ -111,7 +111,7 @@ describe('convertFixedPoint bit pattern input notation', () => {
       })).toEqual({
         status: 'invalid',
         message: 'Hexadecimal string contains characters '
-          + 'other than 0-9 and A-F',
+          + 'other than 0-9 and A-F.',
         invalidFields: ['inputString'],
       });
     },
