@@ -1,20 +1,16 @@
+import type { ConversionResults } from '../conversion/contracts';
 import { CopyButton } from './CopyButton';
 
-type FormatResult = {
-  readonly status: 'original' | 'exact' | 'rounded';
-  readonly value: string;
-} | {
-  readonly status: 'overflow';
-};
+type NotationResult = ConversionResults[keyof ConversionResults];
 
 interface ConversionResultRowProps {
   descriptionId: string | undefined;
   label: string;
-  result: FormatResult;
+  result: NotationResult;
 }
 
 const statusLabels: Record<
-  Exclude<FormatResult['status'], 'overflow'>,
+  Exclude<NotationResult['status'], 'overflow'>,
   string
 > = {
   original: 'original',

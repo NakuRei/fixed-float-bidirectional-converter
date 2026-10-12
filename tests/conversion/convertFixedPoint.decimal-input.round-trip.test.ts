@@ -26,39 +26,61 @@ function expectEncodingAndDecoding(
   expect(convertFixedPoint(input)).toEqual({
     status: 'success',
     result: {
-      inputFormat: InputFormat.Decimal,
-      inputString: input.inputString,
-      fixedPoint: {
+      hexadecimal: {
         status: fixedPointStatus,
-        hexadecimal: expected.hexadecimal,
-        binary: expected.binary,
+        value: expected.hexadecimal,
+      },
+      binary: {
+        status: fixedPointStatus,
+        value: expected.binary,
+      },
+      decimal: {
+        status: 'original',
+        value: input.inputString,
       },
     },
   });
-  for (const [inputFormat, inputString] of [
-    [InputFormat.Binary, expected.binary],
-    [InputFormat.Hexadecimal, expected.hexadecimal],
-  ] as const) {
-    expect(convertFixedPoint({
-      inputFormat,
-      inputString,
-      isSigned: input.isSigned,
-      integerBitsString: input.integerBitsString,
-      fractionalBitsString: input.fractionalBitsString,
-    })).toEqual({
-      status: 'success',
-      result: {
-        inputFormat,
-        inputString,
-        fixedPoint: {
-          status: 'exact',
-          hexadecimal: expected.hexadecimal,
-          binary: expected.binary,
-        },
-        float64: expected.float64,
+  const format = {
+    isSigned: input.isSigned,
+    integerBitsString: input.integerBitsString,
+    fractionalBitsString: input.fractionalBitsString,
+  };
+  expect(convertFixedPoint({
+    ...format,
+    inputFormat: InputFormat.Binary,
+    inputString: expected.binary,
+  })).toEqual({
+    status: 'success',
+    result: {
+      hexadecimal: {
+        status: 'exact',
+        value: expected.hexadecimal,
       },
-    });
-  }
+      binary: {
+        status: 'original',
+        value: expected.binary,
+      },
+      decimal: expected.float64,
+    },
+  });
+  expect(convertFixedPoint({
+    ...format,
+    inputFormat: InputFormat.Hexadecimal,
+    inputString: expected.hexadecimal,
+  })).toEqual({
+    status: 'success',
+    result: {
+      hexadecimal: {
+        status: 'original',
+        value: expected.hexadecimal,
+      },
+      binary: {
+        status: 'exact',
+        value: expected.binary,
+      },
+      decimal: expected.float64,
+    },
+  });
 }
 
 describe('convertFixedPoint decimal input round trip', () => {

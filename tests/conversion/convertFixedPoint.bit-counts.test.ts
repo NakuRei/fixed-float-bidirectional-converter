@@ -57,14 +57,15 @@ describe('convertFixedPoint bit counts', () => {
     })).toEqual({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Binary,
-        inputString: '01001101',
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: '4D',
-          binary: '01001101',
+          value: '4D',
         },
-        float64: {
+        binary: {
+          status: 'original',
+          value: '01001101',
+        },
+        decimal: {
           status: 'exact',
           value: '4.8125',
         },
@@ -193,34 +194,52 @@ describe('convertFixedPoint bit counts', () => {
   });
 
   it.each([
-    [InputFormat.Binary, '0'.repeat(16388)],
-    [InputFormat.Hexadecimal, '0'.repeat(4097)],
-  ] as const)('accepts %s patterns beyond the decimal input bit limit', (
-    inputFormat, inputString,
-  ) => {
-    expect(convertFixedPoint({
-      ...bitPatternInput,
-      inputFormat,
-      inputString,
-      integerBitsString: '16388',
-      fractionalBitsString: '0',
-    })).toEqual({
-      status: 'success',
-      result: {
+    {
+      inputFormat: InputFormat.Binary,
+      inputString: '0'.repeat(16388),
+      hexadecimal: {
+        status: 'exact',
+        value: '0'.repeat(4097),
+      },
+      binary: {
+        status: 'original',
+        value: '0'.repeat(16388),
+      },
+    },
+    {
+      inputFormat: InputFormat.Hexadecimal,
+      inputString: '0'.repeat(4097),
+      hexadecimal: {
+        status: 'original',
+        value: '0'.repeat(4097),
+      },
+      binary: {
+        status: 'exact',
+        value: '0'.repeat(16388),
+      },
+    },
+  ] as const)(
+    'accepts $inputFormat patterns beyond the decimal input bit limit',
+    ({ inputFormat, inputString, hexadecimal, binary }) => {
+      expect(convertFixedPoint({
+        ...bitPatternInput,
         inputFormat,
         inputString,
-        fixedPoint: {
-          status: 'exact',
-          hexadecimal: '0'.repeat(4097),
-          binary: '0'.repeat(16388),
+        integerBitsString: '16388',
+        fractionalBitsString: '0',
+      })).toEqual({
+        status: 'success',
+        result: {
+          hexadecimal,
+          binary,
+          decimal: {
+            status: 'exact',
+            value: '0',
+          },
         },
-        float64: {
-          status: 'exact',
-          value: '0',
-        },
-      },
-    });
-  });
+      });
+    },
+  );
 
   it('allows the supported maximum bit width', () => {
     expect(convertFixedPoint({
@@ -230,12 +249,17 @@ describe('convertFixedPoint bit counts', () => {
     })).toEqual({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Decimal,
-        inputString: '0',
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: '0'.repeat(4096),
-          binary: '0'.repeat(16384),
+          value: '0'.repeat(4096),
+        },
+        binary: {
+          status: 'exact',
+          value: '0'.repeat(16384),
+        },
+        decimal: {
+          status: 'original',
+          value: '0',
         },
       },
     });

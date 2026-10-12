@@ -14,10 +14,26 @@ function expectFloatConversion(
     ? integer + (2n ** BigInt(totalBits))
     : integer;
   const binaryString = unsignedInteger.toString(2).padStart(totalBits, '0');
-  for (const inputFormat of [InputFormat.Binary, InputFormat.Hexadecimal]) {
-    const inputString = inputFormat === InputFormat.Binary
-      ? binaryString
-      : unsignedInteger.toString(16).padStart(Math.ceil(totalBits / 4), '0');
+  const hexString = unsignedInteger.toString(16)
+    .padStart(Math.ceil(totalBits / 4), '0');
+  for (const [inputFormat, inputString, binary] of [
+    [
+      InputFormat.Binary,
+      binaryString,
+      {
+        status: 'original',
+        value: binaryString,
+      },
+    ],
+    [
+      InputFormat.Hexadecimal,
+      hexString,
+      {
+        status: 'exact',
+        value: binaryString,
+      },
+    ],
+  ] as const) {
     const outcome = convertFixedPoint({
       inputString,
       inputFormat,
@@ -27,17 +43,10 @@ function expectFloatConversion(
     });
     expect(outcome).toMatchObject({
       status: 'success',
-      result: {
-        inputFormat,
-        inputString,
-        fixedPoint: {
-          status: 'exact',
-          binary: binaryString,
-        },
-      },
+      result: { binary },
     });
     expect(outcome).toHaveProperty(
-      ['result', 'float64'],
+      ['result', 'decimal'],
       expectedStatus === 'overflow'
         ? { status: 'overflow' }
         : {

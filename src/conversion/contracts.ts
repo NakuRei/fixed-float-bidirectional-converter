@@ -40,13 +40,29 @@ interface DecimalInput extends ConversionFields {
 
 export type ConversionInput = BitPatternInput | DecimalInput;
 
-interface FixedPointValue {
-  readonly status: 'exact' | 'rounded';
-  readonly hexadecimal: string;
-  readonly binary: string;
+/*
+ * The notation the value was entered in keeps the trimmed input text,
+ * including any prefix, letter case, exponent and trailing zeros.
+ */
+interface OriginalNotationResult {
+  readonly status: 'original';
+  readonly value: string;
 }
 
-// Float64 uses nearest rounding with ties to even; underflow can round to zero.
+/*
+ * Rounding here comes from quantizing a decimal input to the fixed-point
+ * format.
+ */
+interface FixedPointNotationResult {
+  readonly status: 'exact' | 'rounded';
+  readonly value: string;
+}
+
+/*
+ * The status reports whether the fixed-point value converts to Float64 exactly,
+ * not whether the shortest decimal text equals it. Float64 uses nearest
+ * rounding with ties to even; underflow can round to zero.
+ */
 export type Float64Result = {
   readonly status: 'exact' | 'rounded';
   readonly value: string;
@@ -54,16 +70,11 @@ export type Float64Result = {
   readonly status: 'overflow';
 };
 
-export type ConversionResults = {
-  readonly inputFormat: typeof InputFormat.Decimal;
-  readonly inputString: string;
-  readonly fixedPoint: FixedPointValue;
-} | {
-  readonly inputFormat: BitPatternFormat;
-  readonly inputString: string;
-  readonly fixedPoint: FixedPointValue;
-  readonly float64: Float64Result;
-};
+export interface ConversionResults {
+  readonly hexadecimal: OriginalNotationResult | FixedPointNotationResult;
+  readonly binary: OriginalNotationResult | FixedPointNotationResult;
+  readonly decimal: OriginalNotationResult | Float64Result;
+}
 
 export type ConversionOutcome = {
   status: 'empty';

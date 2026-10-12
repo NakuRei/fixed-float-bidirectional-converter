@@ -42,11 +42,13 @@ describe('convertFixedPoint decimal input rounding', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Decimal,
-        inputString,
-        fixedPoint: {
+        hexadecimal: {
           status: 'rounded',
-          hexadecimal: hexString,
+          value: hexString,
+        },
+        decimal: {
+          status: 'original',
+          value: inputString,
         },
       },
     });
@@ -68,11 +70,13 @@ describe('convertFixedPoint decimal input rounding', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Decimal,
-        inputString,
-        fixedPoint: {
+        hexadecimal: {
           status: 'rounded',
-          hexadecimal: hexString,
+          value: hexString,
+        },
+        decimal: {
+          status: 'original',
+          value: inputString,
         },
       },
     });
@@ -89,12 +93,17 @@ describe('convertFixedPoint decimal input rounding', () => {
         })).toEqual({
           status: 'success',
           result: {
-            inputFormat: InputFormat.Decimal,
-            inputString: `${sign}1e-999999999999999999999`,
-            fixedPoint: {
+            hexadecimal: {
               status: 'rounded',
-              hexadecimal: '00',
-              binary: '00000000',
+              value: '00',
+            },
+            binary: {
+              status: 'rounded',
+              value: '00000000',
+            },
+            decimal: {
+              status: 'original',
+              value: `${sign}1e-999999999999999999999`,
             },
           },
         });
@@ -112,12 +121,17 @@ describe('convertFixedPoint decimal input rounding', () => {
     })).toEqual({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Decimal,
-        inputString: '-3.1875',
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: 'CD',
-          binary: '11001101',
+          value: 'CD',
+        },
+        binary: {
+          status: 'exact',
+          value: '11001101',
+        },
+        decimal: {
+          status: 'original',
+          value: '-3.1875',
         },
       },
     });

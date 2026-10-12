@@ -35,11 +35,13 @@ describe('convertFixedPoint decimal input notation', () => {
     })).toMatchObject({
       status: 'success',
       result: {
-        inputFormat: InputFormat.Decimal,
-        inputString,
-        fixedPoint: {
+        hexadecimal: {
           status: 'exact',
-          hexadecimal: hexString,
+          value: hexString,
+        },
+        decimal: {
+          status: 'original',
+          value: inputString,
         },
       },
     });
@@ -54,11 +56,13 @@ describe('convertFixedPoint decimal input notation', () => {
       })).toMatchObject({
         status: 'success',
         result: {
-          inputFormat: InputFormat.Decimal,
-          inputString,
-          fixedPoint: {
+          hexadecimal: {
             status: 'exact',
-            hexadecimal: '00',
+            value: '00',
+          },
+          decimal: {
+            status: 'original',
+            value: inputString,
           },
         },
       });
@@ -74,12 +78,17 @@ describe('convertFixedPoint decimal input notation', () => {
       })).toEqual({
         status: 'success',
         result: {
-          inputFormat: InputFormat.Decimal,
-          inputString: '-3.1875',
-          fixedPoint: {
+          hexadecimal: {
             status: 'exact',
-            hexadecimal: 'CD',
-            binary: '11001101',
+            value: 'CD',
+          },
+          binary: {
+            status: 'exact',
+            value: '11001101',
+          },
+          decimal: {
+            status: 'original',
+            value: '-3.1875',
           },
         },
       });
