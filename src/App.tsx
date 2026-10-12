@@ -1,11 +1,9 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { AppHeader } from './components/AppHeader';
 import { AppFooter } from './components/AppFooter';
-import { Select } from './components/Select';
-import { Label } from './components/Label';
+import { SelectField } from './components/SelectField';
 import { Toggle } from './components/Toggle';
-import { InputWithLabelContainer } from './components/InputWithLabelContainer';
 import { TextField } from './components/TextField';
 import { ConversionOutcomePanel } from './components/ConversionOutcomePanel';
 import { InputFormat, type InputFormatType } from './conversion/InputFormat';
@@ -41,13 +39,21 @@ const inputFormatPresentation = {
   },
 } as const;
 
-const conversionErrorId = 'conversionError';
-
 const roundingModeLabels = {
   [RoundingMode.NearestEven]: 'Nearest (ties to even)',
   [RoundingMode.TowardZero]: 'Toward zero (truncate)',
   [RoundingMode.Exact]: 'Exact only',
 } as const;
+
+const inputFormatOptions = Object.values(InputFormat).map((format) => ({
+  value: format,
+  label: inputFormatPresentation[format].optionLabel,
+}));
+
+const roundingModeOptions = Object.values(RoundingMode).map((mode) => ({
+  value: mode,
+  label: roundingModeLabels[mode],
+}));
 
 function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
@@ -61,6 +67,7 @@ function App(): React.JSX.Element {
     RoundingMode.NearestEven,
   );
   const presentation = inputFormatPresentation[inputFormat];
+  const conversionErrorId = useId();
 
   const conversionInput: ConversionInput = inputFormat === InputFormat.Decimal
     ? {
@@ -141,7 +148,6 @@ function App(): React.JSX.Element {
           <div className="w-full h-fit">
             <Toggle
               checked={isSigned}
-              id="isSignedToggle"
               onChange={(e) => {
                 setIsSigned(e.target.checked);
               }}
@@ -150,70 +156,24 @@ function App(): React.JSX.Element {
             </Toggle>
           </div>
 
-          <InputWithLabelContainer>
-            <Label htmlFor="inputFormat">Input Format</Label>
-
-            <Select
-              id="inputFormat"
-              onChange={(e) => {
-                const selectedFormat = Object.values(InputFormat)
-                  .find((format) => format === e.target.value);
-                if (selectedFormat !== undefined) {
-                  setInputFormat(selectedFormat);
-                }
-              }}
-              value={inputFormat}
-            >
-              {Object.values(InputFormat).map((format) => (
-                <option
-                  key={format}
-                  value={format}
-                >
-                  {inputFormatPresentation[format].optionLabel}
-                </option>
-              ))}
-            </Select>
-          </InputWithLabelContainer>
+          <SelectField
+            label="Input Format"
+            onValueChange={setInputFormat}
+            options={inputFormatOptions}
+            value={inputFormat}
+          />
 
           {inputFormat === InputFormat.Decimal
             ? (
-              <InputWithLabelContainer>
-                <Label htmlFor="roundingMode">
-                  Fixed-point rounding
-                </Label>
-
-                <Select
-                  aria-describedby="roundingHint"
-                  id="roundingMode"
-                  onChange={(e) => {
-                    const selectedMode = Object.values(RoundingMode)
-                      .find((mode) => mode === e.target.value);
-                    if (selectedMode !== undefined) {
-                      setRoundingMode(selectedMode);
-                    }
-                  }}
-                  value={roundingMode}
-                >
-                  {Object.values(RoundingMode).map((mode) => (
-                    <option
-                      key={mode}
-                      value={mode}
-                    >
-                      {roundingModeLabels[mode]}
-                    </option>
-                  ))}
-                </Select>
-
-                <p
-                  className="text-sm text-on-background"
-                  id="roundingHint"
-                >
-                  Values outside the fixed-point range are rejected.
-                  {' '}
-                  Exact only rejects precision loss in fixed-point
-                  conversion.
-                </p>
-              </InputWithLabelContainer>
+              <SelectField
+                hint={'Values outside the fixed-point range are rejected. '
+                  + 'Exact only rejects precision loss in fixed-point '
+                  + 'conversion.'}
+                label="Fixed-point rounding"
+                onValueChange={setRoundingMode}
+                options={roundingModeOptions}
+                value={roundingMode}
+              />
             )
             : null}
 

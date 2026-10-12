@@ -1,7 +1,8 @@
+import { useId } from 'react';
+
 import { Label } from './Label';
 
 interface ToggleProps {
-  id: string;
   checked: boolean;
   children?: React.ReactNode;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -9,12 +10,13 @@ interface ToggleProps {
 }
 
 export function Toggle({
-  id,
   checked,
   children,
   onChange,
   className = '',
 }: ToggleProps): React.JSX.Element {
+  const inputId = useId();
+
   return (
     <Label
       className={[
@@ -25,12 +27,12 @@ export function Toggle({
         'cursor-pointer',
         className,
       ].join(' ')}
-      htmlFor={id}
+      htmlFor={inputId}
     >
       <input
         checked={checked}
         className="sr-only peer"
-        id={id}
+        id={inputId}
         onChange={onChange}
         type="checkbox"
         value=""

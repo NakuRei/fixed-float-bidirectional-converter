@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 import type {
   ConversionOutcome,
   ConversionResults,
@@ -14,10 +16,9 @@ type Float64PrecisionLoss = 'rounded' | 'overflow';
 
 interface PrecisionNoticesProps {
   float64PrecisionLoss: Float64PrecisionLoss | null;
+  float64PrecisionLossDescriptionId: string;
   inputWasRounded: boolean;
 }
-
-const float64PrecisionLossDescriptionId = 'float64PrecisionLossDescription';
 
 const float64PrecisionLossDescriptions = {
   rounded: 'Precision was lost converting the fixed-point value to Float64.',
@@ -35,6 +36,7 @@ function findFloat64PrecisionLoss(
 
 function PrecisionNotices({
   float64PrecisionLoss,
+  float64PrecisionLossDescriptionId,
   inputWasRounded,
 }: PrecisionNoticesProps): React.JSX.Element | null {
   if (!inputWasRounded && float64PrecisionLoss === null) {
@@ -71,6 +73,8 @@ export function ConversionOutcomePanel(
   const float64PrecisionLoss = outcome.status === 'success'
     ? findFloat64PrecisionLoss(outcome.result)
     : null;
+  const float64PrecisionLossDescriptionId = useId();
+
   return (
     <div
       className={outcome.status === 'empty'
@@ -103,6 +107,9 @@ export function ConversionOutcomePanel(
           ? (
             <PrecisionNotices
               float64PrecisionLoss={float64PrecisionLoss}
+              float64PrecisionLossDescriptionId={
+                float64PrecisionLossDescriptionId
+              }
               inputWasRounded={outcome.result.fixedPoint.status === 'rounded'}
             />
           )
