@@ -1,4 +1,5 @@
-import { RoundingMode, type RoundingModeType } from './RoundingMode';
+import { RoundingMode, type RoundingModeType } from './contracts';
+import type { FixedPointFormat } from './fixedPointFormat';
 
 export const MAX_DECIMAL_BITS = 16384;
 
@@ -98,11 +99,10 @@ function roundDecimalRatio(
 
 function quantizeDecimalValue(
   value: DecimalValue,
-  totalBits: number,
-  fractionalBits: number,
-  isSigned: boolean,
+  format: FixedPointFormat,
   roundingMode: RoundingModeType,
 ): DecimalQuantization {
+  const { totalBits, fractionalBits, isSigned } = format;
   const magnitudeBits = isSigned ? totalBits - 1 : totalBits;
   const maximum = (1n << BigInt(magnitudeBits)) - 1n;
   const minimum = isSigned ? -maximum - 1n : 0n;
@@ -139,11 +139,10 @@ function quantizeDecimalValue(
 
 export function encodeDecimalFixedPoint(
   inputString: string,
-  totalBits: number,
-  fractionalBits: number,
-  isSigned: boolean,
+  format: FixedPointFormat,
   roundingMode: RoundingModeType,
 ): DecimalEncoding {
+  const { totalBits, isSigned } = format;
   const value = readDecimalValue(inputString);
   if (value === null) {
     return {
@@ -163,7 +162,7 @@ export function encodeDecimalFixedPoint(
     return rangeError;
   }
   const quantization = quantizeDecimalValue(
-    value, totalBits, fractionalBits, isSigned, roundingMode,
+    value, format, roundingMode,
   );
   if (quantization.status === 'invalid') {
     return quantization;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { InputFormat } from '../../src/conversion/InputFormat';
+import { InputFormat } from '../../src/conversion/contracts';
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 function expectFloatConversion(

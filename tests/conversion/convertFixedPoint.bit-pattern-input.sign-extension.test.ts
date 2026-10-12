@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { InputFormat } from '../../src/conversion/InputFormat';
+import { InputFormat } from '../../src/conversion/contracts';
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 describe('convertFixedPoint bit pattern input sign extension', () => {

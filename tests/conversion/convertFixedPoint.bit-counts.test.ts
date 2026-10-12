@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { InputFormat } from '../../src/conversion/InputFormat';
-import { RoundingMode } from '../../src/conversion/RoundingMode';
 import {
-  convertFixedPoint,
+  InputFormat,
+  RoundingMode,
   type ConversionInput,
-} from '../../src/conversion/convertFixedPoint';
+} from '../../src/conversion/contracts';
+import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 const bitPatternInput: ConversionInput = {
   inputString: '01001101',
@@ -241,13 +241,17 @@ describe('convertFixedPoint bit counts', () => {
     });
   });
 
-  it.each(['16385', '9007199254740991'])(
-    'rejects a bit width of %s before allocating the output',
-    (integerBitsString) => {
+  it.each([
+    ['16385', '0'],
+    ['9007199254740991', '0'],
+    ['9007199254740991', '1'],
+  ])(
+    'rejects a Decimal bit width of %s + %s before allocating the output',
+    (integerBitsString, fractionalBitsString) => {
       expect(convertFixedPoint({
         ...decimalInput,
         integerBitsString,
-        fractionalBitsString: '0',
+        fractionalBitsString,
       })).toEqual({
         status: 'invalid',
         message: 'Decimal conversion supports at most 16384 total bits.',
@@ -255,4 +259,17 @@ describe('convertFixedPoint bit counts', () => {
       });
     },
   );
+
+  it('reports the Decimal limit with an unsafe total and empty input', () => {
+    expect(convertFixedPoint({
+      ...decimalInput,
+      inputString: '',
+      integerBitsString: '9007199254740991',
+      fractionalBitsString: '1',
+    })).toEqual({
+      status: 'invalid',
+      message: 'Decimal conversion supports at most 16384 total bits.',
+      invalidFields: ['integerBitsString', 'fractionalBitsString'],
+    });
+  });
 });
