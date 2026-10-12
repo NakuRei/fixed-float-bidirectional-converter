@@ -11,35 +11,12 @@ import {
   RoundingMode,
   type InputFormatType,
   type RoundingModeType,
+  type ConversionDiagnostic,
   type ConversionInput,
 } from './conversion/contracts';
 
 import { convertFixedPoint } from './conversion/convertFixedPoint';
-
-const inputFormatPresentation = {
-  [InputFormat.Binary]: {
-    optionLabel: 'Binary',
-    inputLabel: 'Fixed-Point Bit Pattern:',
-    placeholder: 'Enter Fixed-Point Number',
-    inputMode: 'numeric',
-    hint: 'Use 0 or 1, optionally prefixed with 0b. No separators.',
-  },
-  [InputFormat.Decimal]: {
-    optionLabel: 'Decimal',
-    inputLabel: 'Decimal Value:',
-    placeholder: 'Enter Decimal Number',
-    inputMode: 'text',
-    hint: 'Enter a decimal value, such as -3.1875 or 1.25e-1.',
-  },
-  [InputFormat.Hexadecimal]: {
-    optionLabel: 'Hexadecimal',
-    inputLabel: 'Fixed-Point Bit Pattern:',
-    placeholder: 'Enter Fixed-Point Number',
-    inputMode: 'text',
-    hint: 'Use 0–9, A–F or a–f, optionally prefixed with 0x. '
-      + 'No separators.',
-  },
-} as const;
+import { inputFormatPresentation } from './inputFormatPresentation';
 
 const roundingModeLabels = {
   [RoundingMode.NearestEven]: 'Nearest (ties to even)',
@@ -89,9 +66,11 @@ function App(): React.JSX.Element {
     };
   const outcome = convertFixedPoint(conversionInput);
 
-  const invalidFields = outcome.status === 'invalid'
-    ? outcome.invalidFields
-    : [];
+  // includes() on the union of per-code field types accepts only never.
+  const invalidFields: readonly ConversionDiagnostic['fields'][number][]
+    = outcome.status === 'invalid'
+      ? outcome.diagnostic.fields
+      : [];
   const isIntegerBitsInvalid = invalidFields.includes('integerBitsString');
   const isFractionalBitsInvalid = invalidFields
     .includes('fractionalBitsString');

@@ -107,13 +107,13 @@ describe('convertFixedPoint decimal input encoding', () => {
       inputString,
       isSigned,
     });
-    expect(outcome).toMatchObject({
+    expect(outcome).toEqual({
       status: 'invalid',
-      invalidFields: ['inputString'],
+      diagnostic: {
+        code: 'out-of-range',
+        fields: ['inputString'],
+      },
     });
-    if (outcome.status === 'invalid') {
-      expect(outcome.message).toMatch(/fixed-point range/iu);
-    }
   });
 
   it.each(Object.values(RoundingMode))('rejects overflow before rounding: %s', (
@@ -133,13 +133,13 @@ describe('convertFixedPoint decimal input encoding', () => {
         isSigned,
         roundingMode,
       });
-      expect(outcome).toMatchObject({
+      expect(outcome).toEqual({
         status: 'invalid',
-        invalidFields: ['inputString'],
+        diagnostic: {
+          code: 'out-of-range',
+          fields: ['inputString'],
+        },
       });
-      if (outcome.status === 'invalid') {
-        expect(outcome.message).toMatch(/fixed-point range/u);
-      }
     }
   });
 
@@ -149,9 +149,12 @@ describe('convertFixedPoint decimal input encoding', () => {
       inputString: '1e-999999999999999999999',
       integerBitsString: '0',
       fractionalBitsString: '1',
-    })).toMatchObject({
+    })).toEqual({
       status: 'invalid',
-      invalidFields: ['inputString'],
+      diagnostic: {
+        code: 'out-of-range',
+        fields: ['inputString'],
+      },
     });
   });
 

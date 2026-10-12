@@ -131,32 +131,33 @@ describe('convertFixedPoint decimal input notation', () => {
       ...decimalInput,
       inputString,
     });
-    expect(outcome).toMatchObject({
+    expect(outcome).toEqual({
       status: 'invalid',
-      invalidFields: ['inputString'],
+      diagnostic: {
+        code: 'malformed-decimal',
+        fields: ['inputString'],
+      },
     });
-    if (outcome.status === 'invalid') {
-      expect(outcome.message).toMatch(/decimal/iu);
-    }
   });
 
   it.each([
-    ['0x10', /Select Hexadecimal/u],
-    ['0b10', /Select Binary/u],
-    [' 0B10 ', /Select Binary/u],
+    ['0x10', InputFormat.Hexadecimal],
+    ['0b10', InputFormat.Binary],
+    [' 0B10 ', InputFormat.Binary],
   ] as const)('points %j to the format its prefix denotes', (
-    inputString, message,
+    inputString, prefixFormat,
   ) => {
     const outcome = convertFixedPoint({
       ...decimalInput,
       inputString,
     });
-    expect(outcome).toMatchObject({
+    expect(outcome).toEqual({
       status: 'invalid',
-      invalidFields: ['inputString'],
+      diagnostic: {
+        code: 'foreign-prefix',
+        prefixFormat,
+        fields: ['inputString'],
+      },
     });
-    if (outcome.status === 'invalid') {
-      expect(outcome.message).toMatch(message);
-    }
   });
 });

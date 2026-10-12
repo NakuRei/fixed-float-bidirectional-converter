@@ -37,19 +37,23 @@ export function readFixedPointFormat(
   if (integerBits === null || fractionalBits === null) {
     return {
       status: 'invalid',
-      message: 'Bit counts must be non-negative whole numbers.',
-      invalidFields: [
-        ...integerBits === null ? ['integerBitsString' as const] : [],
-        ...fractionalBits === null ? ['fractionalBitsString' as const] : [],
-      ],
+      diagnostic: {
+        code: 'malformed-bit-count',
+        fields: [
+          ...integerBits === null ? ['integerBitsString' as const] : [],
+          ...fractionalBits === null ? ['fractionalBitsString' as const] : [],
+        ],
+      },
     };
   }
   const totalBits = integerBits + fractionalBits;
   if (totalBits === 0) {
     return {
       status: 'invalid',
-      message: 'Total bit count must be at least 1.',
-      invalidFields: ['integerBitsString', 'fractionalBitsString'],
+      diagnostic: {
+        code: 'zero-total-bits',
+        fields: ['integerBitsString', 'fractionalBitsString'],
+      },
     };
   }
   if (!Number.isSafeInteger(totalBits)) {

@@ -2,54 +2,43 @@ import {
   InputFormat,
   type InputFormatType,
   type BitPatternFormat,
+  type ConversionDiagnostic,
 } from './contracts';
 
-const binaryPrefix = {
-  pattern: /^0b/iu,
-  message: 'The 0b prefix denotes binary. Select Binary as the input format.',
-};
-
-const hexPrefix = {
-  pattern: /^0x/iu,
-  message: 'The 0x prefix denotes hexadecimal. '
-    + 'Select Hexadecimal as the input format.',
-};
+const prefixPatterns = {
+  [InputFormat.Binary]: /^0b/iu,
+  [InputFormat.Hexadecimal]: /^0x/iu,
+} satisfies Record<BitPatternFormat, RegExp>;
 
 const bitPatternNotations = {
   [InputFormat.Binary]: {
-    name: 'Binary',
-    prefix: binaryPrefix,
     allowedCharacters: /^[01]*$/u,
-    invalidCharacterMessage:
-      'Binary string contains characters other than 0 and 1.',
     radix: 2,
     bitsPerDigit: 1,
   },
   [InputFormat.Hexadecimal]: {
-    name: 'Hexadecimal',
-    prefix: hexPrefix,
     allowedCharacters: /^[0-9A-Fa-f]*$/u,
-    invalidCharacterMessage:
-      'Hexadecimal string contains characters other than 0-9 and A-F.',
     radix: 16,
     bitsPerDigit: 4,
   },
 } satisfies Record<BitPatternFormat, unknown>;
 
-const foreignPrefixes = {
-  [InputFormat.Binary]: [hexPrefix],
-  [InputFormat.Decimal]: [binaryPrefix, hexPrefix],
+const foreignPrefixFormats: Record<
+  InputFormatType,
+  readonly BitPatternFormat[]
+> = {
+  [InputFormat.Binary]: [InputFormat.Hexadecimal],
+  [InputFormat.Decimal]: [InputFormat.Binary, InputFormat.Hexadecimal],
   // A leading 0b is a valid pair of hex digits, not a binary prefix.
   [InputFormat.Hexadecimal]: [],
 };
 
-export function findForeignPrefixMessage(
+export function findForeignPrefixFormat(
   inputString: string,
   inputFormat: InputFormatType,
-): string | null {
-  const foreignPrefix = foreignPrefixes[inputFormat]
-    .find(({ pattern }) => pattern.test(inputString));
-  return foreignPrefix?.message ?? null;
+): BitPatternFormat | null {
+  return foreignPrefixFormats[inputFormat]
+    .find((format) => prefixPatterns[format].test(inputString)) ?? null;
 }
 
 type BitPatternParse = {
@@ -57,7 +46,9 @@ type BitPatternParse = {
   binaryString: string;
 } | {
   status: 'invalid';
-  message: string;
+  diagnostic: Extract<ConversionDiagnostic, {
+    code: 'invalid-characters' | 'digit-count-mismatch';
+  }>;
 };
 
 export function parseBitPattern(
@@ -66,20 +57,28 @@ export function parseBitPattern(
   totalBits: number,
 ): BitPatternParse {
   const notation = bitPatternNotations[inputFormat];
-  const digits = inputString.replace(notation.prefix.pattern, '');
+  const digits = inputString.replace(prefixPatterns[inputFormat], '');
   if (!notation.allowedCharacters.test(digits)) {
     return {
       status: 'invalid',
-      message: notation.invalidCharacterMessage,
+      diagnostic: {
+        code: 'invalid-characters',
+        inputFormat,
+        fields: ['inputString'],
+      },
     };
   }
   const expectedLength = Math.ceil(totalBits / notation.bitsPerDigit);
   if (digits.length !== expectedLength) {
     return {
       status: 'invalid',
-      message: `${notation.name} digit count should be `
-        + `${expectedLength.toString()}, `
-        + `but got ${digits.length.toString()}.`,
+      diagnostic: {
+        code: 'digit-count-mismatch',
+        inputFormat,
+        expected: expectedLength,
+        actual: digits.length,
+        fields: ['inputString'],
+      },
     };
   }
   const binaryString = digits

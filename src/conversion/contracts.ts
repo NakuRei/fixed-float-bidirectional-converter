@@ -76,12 +76,52 @@ export interface ConversionResults {
   readonly decimal: OriginalNotationResult | Float64Result;
 }
 
+type BitCountField = 'integerBitsString' | 'fractionalBitsString';
+
+type InputStringField = readonly ['inputString'];
+
+// The fields name the inputs judged invalid, not every input that could fix it.
+export type ConversionDiagnostic = {
+  code: 'malformed-bit-count';
+  fields: readonly BitCountField[];
+} | {
+  code: 'zero-total-bits';
+  fields: readonly BitCountField[];
+} | {
+  code: 'total-bits-exceeded';
+  inputFormat: InputFormatType;
+  maximum: number;
+  fields: readonly BitCountField[];
+} | {
+  code: 'foreign-prefix';
+  prefixFormat: BitPatternFormat;
+  fields: InputStringField;
+} | {
+  code: 'invalid-characters';
+  inputFormat: BitPatternFormat;
+  fields: InputStringField;
+} | {
+  code: 'digit-count-mismatch';
+  inputFormat: BitPatternFormat;
+  expected: number;
+  actual: number;
+  fields: InputStringField;
+} | {
+  code: 'malformed-decimal';
+  fields: InputStringField;
+} | {
+  code: 'out-of-range';
+  fields: InputStringField;
+} | {
+  code: 'inexact-value';
+  fields: InputStringField;
+};
+
 export type ConversionOutcome = {
   status: 'empty';
 } | {
   status: 'invalid';
-  message: string;
-  invalidFields: (keyof ConversionInput)[];
+  diagnostic: ConversionDiagnostic;
 } | {
   status: 'success';
   result: ConversionResults;

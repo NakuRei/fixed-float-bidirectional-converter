@@ -4,6 +4,7 @@ import type {
   ConversionOutcome,
   ConversionResults,
 } from '../conversion/contracts';
+import { describeConversionDiagnostic } from '../conversionDiagnosticText';
 import { ConversionErrorMessage } from './ConversionErrorMessage';
 import { ConversionResultList } from './ConversionResultList';
 
@@ -98,7 +99,7 @@ export function ConversionOutcomePanel(
           ? (
             <ConversionErrorMessage
               id={errorId}
-              message={outcome.message}
+              message={describeConversionDiagnostic(outcome.diagnostic)}
             />
           )
           : null}
