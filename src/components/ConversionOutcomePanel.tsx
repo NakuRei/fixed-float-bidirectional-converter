@@ -1,8 +1,10 @@
 import { useId } from 'react';
 
-import type { ConversionOutcome } from '../conversion/convertFixedPoint';
-import type { Float64Result } from '../conversion/decodeFixedPointFloat64';
-import { InputFormat } from '../conversion/InputFormat';
+import {
+  InputFormat,
+  type ConversionOutcome,
+  type Float64Result,
+} from '../conversion/contracts';
 import { ConversionErrorMessage } from './ConversionErrorMessage';
 import { ConversionResultList } from './ConversionResultList';
 

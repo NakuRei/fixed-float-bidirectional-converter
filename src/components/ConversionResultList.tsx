@@ -1,5 +1,7 @@
-import type { ConversionResults } from '../conversion/convertFixedPoint';
-import { InputFormat } from '../conversion/InputFormat';
+import {
+  InputFormat,
+  type ConversionResults,
+} from '../conversion/contracts';
 import { ConversionResultRow } from './ConversionResultRow';
 
 interface ConversionResultListProps {

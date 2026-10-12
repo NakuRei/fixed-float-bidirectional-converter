@@ -1,6 +1,8 @@
-import { InputFormat, type InputFormatType } from './InputFormat';
-
-export type BitPatternFormat = keyof typeof bitPatternNotations;
+import {
+  InputFormat,
+  type InputFormatType,
+  type BitPatternFormat,
+} from './contracts';
 
 const binaryPrefix = {
   pattern: /^0b/iu,
@@ -32,7 +34,7 @@ const bitPatternNotations = {
     radix: 16,
     bitsPerDigit: 4,
   },
-};
+} satisfies Record<BitPatternFormat, unknown>;
 
 const foreignPrefixes = {
   [InputFormat.Binary]: [hexPrefix],

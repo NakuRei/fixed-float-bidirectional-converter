@@ -6,13 +6,15 @@ import { SelectField } from './components/SelectField';
 import { Toggle } from './components/Toggle';
 import { TextField } from './components/TextField';
 import { ConversionOutcomePanel } from './components/ConversionOutcomePanel';
-import { InputFormat, type InputFormatType } from './conversion/InputFormat';
-import { RoundingMode, type RoundingModeType } from './conversion/RoundingMode';
-
 import {
-  convertFixedPoint,
+  InputFormat,
+  RoundingMode,
+  type InputFormatType,
+  type RoundingModeType,
   type ConversionInput,
-} from './conversion/convertFixedPoint';
+} from './conversion/contracts';
+
+import { convertFixedPoint } from './conversion/convertFixedPoint';
 
 const inputFormatPresentation = {
   [InputFormat.Binary]: {

@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { InputFormat } from '../../src/conversion/InputFormat';
 import {
-  convertFixedPoint,
+  InputFormat,
   type ConversionInput,
-} from '../../src/conversion/convertFixedPoint';
+} from '../../src/conversion/contracts';
+import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 const bitPatternInput: ConversionInput = {
   inputString: '01001101',

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from '../src/App';
-import { InputFormat } from '../src/conversion/InputFormat';
-import { RoundingMode } from '../src/conversion/RoundingMode';
+import {
+  InputFormat,
+  RoundingMode,
+} from '../src/conversion/contracts';
 
 describe('Original and converted output values', () => {
   it.each([
