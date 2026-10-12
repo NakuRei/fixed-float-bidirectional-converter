@@ -5,19 +5,18 @@ import {
   type ConversionDiagnostic,
 } from './contracts';
 
-const prefixPatterns = {
-  [InputFormat.Binary]: /^0b/iu,
-  [InputFormat.Hexadecimal]: /^0x/iu,
-} satisfies Record<BitPatternFormat, RegExp>;
-
 const bitPatternNotations = {
   [InputFormat.Binary]: {
     allowedCharacters: /^[01]*$/u,
+    prefixPattern: /^0b/iu,
+    literalPrefix: '0b',
     radix: 2,
     bitsPerDigit: 1,
   },
   [InputFormat.Hexadecimal]: {
     allowedCharacters: /^[0-9A-Fa-f]*$/u,
+    prefixPattern: /^0x/iu,
+    literalPrefix: '0x',
     radix: 16,
     bitsPerDigit: 4,
   },
@@ -38,12 +37,13 @@ export function findForeignPrefixFormat(
   inputFormat: InputFormatType,
 ): BitPatternFormat | null {
   return foreignPrefixFormats[inputFormat]
-    .find((format) => prefixPatterns[format].test(inputString)) ?? null;
+    .find((format) => bitPatternNotations[format].prefixPattern
+      .test(inputString)) ?? null;
 }
 
 type BitPatternParse = {
   status: 'valid';
-  binaryString: string;
+  integer: bigint;
 } | {
   status: 'invalid';
   diagnostic: Extract<ConversionDiagnostic, {
@@ -55,9 +55,10 @@ export function parseBitPattern(
   inputString: string,
   inputFormat: BitPatternFormat,
   totalBits: number,
+  isSigned: boolean,
 ): BitPatternParse {
   const notation = bitPatternNotations[inputFormat];
-  const digits = inputString.replace(prefixPatterns[inputFormat], '');
+  const digits = inputString.replace(notation.prefixPattern, '');
   if (!notation.allowedCharacters.test(digits)) {
     return {
       status: 'invalid',
@@ -81,15 +82,26 @@ export function parseBitPattern(
       },
     };
   }
-  const binaryString = digits
-    .split('')
-    .map((character) => parseInt(character, notation.radix).toString(2)
-      .padStart(notation.bitsPerDigit, '0'))
-    .join('')
-    // Rounding up the digit count can leave excess leading bits.
-    .slice(-totalBits);
+  const pattern = BigInt(notation.literalPrefix + digits);
   return {
     status: 'valid',
-    binaryString,
+    // Rounding up the digit count can leave excess leading bits to discard.
+    integer: isSigned
+      ? BigInt.asIntN(totalBits, pattern)
+      : BigInt.asUintN(totalBits, pattern),
   };
+}
+
+export function formatBitPattern(
+  integer: bigint,
+  outputFormat: BitPatternFormat,
+  totalBits: number,
+): string {
+  const notation = bitPatternNotations[outputFormat];
+  const digitCount = Math.ceil(totalBits / notation.bitsPerDigit);
+  // Negative values sign-extend to fill the leading digit.
+  return BigInt.asUintN(digitCount * notation.bitsPerDigit, integer)
+    .toString(notation.radix)
+    .padStart(digitCount, '0')
+    .toUpperCase();
 }

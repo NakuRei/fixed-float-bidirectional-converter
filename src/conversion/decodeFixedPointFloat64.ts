@@ -1,5 +1,4 @@
 import type { Float64Result } from './contracts';
-import type { FixedPointFormat } from './fixedPointFormat';
 
 const FLOAT64_SIGNIFICAND_BITS = 53;
 const FLOAT64_MAX_NORMAL_EXPONENT = 1023;
@@ -69,14 +68,9 @@ function roundMagnitudeToFloat64(
 }
 
 export function decodeFixedPointFloat64(
-  binaryString: string,
-  format: FixedPointFormat,
+  integer: bigint,
+  fractionalBits: number,
 ): Float64Result {
-  const { totalBits, fractionalBits, isSigned } = format;
-  const unsignedInteger = BigInt(`0b${binaryString}`);
-  const integer = isSigned && binaryString.startsWith('1')
-    ? unsignedInteger - (1n << BigInt(totalBits))
-    : unsignedInteger;
   const magnitude = integer < 0n ? -integer : integer;
   const rounded = roundMagnitudeToFloat64(magnitude, fractionalBits);
   if (!Number.isFinite(rounded.value)) {

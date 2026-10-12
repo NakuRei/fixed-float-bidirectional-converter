@@ -10,8 +10,9 @@ import { decodeFixedPointFloat64 } from './decodeFixedPointFloat64';
 import { readFixedPointFormat, type FixedPointFormat } from './fixedPointFormat';
 import {
   findForeignPrefixFormat,
+  formatBitPattern,
   parseBitPattern,
-} from './parseInputNotation';
+} from './bitPatternNotation';
 
 type ConversionFormatReading = {
   status: 'valid';
@@ -54,17 +55,6 @@ function readConversionFormat(input: ConversionInput): ConversionFormatReading {
   return reading;
 }
 
-function toHexString(binaryString: string, isSigned: boolean): string {
-  const paddingBit = isSigned && binaryString.startsWith('1') ? '1' : '0';
-  let hexString = '';
-  for (let end = binaryString.length; end > 0; end -= 4) {
-    const segment = binaryString.slice(Math.max(end - 4, 0), end)
-      .padStart(4, paddingBit);
-    hexString = parseInt(segment, 2).toString(16) + hexString;
-  }
-  return hexString.toUpperCase();
-}
-
 function convertFixedPointPattern(
   inputString: string,
   inputFormat: BitPatternFormat,
@@ -74,11 +64,12 @@ function convertFixedPointPattern(
     inputString,
     inputFormat,
     format.totalBits,
+    format.isSigned,
   );
   if (pattern.status === 'invalid') {
     return pattern;
   }
-  const { binaryString } = pattern;
+  const { integer } = pattern;
   const original = {
     status: 'original',
     value: inputString,
@@ -90,15 +81,19 @@ function convertFixedPointPattern(
         ? original
         : {
           status: 'exact',
-          value: toHexString(binaryString, format.isSigned),
+          value: formatBitPattern(
+            integer, InputFormat.Hexadecimal, format.totalBits,
+          ),
         },
       binary: inputFormat === InputFormat.Binary
         ? original
         : {
           status: 'exact',
-          value: binaryString,
+          value: formatBitPattern(
+            integer, InputFormat.Binary, format.totalBits,
+          ),
         },
-      decimal: decodeFixedPointFloat64(binaryString, format),
+      decimal: decodeFixedPointFloat64(integer, format.fractionalBits),
     },
   };
 }
@@ -122,11 +117,15 @@ function convertDecimalFixedPoint(
     result: {
       hexadecimal: {
         status,
-        value: toHexString(encoding.binaryString, format.isSigned),
+        value: formatBitPattern(
+          encoding.integer, InputFormat.Hexadecimal, format.totalBits,
+        ),
       },
       binary: {
         status,
-        value: encoding.binaryString,
+        value: formatBitPattern(
+          encoding.integer, InputFormat.Binary, format.totalBits,
+        ),
       },
       decimal: {
         status: 'original',
