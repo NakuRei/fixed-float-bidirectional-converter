@@ -1,12 +1,10 @@
 import { GithubLogoIcon } from '@phosphor-icons/react';
 
-import { IconButton } from './IconButton';
+import { iconButtonVariants } from './iconButtonVariants';
+
+const repositoryLinkLabel = 'GitHub repository (opens in new tab)';
 
 export function AppHeader(): React.JSX.Element {
-  function openLink(url: string): void {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-
   return (
     <header
       className={[
@@ -30,23 +28,23 @@ export function AppHeader(): React.JSX.Element {
       </h1>
 
       <div>
-        <IconButton
-          ariaLabel="Go to GitHub repository"
-          icon={(
-            <GithubLogoIcon
-              size={20}
-              weight="bold"
-            />
-          )}
-          onClick={() => {
-            openLink(
-              'https://github.com/NakuRei/fixed-float-bidirectional-converter',
-            );
-          }}
-          size="md"
-          title="Open GitHub repository"
-          variant="outline-primary-accent"
-        />
+        <a
+          aria-label={repositoryLinkLabel}
+          className={iconButtonVariants({
+            variant: 'outline-primary-accent',
+            size: 'md',
+          })}
+          href="https://github.com/NakuRei/fixed-float-bidirectional-converter"
+          rel="noopener noreferrer"
+          target="_blank"
+          title={repositoryLinkLabel}
+        >
+          <GithubLogoIcon
+            aria-hidden
+            size={20}
+            weight="bold"
+          />
+        </a>
       </div>
     </header>
   );

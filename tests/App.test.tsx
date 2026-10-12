@@ -18,6 +18,19 @@ describe('Converter output as the controls change', () => {
       .toHaveLength(1);
   });
 
+  it('links to the GitHub repository in a new tab from the banner', () => {
+    render(<App />);
+
+    const link = within(screen.getByRole('banner')).getByRole('link', {
+      name: 'GitHub repository (opens in new tab)',
+    });
+    expect(link).toHaveAttribute(
+      'href',
+      'https://github.com/NakuRei/fixed-float-bidirectional-converter',
+    );
+    expect(link).toHaveAttribute('target', '_blank');
+  });
+
   it('handles binary string input correctly and displays result', () => {
     render(<App />);
     const binaryInput = screen.getByRole('textbox', {
