@@ -42,9 +42,11 @@ type DecimalEncoding = {
   }>;
 };
 
-type DecimalQuantization = {
+type RoundedQuantization = {
   status: 'success';
-} & RoundedDecimalInteger | typeof rangeError | typeof precisionError;
+} & RoundedDecimalInteger | typeof precisionError;
+
+type DecimalQuantization = RoundedQuantization | typeof rangeError;
 
 function readDecimalValue(inputString: string): DecimalValue | null {
   const decimalPattern = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u;
@@ -82,28 +84,86 @@ function scaleDecimalValue(
   };
 }
 
-function roundDecimalRatio(
-  numerator: bigint,
-  denominator: bigint,
-  roundingMode: RoundingModeType,
-): RoundedDecimalInteger | null {
-  const integer = numerator / denominator;
-  const remainder = numerator % denominator;
-  if (roundingMode === RoundingMode.Exact && remainder !== 0n) {
-    return null;
-  }
-  if (roundingMode !== RoundingMode.NearestEven) {
+type InexactRoundingMode = Exclude<
+  RoundingModeType,
+  typeof RoundingMode.Exact
+>;
+
+/*
+ * The value lies strictly between lower and lower + 1, so lower is negative
+ * exactly when the value is.
+ */
+interface InexactQuotient {
+  lower: bigint;
+  fraction: 'below-half' | 'half' | 'above-half';
+}
+
+type FloorQuotient = {
+  lower: bigint;
+  fraction: 'zero';
+} | InexactQuotient;
+
+const selectNeighbor: Record<
+  InexactRoundingMode,
+  (quotient: InexactQuotient) => 'lower' | 'upper'
+> = {
+  [RoundingMode.NearestEven]: ({ lower, fraction }) => {
+    if (fraction === 'half') {
+      return lower % 2n === 0n ? 'lower' : 'upper';
+    }
+    return fraction === 'below-half' ? 'lower' : 'upper';
+  },
+  [RoundingMode.TowardZero]: ({ lower }) => {
+    return lower < 0n ? 'upper' : 'lower';
+  },
+};
+
+function divideFloor(numerator: bigint, denominator: bigint): FloorQuotient {
+  // BigInt division truncates toward zero; shift negative quotients down.
+  const truncated = numerator / denominator;
+  const truncatedRemainder = numerator % denominator;
+  const lower = truncatedRemainder < 0n ? truncated - 1n : truncated;
+  const remainder = truncatedRemainder < 0n
+    ? truncatedRemainder + denominator
+    : truncatedRemainder;
+  if (remainder === 0n) {
     return {
-      integer,
-      inputWasRounded: remainder !== 0n,
+      lower,
+      fraction: 'zero',
     };
   }
-  const distance = 2n * (remainder < 0n ? -remainder : remainder);
-  const roundAway = distance > denominator
-    || (distance === denominator && integer % 2n !== 0n);
+  const doubledRemainder = 2n * remainder;
+  if (doubledRemainder < denominator) {
+    return {
+      lower,
+      fraction: 'below-half',
+    };
+  }
   return {
-    integer: roundAway ? integer + (numerator < 0n ? -1n : 1n) : integer,
-    inputWasRounded: remainder !== 0n,
+    lower,
+    fraction: doubledRemainder === denominator ? 'half' : 'above-half',
+  };
+}
+
+function roundFloorQuotient(
+  quotient: FloorQuotient,
+  roundingMode: RoundingModeType,
+): RoundedQuantization {
+  if (quotient.fraction === 'zero') {
+    return {
+      status: 'success',
+      integer: quotient.lower,
+      inputWasRounded: false,
+    };
+  }
+  if (roundingMode === RoundingMode.Exact) {
+    return precisionError;
+  }
+  const neighbor = selectNeighbor[roundingMode](quotient);
+  return {
+    status: 'success',
+    integer: neighbor === 'upper' ? quotient.lower + 1n : quotient.lower,
+    inputWasRounded: true,
   };
 }
 
@@ -122,29 +182,35 @@ function quantizeDecimalValue(
   const magnitude = value.coefficient < 0n
     ? -value.coefficient
     : value.coefficient;
-  // Beyond this exponent, the scaled magnitude is smaller than half a bit.
+
+  /*
+   * Beyond this exponent, the scaled value lies within half a bit of zero, so
+   * its quotient is known without building the large denominator.
+   */
   const tinyExponent = -BigInt(magnitude.toString().length + fractionalBits);
   if (value.exponent < tinyExponent) {
-    return roundingMode === RoundingMode.Exact
-      ? precisionError
-      : {
-        status: 'success',
-        integer: 0n,
-        inputWasRounded: true,
-      };
+    return roundFloorQuotient(
+      value.coefficient < 0n
+        ? {
+          lower: -1n,
+          fraction: 'above-half',
+        }
+        : {
+          lower: 0n,
+          fraction: 'below-half',
+        },
+      roundingMode,
+    );
   }
   const { numerator, denominator } = scaleDecimalValue(value, fractionalBits);
   if (numerator < minimum * denominator
     || numerator > maximum * denominator) {
     return rangeError;
   }
-  const rounded = roundDecimalRatio(numerator, denominator, roundingMode);
-  return rounded === null
-    ? precisionError
-    : {
-      status: 'success',
-      ...rounded,
-    };
+  return roundFloorQuotient(
+    divideFloor(numerator, denominator),
+    roundingMode,
+  );
 }
 
 export function encodeDecimalFixedPoint(
