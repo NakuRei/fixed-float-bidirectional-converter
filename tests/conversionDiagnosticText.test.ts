@@ -116,7 +116,8 @@ describe('describeConversionDiagnostic', () => {
         code: 'inexact-value',
         fields: ['inputString'],
       },
-      text: 'Value cannot be represented exactly with these fractional bits.',
+      text: 'Value cannot be represented exactly in the selected '
+        + 'fixed-point format.',
     },
   ])('describes $diagnostic.code as "$text"', ({ diagnostic, text }) => {
     expect(describeConversionDiagnostic(diagnostic)).toBe(text);
