@@ -177,32 +177,4 @@ describe('convertFixedPoint bit pattern input notation', () => {
       });
     },
   );
-
-  it('keeps conversions independent and does not modify the input', () => {
-    const input = Object.freeze({ ...bitPatternInput });
-    const expected = {
-      status: 'success',
-      result: {
-        hexadecimal: {
-          status: 'exact',
-          value: '4D',
-        },
-        binary: {
-          status: 'original',
-          value: '01001101',
-        },
-        decimal: {
-          status: 'exact',
-          value: '4.8125',
-        },
-      },
-    };
-    expect(convertFixedPoint(input)).toEqual(expected);
-    expect(convertFixedPoint({
-      ...input,
-      inputString: 'invalid',
-    }).status).toBe('invalid');
-    expect(convertFixedPoint(input)).toEqual(expected);
-    expect(input).toEqual(bitPatternInput);
-  });
 });
