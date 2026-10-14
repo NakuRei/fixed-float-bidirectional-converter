@@ -75,7 +75,7 @@ describe('Conversion precision in the UI', () => {
     expect(screen.queryByRole('heading', { name: 'Result' }))
       .not.toBeInTheDocument();
 
-    fireEvent.change(rounding, { target: { value: RoundingMode.NearestEven } });
+    fireEvent.change(rounding, { target: { value: RoundingMode.TiesToEven } });
     expect(input).toBeValid();
     expect(screen.getByRole('status')).toBe(status);
     expect(status).toHaveTextContent(/decimal input was rounded/u);

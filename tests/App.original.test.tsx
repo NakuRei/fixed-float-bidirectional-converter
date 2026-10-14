@@ -91,11 +91,19 @@ describe('Original and converted output values', () => {
     const rounding = screen.getByRole('combobox', {
       name: 'Fixed-point rounding',
     });
-    for (const mode of [RoundingMode.NearestEven, RoundingMode.TowardZero]) {
+    // 1.28 scales to 20.48, so only rounding toward +∞ reaches 21.
+    for (const [mode, hexString, binaryString] of [
+      [RoundingMode.TiesToEven, '14', '00010100'],
+      [RoundingMode.TiesToAway, '14', '00010100'],
+      [RoundingMode.TiesToPositive, '14', '00010100'],
+      [RoundingMode.TowardZero, '14', '00010100'],
+      [RoundingMode.TowardNegative, '14', '00010100'],
+      [RoundingMode.TowardPositive, '15', '00010101'],
+    ] as const) {
       fireEvent.change(rounding, { target: { value: mode } });
       for (const [label, value, precision] of [
-        ['Hexadecimal', '14', 'rounded'],
-        ['Binary', '00010100', 'rounded'],
+        ['Hexadecimal', hexString, 'rounded'],
+        ['Binary', binaryString, 'rounded'],
         ['Decimal', '1.28', 'original'],
       ]) {
         const row = screen.getByRole('group', { name: `${label} conversion` });
