@@ -6,14 +6,14 @@ import {
 } from '../../src/conversion/contracts';
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
-const decimalInput: ConversionInput = {
+const decimalInput = {
   inputString: '-3.1875',
   inputFormat: InputFormat.Decimal,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
   roundingMode: RoundingMode.Exact,
-};
+} satisfies ConversionInput;
 
 describe('convertFixedPoint decimal input exactness', () => {
   it.each(Object.values(RoundingMode))('accepts exact values in %s mode', (
