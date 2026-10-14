@@ -13,7 +13,7 @@ const decimalInput: ConversionInput = {
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
-  roundingMode: RoundingMode.NearestEven,
+  roundingMode: RoundingMode.TiesToEven,
 };
 
 function expectEncodingAndDecoding(
@@ -87,7 +87,7 @@ describe('convertFixedPoint decimal input round trip', () => {
   it.each([
     {
       fractionalBits: 55,
-      roundingMode: RoundingMode.NearestEven,
+      roundingMode: RoundingMode.TiesToEven,
       integer: 3602879701896397n,
       hexadecimal: '0CCCCCCCCCCCCD',
       float64: {
@@ -107,7 +107,7 @@ describe('convertFixedPoint decimal input round trip', () => {
     },
     {
       fractionalBits: 60,
-      roundingMode: RoundingMode.NearestEven,
+      roundingMode: RoundingMode.TiesToEven,
       integer: 115292150460684698n,
       hexadecimal: '019999999999999A',
       float64: {

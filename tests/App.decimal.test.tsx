@@ -18,10 +18,28 @@ describe('Decimal input in the converter', () => {
     const optionNames = within(rounding).getAllByRole('option')
       .map((option) => option.textContent);
     expect(optionNames).toEqual([
-      'Nearest (ties to even)',
-      'Toward zero (truncate)',
-      'Exact only',
+      'Nearest, ties to even',
+      'Nearest, ties away from zero',
+      'Nearest, ties toward +∞',
+      'Toward zero',
+      'Toward −∞ (floor)',
+      'Toward +∞ (ceiling)',
+      'Exact only (reject inexact)',
     ]);
+  });
+
+  it('offers every rounding mode the converter supports', () => {
+    render(<App />);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Input Format' }), {
+      target: { value: InputFormat.Decimal },
+    });
+    const rounding = screen.getByRole('combobox', {
+      name: 'Fixed-point rounding',
+    });
+    const optionValues = within(rounding)
+      .getAllByRole<HTMLOptionElement>('option')
+      .map((option) => option.value);
+    expect(new Set(optionValues)).toEqual(new Set(Object.values(RoundingMode)));
   });
 
   it('recalculates the result when the rounding mode changes', () => {
@@ -35,7 +53,7 @@ describe('Decimal input in the converter', () => {
     const rounding = screen.getByRole('combobox', {
       name: 'Fixed-point rounding',
     });
-    expect(rounding).toHaveValue(RoundingMode.NearestEven);
+    expect(rounding).toHaveValue(RoundingMode.TiesToEven);
     fireEvent.change(input, { target: { value: '0.1' } });
     expect(screen.getByText('0.1')).toBeInTheDocument();
     expect(screen.queryByText('0.125')).not.toBeInTheDocument();

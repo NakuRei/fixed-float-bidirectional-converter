@@ -21,7 +21,7 @@ const decimalInput: ConversionInput = {
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
-  roundingMode: RoundingMode.NearestEven,
+  roundingMode: RoundingMode.TiesToEven,
 };
 
 const bothBitCountFields = [

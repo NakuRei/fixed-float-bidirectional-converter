@@ -10,9 +10,17 @@ export type BitPatternFormat
   = | typeof InputFormat.Binary
     | typeof InputFormat.Hexadecimal;
 
+/*
+ * Named after IEEE 754's rounding-direction attributes; ties-to-positive is
+ * the one extra mode fixed-point toolchains offer as "nearest".
+ */
 export const RoundingMode = {
-  NearestEven: 'nearest-even',
+  TiesToEven: 'ties-to-even',
+  TiesToAway: 'ties-to-away',
+  TiesToPositive: 'ties-to-positive',
   TowardZero: 'toward-zero',
+  TowardNegative: 'toward-negative',
+  TowardPositive: 'toward-positive',
   Exact: 'exact',
 } as const;
 

@@ -107,15 +107,26 @@ const selectNeighbor: Record<
   InexactRoundingMode,
   (quotient: InexactQuotient) => 'lower' | 'upper'
 > = {
-  [RoundingMode.NearestEven]: ({ lower, fraction }) => {
+  [RoundingMode.TiesToEven]: ({ lower, fraction }) => {
     if (fraction === 'half') {
       return lower % 2n === 0n ? 'lower' : 'upper';
     }
     return fraction === 'below-half' ? 'lower' : 'upper';
   },
+  [RoundingMode.TiesToAway]: ({ lower, fraction }) => {
+    if (fraction === 'half') {
+      return lower < 0n ? 'lower' : 'upper';
+    }
+    return fraction === 'below-half' ? 'lower' : 'upper';
+  },
+  [RoundingMode.TiesToPositive]: ({ fraction }) => {
+    return fraction === 'below-half' ? 'lower' : 'upper';
+  },
   [RoundingMode.TowardZero]: ({ lower }) => {
     return lower < 0n ? 'upper' : 'lower';
   },
+  [RoundingMode.TowardNegative]: () => 'lower',
+  [RoundingMode.TowardPositive]: () => 'upper',
 };
 
 function divideFloor(numerator: bigint, denominator: bigint): FloorQuotient {

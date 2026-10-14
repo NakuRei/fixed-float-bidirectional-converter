@@ -18,21 +18,44 @@ import {
 import { convertFixedPoint } from './conversion/convertFixedPoint';
 import { inputFormatPresentation } from './inputFormatPresentation';
 
-const roundingModeLabels = {
-  [RoundingMode.NearestEven]: 'Nearest (ties to even)',
-  [RoundingMode.TowardZero]: 'Toward zero (truncate)',
-  [RoundingMode.Exact]: 'Exact only',
-} as const;
-
 const inputFormatOptions = Object.values(InputFormat).map((format) => ({
   value: format,
   label: inputFormatPresentation[format].optionLabel,
 }));
 
-const roundingModeOptions = Object.values(RoundingMode).map((mode) => ({
-  value: mode,
-  label: roundingModeLabels[mode],
-}));
+const roundingModeOptions: readonly {
+  value: RoundingModeType;
+  label: string;
+}[] = [
+  {
+    value: RoundingMode.TiesToEven,
+    label: 'Nearest, ties to even',
+  },
+  {
+    value: RoundingMode.TiesToAway,
+    label: 'Nearest, ties away from zero',
+  },
+  {
+    value: RoundingMode.TiesToPositive,
+    label: 'Nearest, ties toward +∞',
+  },
+  {
+    value: RoundingMode.TowardZero,
+    label: 'Toward zero',
+  },
+  {
+    value: RoundingMode.TowardNegative,
+    label: 'Toward −∞ (floor)',
+  },
+  {
+    value: RoundingMode.TowardPositive,
+    label: 'Toward +∞ (ceiling)',
+  },
+  {
+    value: RoundingMode.Exact,
+    label: 'Exact only (reject inexact)',
+  },
+];
 
 function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
@@ -43,7 +66,7 @@ function App(): React.JSX.Element {
   );
   const [inputString, setInputString] = useState<string>('');
   const [roundingMode, setRoundingMode] = useState<RoundingModeType>(
-    RoundingMode.NearestEven,
+    RoundingMode.TiesToEven,
   );
   const presentation = inputFormatPresentation[inputFormat];
   const conversionErrorId = useId();
