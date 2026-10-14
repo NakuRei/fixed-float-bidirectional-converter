@@ -170,9 +170,9 @@ function App(): React.JSX.Element {
           {inputFormat === InputFormat.Decimal
             ? (
               <SelectField
-                hint={'Values outside the fixed-point range are rejected. '
-                  + 'Exact only rejects precision loss in fixed-point '
-                  + 'conversion.'}
+                hint={'Values whose rounded result is outside the '
+                  + 'fixed-point range are rejected. Exact only rejects '
+                  + 'precision loss in fixed-point conversion.'}
                 label="Fixed-point rounding"
                 onValueChange={setRoundingMode}
                 options={roundingModeOptions}
