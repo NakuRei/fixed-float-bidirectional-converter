@@ -3,7 +3,10 @@ import {
   type ConversionDiagnostic,
   type RoundingModeType,
 } from './contracts';
-import type { FixedPointFormat } from './fixedPointFormat';
+import {
+  representsInteger,
+  type FixedPointFormat,
+} from './fixedPointFormat';
 
 export const MAX_DECIMAL_BITS = 16384;
 
@@ -42,11 +45,9 @@ type DecimalEncoding = {
   }>;
 };
 
-type RoundedQuantization = {
+type DecimalQuantization = {
   status: 'success';
-} & RoundedDecimalInteger | typeof precisionError;
-
-type DecimalQuantization = RoundedQuantization | typeof rangeError;
+} & RoundedDecimalInteger | typeof precisionError | typeof rangeError;
 
 function readDecimalValue(inputString: string): DecimalValue | null {
   const decimalPattern = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u;
@@ -156,40 +157,10 @@ function divideFloor(numerator: bigint, denominator: bigint): FloorQuotient {
   };
 }
 
-function roundFloorQuotient(
-  quotient: FloorQuotient,
-  roundingMode: RoundingModeType,
-): RoundedQuantization {
-  if (quotient.fraction === 'zero') {
-    return {
-      status: 'success',
-      integer: quotient.lower,
-      inputWasRounded: false,
-    };
-  }
-  if (roundingMode === RoundingMode.Exact) {
-    return precisionError;
-  }
-  const neighbor = selectNeighbor[roundingMode](quotient);
-  return {
-    status: 'success',
-    integer: neighbor === 'upper' ? quotient.lower + 1n : quotient.lower,
-    inputWasRounded: true,
-  };
-}
-
-function quantizeDecimalValue(
+function scaledFloorQuotient(
   value: DecimalValue,
-  format: FixedPointFormat,
-  roundingMode: RoundingModeType,
-): DecimalQuantization {
-  const { totalBits, fractionalBits, isSigned } = format;
-  const magnitudeBits = isSigned ? totalBits - 1 : totalBits;
-  const maximum = (1n << BigInt(magnitudeBits)) - 1n;
-  const minimum = isSigned ? -maximum - 1n : 0n;
-  if (value.exponent > BigInt(totalBits)) {
-    return rangeError;
-  }
+  fractionalBits: number,
+): FloorQuotient {
   const magnitude = value.coefficient < 0n
     ? -value.coefficient
     : value.coefficient;
@@ -200,28 +171,67 @@ function quantizeDecimalValue(
    */
   const tinyExponent = -BigInt(magnitude.toString().length + fractionalBits);
   if (value.exponent < tinyExponent) {
-    return roundFloorQuotient(
-      value.coefficient < 0n
-        ? {
-          lower: -1n,
-          fraction: 'above-half',
-        }
-        : {
-          lower: 0n,
-          fraction: 'below-half',
-        },
-      roundingMode,
-    );
+    return value.coefficient < 0n
+      ? {
+        lower: -1n,
+        fraction: 'above-half',
+      }
+      : {
+        lower: 0n,
+        fraction: 'below-half',
+      };
   }
   const { numerator, denominator } = scaleDecimalValue(value, fractionalBits);
-  if (numerator < minimum * denominator
-    || numerator > maximum * denominator) {
+  return divideFloor(numerator, denominator);
+}
+
+/*
+ * The range applies to the rounded value, so a value less than one step
+ * outside it still converts when its rounding mode moves it inward.
+ */
+function quantizeDecimalValue(
+  value: DecimalValue,
+  format: FixedPointFormat,
+  roundingMode: RoundingModeType,
+): DecimalQuantization {
+  if (value.coefficient === 0n) {
+    return {
+      status: 'success',
+      integer: 0n,
+      inputWasRounded: false,
+    };
+  }
+  // Such a value exceeds the range by far more than any rounding can move it.
+  if (value.exponent > BigInt(format.totalBits)) {
     return rangeError;
   }
-  return roundFloorQuotient(
-    divideFloor(numerator, denominator),
-    roundingMode,
-  );
+  const quotient = scaledFloorQuotient(value, format.fractionalBits);
+  if (quotient.fraction === 'zero') {
+    return representsInteger(format, quotient.lower)
+      ? {
+        status: 'success',
+        integer: quotient.lower,
+        inputWasRounded: false,
+      }
+      : rangeError;
+  }
+  if (roundingMode === RoundingMode.Exact) {
+    // A representable neighbor means another rounding mode would fit it.
+    return representsInteger(format, quotient.lower)
+      || representsInteger(format, quotient.lower + 1n)
+      ? precisionError
+      : rangeError;
+  }
+  const integer = selectNeighbor[roundingMode](quotient) === 'upper'
+    ? quotient.lower + 1n
+    : quotient.lower;
+  return representsInteger(format, integer)
+    ? {
+      status: 'success',
+      integer,
+      inputWasRounded: true,
+    }
+    : rangeError;
 }
 
 export function encodeDecimalFixedPoint(
@@ -229,7 +239,6 @@ export function encodeDecimalFixedPoint(
   format: FixedPointFormat,
   roundingMode: RoundingModeType,
 ): DecimalEncoding {
-  const { totalBits, isSigned } = format;
   const value = readDecimalValue(inputString);
   if (value === null) {
     return {
@@ -239,17 +248,6 @@ export function encodeDecimalFixedPoint(
         fields: ['inputString'],
       },
     };
-  }
-  if (value.coefficient === 0n) {
-    return {
-      status: 'success',
-      integer: 0n,
-      inputWasRounded: false,
-    };
-  }
-  if ((!isSigned && value.coefficient < 0n)
-    || (isSigned && totalBits === 1 && value.coefficient > 0n)) {
-    return rangeError;
   }
   return quantizeDecimalValue(value, format, roundingMode);
 }
