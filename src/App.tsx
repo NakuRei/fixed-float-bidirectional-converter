@@ -18,7 +18,11 @@ import {
 import { convertFixedPoint } from './conversion/convertFixedPoint';
 import { inputFormatPresentation } from './inputFormatPresentation';
 
-const inputFormatOptions = Object.values(InputFormat).map((format) => ({
+const inputFormatOptions = [
+  InputFormat.Binary,
+  InputFormat.Decimal,
+  InputFormat.Hexadecimal,
+].map((format) => ({
   value: format,
   label: inputFormatPresentation[format].optionLabel,
 }));

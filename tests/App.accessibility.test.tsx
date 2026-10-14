@@ -1,9 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from '../src/App';
 import { InputFormat } from '../src/conversion/contracts';
 
 describe('Accessible converter controls', () => {
+  it('offers the input formats by name', () => {
+    render(<App />);
+    const inputFormat = screen.getByRole('combobox', { name: 'Input Format' });
+    const optionNames = within(inputFormat).getAllByRole('option')
+      .map((option) => option.textContent);
+    expect(optionNames).toEqual(['Binary', 'Decimal', 'Hexadecimal']);
+  });
+
+  it('offers every input format the converter supports', () => {
+    render(<App />);
+    const inputFormat = screen.getByRole('combobox', { name: 'Input Format' });
+    const optionValues = within(inputFormat)
+      .getAllByRole<HTMLOptionElement>('option')
+      .map((option) => option.value);
+    expect(new Set(optionValues)).toEqual(new Set(Object.values(InputFormat)));
+  });
+
   it('exposes the input names, instructions and selected format', () => {
     render(<App />);
     expect(screen.getByRole('status')).toBeEmptyDOMElement();
