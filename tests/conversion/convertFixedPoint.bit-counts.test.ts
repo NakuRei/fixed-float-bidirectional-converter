@@ -7,22 +7,22 @@ import {
 } from '../../src/conversion/contracts';
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
-const bitPatternInput: ConversionInput = {
+const bitPatternInput = {
   inputString: '01001101',
   inputFormat: InputFormat.Binary,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
-};
+} satisfies ConversionInput;
 
-const decimalInput: ConversionInput = {
+const decimalInput = {
   inputString: '0',
   inputFormat: InputFormat.Decimal,
   isSigned: true,
   integerBitsString: '4',
   fractionalBitsString: '4',
   roundingMode: RoundingMode.TiesToEven,
-};
+} satisfies ConversionInput;
 
 const bothBitCountFields = [
   'integerBitsString',
