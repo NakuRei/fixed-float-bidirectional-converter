@@ -52,7 +52,8 @@ export function describeConversionDiagnostic(
     case 'out-of-range':
       return 'Value is outside the selected fixed-point range.';
     case 'inexact-value':
-      return 'Value cannot be represented exactly with these fractional bits.';
+      return 'Value cannot be represented exactly in the selected '
+        + 'fixed-point format.';
     default: {
       const unreachable: never = diagnostic;
       return unreachable;

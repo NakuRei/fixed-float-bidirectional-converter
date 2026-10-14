@@ -66,11 +66,11 @@ describe('Conversion precision in the UI', () => {
     expect(input).toBeInvalid();
     expect(screen.getByRole('status')).toBe(status);
     expect(status).toHaveTextContent(
-      'Value cannot be represented exactly with these fractional bits.',
+      'Value cannot be represented exactly in the selected fixed-point format.',
     );
     expect(status).not.toHaveTextContent(/rounded|Float64/u);
     expect(input).toHaveAccessibleDescription(
-      /Value cannot be represented exactly with these fractional bits/u,
+      /Value cannot be represented exactly in the selected fixed-point format/u,
     );
     expect(screen.queryByRole('heading', { name: 'Result' }))
       .not.toBeInTheDocument();
