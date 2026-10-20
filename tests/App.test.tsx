@@ -196,16 +196,17 @@ describe('Converter output as the controls change', () => {
 
     fireEvent.click(screen.getByRole('checkbox'));
     expect(input).toHaveValue('FF');
-    expect(screen.getByText('FF')).toBeInTheDocument();
-    expect(screen.queryByText('3F')).not.toBeInTheDocument();
-    expect(screen.getByText('111111')).toBeInTheDocument();
-    expect(within(screen.getByRole('group', { name: 'Hexadecimal conversion' }))
-      .getByText('original')).toBeVisible();
-    expect(screen.getByText('7.875')).toBeInTheDocument();
+    expect(input).toBeInvalid();
+    expect(input).toHaveAccessibleDescription(/outside the selected/u);
+    expect(screen.queryByRole('heading', { name: 'Result' }))
+      .not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('checkbox'));
     expect(input).toHaveValue('FF');
+    expect(input).toBeValid();
     expect(screen.getByText('FF')).toBeInTheDocument();
+    expect(within(screen.getByRole('group', { name: 'Hexadecimal conversion' }))
+      .getByText('original')).toBeVisible();
     expect(screen.queryByText('3F')).not.toBeInTheDocument();
     expect(screen.getByText('-0.125')).toBeInTheDocument();
   });

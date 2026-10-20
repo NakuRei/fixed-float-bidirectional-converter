@@ -3,6 +3,7 @@ import { useId } from 'react';
 import type {
   ConversionOutcome,
   ConversionResults,
+  OverflowAction,
 } from '../conversion/contracts';
 import { describeConversionDiagnostic } from '../conversionDiagnosticText';
 import { ConversionErrorMessage } from './ConversionErrorMessage';
@@ -15,11 +16,19 @@ interface ConversionOutcomePanelProps {
 
 type Float64PrecisionLoss = 'rounded' | 'overflow';
 
-interface PrecisionNoticesProps {
+interface ConversionNoticesProps {
   float64PrecisionLoss: Float64PrecisionLoss | null;
   float64PrecisionLossDescriptionId: string;
   inputWasRounded: boolean;
+  overflowAction: OverflowAction | undefined;
 }
+
+const overflowDescriptions: Record<OverflowAction, string> = {
+  saturated: 'The value was outside the fixed-point range and was saturated '
+    + 'to the nearest limit.',
+  wrapped: 'The value was outside the fixed-point range and was wrapped '
+    + 'to fit the selected bit width.',
+};
 
 const float64PrecisionLossDescriptions = {
   rounded: 'Precision was lost converting the fixed-point value to Float64.',
@@ -35,12 +44,14 @@ function findFloat64PrecisionLoss(
     : decimal.status;
 }
 
-function PrecisionNotices({
+function ConversionNotices({
   float64PrecisionLoss,
   float64PrecisionLossDescriptionId,
   inputWasRounded,
-}: PrecisionNoticesProps): React.JSX.Element | null {
-  if (!inputWasRounded && float64PrecisionLoss === null) {
+  overflowAction,
+}: ConversionNoticesProps): React.JSX.Element | null {
+  if (!inputWasRounded && overflowAction === undefined
+    && float64PrecisionLoss === null) {
     return null;
   }
   return (
@@ -56,6 +67,14 @@ function PrecisionNotices({
           </p>
         )
         : null}
+
+      {overflowAction === undefined
+        ? null
+        : (
+          <p className="sr-only">
+            {overflowDescriptions[overflowAction]}
+          </p>
+        )}
 
       {float64PrecisionLoss !== null
         ? (
@@ -106,12 +125,13 @@ export function ConversionOutcomePanel(
 
         {outcome.status === 'success'
           ? (
-            <PrecisionNotices
+            <ConversionNotices
               float64PrecisionLoss={float64PrecisionLoss}
               float64PrecisionLossDescriptionId={
                 float64PrecisionLossDescriptionId
               }
               inputWasRounded={outcome.result.hexadecimal.status === 'rounded'}
+              overflowAction={outcome.overflowAction}
             />
           )
           : null}
@@ -124,6 +144,7 @@ export function ConversionOutcomePanel(
               ? undefined
               : float64PrecisionLossDescriptionId}
             result={outcome.result}
+            overflowAction={outcome.overflowAction}
           />
         )
         : null}

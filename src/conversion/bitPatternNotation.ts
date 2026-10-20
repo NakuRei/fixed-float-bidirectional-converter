@@ -1,5 +1,7 @@
 import {
   InputFormat,
+  OverflowMode,
+  type OverflowModeType,
   type InputFormatType,
   type BitPatternFormat,
   type ConversionDiagnostic,
@@ -51,11 +53,41 @@ type BitPatternParse = {
   }>;
 };
 
+function readPatternInteger({
+  pattern,
+  enteredBits,
+  totalBits,
+  isSigned,
+  hasExpectedDigits,
+}: {
+  pattern: bigint;
+  enteredBits: number;
+  totalBits: number;
+  isSigned: boolean;
+  hasExpectedDigits: boolean;
+}): bigint {
+  const entered = isSigned ? BigInt.asIntN(enteredBits, pattern) : pattern;
+  if (!hasExpectedDigits) {
+    return entered;
+  }
+  const stored = isSigned
+    ? BigInt.asIntN(totalBits, pattern)
+    : BigInt.asUintN(totalBits, pattern);
+  // A partial hexadecimal digit may be zero-padded or sign-extended.
+  const isZeroPadded = pattern === BigInt.asUintN(totalBits, pattern);
+  const isSignExtended = isSigned && entered === stored;
+  if (isZeroPadded || isSignExtended) {
+    return stored;
+  }
+  return entered;
+}
+
 export function parseBitPattern(
   inputString: string,
   inputFormat: BitPatternFormat,
   totalBits: number,
   isSigned: boolean,
+  overflowMode: OverflowModeType,
 ): BitPatternParse {
   const notation = bitPatternNotations[inputFormat];
   const digits = inputString.replace(notation.prefixPattern, '');
@@ -70,11 +102,14 @@ export function parseBitPattern(
     };
   }
   const expectedLength = Math.ceil(totalBits / notation.bitsPerDigit);
-  if (digits.length !== expectedLength) {
+  if (digits.length < expectedLength
+    || (overflowMode === OverflowMode.Error
+      && digits.length !== expectedLength)) {
     return {
       status: 'invalid',
       diagnostic: {
         code: 'digit-count-mismatch',
+        requirement: overflowMode === OverflowMode.Error ? 'exact' : 'minimum',
         inputFormat,
         expected: expectedLength,
         actual: digits.length,
@@ -85,10 +120,13 @@ export function parseBitPattern(
   const pattern = BigInt(notation.literalPrefix + digits);
   return {
     status: 'valid',
-    // Rounding up the digit count can leave excess leading bits to discard.
-    integer: isSigned
-      ? BigInt.asIntN(totalBits, pattern)
-      : BigInt.asUintN(totalBits, pattern),
+    integer: readPatternInteger({
+      pattern,
+      enteredBits: digits.length * notation.bitsPerDigit,
+      totalBits,
+      isSigned,
+      hasExpectedDigits: digits.length === expectedLength,
+    }),
   };
 }
 

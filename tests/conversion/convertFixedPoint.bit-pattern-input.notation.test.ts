@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  OverflowMode,
   InputFormat,
   type ConversionDiagnostic,
   type ConversionInput,
@@ -7,6 +8,7 @@ import {
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 const bitPatternInput = {
+  overflowMode: OverflowMode.Error,
   inputString: '01001101',
   inputFormat: InputFormat.Binary,
   isSigned: true,
@@ -157,6 +159,7 @@ describe('convertFixedPoint bit pattern input notation', () => {
       inputString,
     }, {
       code: 'digit-count-mismatch',
+      requirement: 'exact',
       inputFormat,
       expected,
       actual,

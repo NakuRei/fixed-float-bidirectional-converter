@@ -26,7 +26,18 @@ export const RoundingMode = {
 
 export type RoundingModeType = (typeof RoundingMode)[keyof typeof RoundingMode];
 
+export const OverflowMode = {
+  Error: 'error',
+  Saturate: 'saturate',
+  Wrap: 'wrap',
+} as const;
+
+export type OverflowModeType = (typeof OverflowMode)[keyof typeof OverflowMode];
+
+export type OverflowAction = 'saturated' | 'wrapped';
+
 interface ConversionFields {
+  overflowMode: OverflowModeType;
   inputString: string;
   // Signed values interpret the full bit pattern as two's complement.
   isSigned: boolean;
@@ -110,6 +121,7 @@ export type ConversionDiagnostic = {
   fields: InputStringField;
 } | {
   code: 'digit-count-mismatch';
+  requirement: 'exact' | 'minimum';
   inputFormat: BitPatternFormat;
   expected: number;
   actual: number;
@@ -133,4 +145,5 @@ export type ConversionOutcome = {
 } | {
   status: 'success';
   result: ConversionResults;
+  overflowAction?: OverflowAction;
 };

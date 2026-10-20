@@ -23,6 +23,15 @@ function describeTotalBitsExceeded(
     : `Total bit count must be at most ${maximum}.`;
 }
 
+function describeDigitCountMismatch(
+  diagnostic: Extract<ConversionDiagnostic, { code: 'digit-count-mismatch' }>,
+): string {
+  const qualifier = diagnostic.requirement === 'minimum' ? 'at least ' : '';
+  return `${inputFormatPresentation[diagnostic.inputFormat].optionLabel} `
+    + `digit count should be ${qualifier}${diagnostic.expected.toString()}, `
+    + `but got ${diagnostic.actual.toString()}.`;
+}
+
 export function describeConversionDiagnostic(
   diagnostic: ConversionDiagnostic,
 ): string {
@@ -44,9 +53,7 @@ export function describeConversionDiagnostic(
         + 'string contains characters other than '
         + `${allowedCharacterDescriptions[diagnostic.inputFormat]}.`;
     case 'digit-count-mismatch':
-      return `${inputFormatPresentation[diagnostic.inputFormat].optionLabel} `
-        + `digit count should be ${diagnostic.expected.toString()}, `
-        + `but got ${diagnostic.actual.toString()}.`;
+      return describeDigitCountMismatch(diagnostic);
     case 'malformed-decimal':
       return 'Enter a valid decimal number.';
     case 'out-of-range':

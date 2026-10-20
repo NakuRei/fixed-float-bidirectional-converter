@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  OverflowMode,
   InputFormat,
   RoundingMode,
   type ConversionInput,
@@ -8,6 +9,7 @@ import {
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 const decimalInput = {
+  overflowMode: OverflowMode.Error,
   inputString: '-3.1875',
   inputFormat: InputFormat.Decimal,
   isSigned: true,

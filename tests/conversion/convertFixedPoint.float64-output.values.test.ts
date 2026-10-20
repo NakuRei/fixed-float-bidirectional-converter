@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { InputFormat } from '../../src/conversion/contracts';
+import { OverflowMode, InputFormat } from '../../src/conversion/contracts';
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 describe('convertFixedPoint Float64 output values', () => {
@@ -44,6 +44,7 @@ describe('convertFixedPoint Float64 output values', () => {
     float64Value,
   ) => {
     expect(convertFixedPoint({
+      overflowMode: OverflowMode.Error,
       inputString,
       inputFormat: InputFormat.Binary,
       isSigned: true,
@@ -77,7 +78,7 @@ describe('convertFixedPoint Float64 output values', () => {
     ['A', 4, 0, '10'],
     ['A', 3, 1, '5'],
     ['A', 2, 2, '2.5'],
-    ['FF', 3, 3, '7.875'],
+    ['3F', 3, 3, '7.875'],
     ['FEDCBA9876543210', 32, 32, '4275878552.462222'],
   ])('decodes unsigned hexadecimal %s with %i integer and %i fractional bits', (
     inputString,
@@ -86,6 +87,7 @@ describe('convertFixedPoint Float64 output values', () => {
     float64Value,
   ) => {
     expect(convertFixedPoint({
+      overflowMode: OverflowMode.Error,
       inputString,
       inputFormat: InputFormat.Hexadecimal,
       isSigned: false,
@@ -112,6 +114,7 @@ describe('convertFixedPoint Float64 output values', () => {
     float64Value,
   ) => {
     expect(convertFixedPoint({
+      overflowMode: OverflowMode.Error,
       inputString,
       inputFormat: InputFormat.Hexadecimal,
       isSigned,

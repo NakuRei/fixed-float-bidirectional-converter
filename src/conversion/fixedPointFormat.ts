@@ -6,16 +6,27 @@ export interface FixedPointFormat {
   readonly isSigned: boolean;
 }
 
-// The integer counts steps of 2^-fractionalBits, as the bit pattern stores it.
-export function representsInteger(
-  format: FixedPointFormat,
-  integer: bigint,
-): boolean {
+export function fixedPointIntegerRange(format: FixedPointFormat): {
+  minimum: bigint;
+  maximum: bigint;
+} {
   const magnitudeBits = format.isSigned
     ? format.totalBits - 1
     : format.totalBits;
   const maximum = (1n << BigInt(magnitudeBits)) - 1n;
   const minimum = format.isSigned ? -maximum - 1n : 0n;
+  return {
+    minimum,
+    maximum,
+  };
+}
+
+// The integer counts steps of 2^-fractionalBits, as the bit pattern stores it.
+export function representsInteger(
+  format: FixedPointFormat,
+  integer: bigint,
+): boolean {
+  const { minimum, maximum } = fixedPointIntegerRange(format);
   return integer >= minimum && integer <= maximum;
 }
 

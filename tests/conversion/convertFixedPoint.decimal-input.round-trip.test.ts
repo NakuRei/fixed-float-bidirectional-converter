@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  OverflowMode,
   InputFormat,
   RoundingMode,
   type ConversionInput,
@@ -8,6 +9,7 @@ import {
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 const decimalInput = {
+  overflowMode: OverflowMode.Error,
   inputString: '-3.1875',
   inputFormat: InputFormat.Decimal,
   isSigned: true,
@@ -47,6 +49,7 @@ function expectEncodingAndDecoding(
   };
   expect(convertFixedPoint({
     ...format,
+    overflowMode: OverflowMode.Error,
     inputFormat: InputFormat.Binary,
     inputString: expected.binary,
   })).toEqual({
@@ -65,6 +68,7 @@ function expectEncodingAndDecoding(
   });
   expect(convertFixedPoint({
     ...format,
+    overflowMode: OverflowMode.Error,
     inputFormat: InputFormat.Hexadecimal,
     inputString: expected.hexadecimal,
   })).toEqual({
