@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  OverflowMode,
   InputFormat,
   RoundingMode,
   type ConversionDiagnostic,
@@ -8,6 +9,7 @@ import {
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 const bitPatternInput = {
+  overflowMode: OverflowMode.Error,
   inputString: '01001101',
   inputFormat: InputFormat.Binary,
   isSigned: true,
@@ -16,6 +18,7 @@ const bitPatternInput = {
 } satisfies ConversionInput;
 
 const decimalInput = {
+  overflowMode: OverflowMode.Error,
   inputString: '0',
   inputFormat: InputFormat.Decimal,
   isSigned: true,

@@ -80,6 +80,7 @@ describe('describeConversionDiagnostic', () => {
     {
       diagnostic: {
         code: 'digit-count-mismatch',
+        requirement: 'exact',
         inputFormat: InputFormat.Binary,
         expected: 8,
         actual: 7,
@@ -90,6 +91,7 @@ describe('describeConversionDiagnostic', () => {
     {
       diagnostic: {
         code: 'digit-count-mismatch',
+        requirement: 'exact',
         inputFormat: InputFormat.Hexadecimal,
         expected: 2,
         actual: 0,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { InputFormat } from '../../src/conversion/contracts';
+import { OverflowMode, InputFormat } from '../../src/conversion/contracts';
 import { convertFixedPoint } from '../../src/conversion/convertFixedPoint';
 
 function expectFloatConversion(
@@ -35,6 +35,7 @@ function expectFloatConversion(
     ],
   ] as const) {
     const outcome = convertFixedPoint({
+      overflowMode: OverflowMode.Error,
       inputString,
       inputFormat,
       isSigned,

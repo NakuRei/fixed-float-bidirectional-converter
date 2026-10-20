@@ -9,6 +9,8 @@ import { ConversionOutcomePanel } from './components/ConversionOutcomePanel';
 import {
   InputFormat,
   RoundingMode,
+  OverflowMode,
+  type OverflowModeType,
   type InputFormatType,
   type RoundingModeType,
   type ConversionDiagnostic,
@@ -61,6 +63,24 @@ const roundingModeOptions: readonly {
   },
 ];
 
+const overflowModeOptions: readonly {
+  value: OverflowModeType;
+  label: string;
+}[] = [
+  {
+    value: OverflowMode.Error,
+    label: 'Error',
+  },
+  {
+    value: OverflowMode.Saturate,
+    label: 'Saturate',
+  },
+  {
+    value: OverflowMode.Wrap,
+    label: 'Wrap',
+  },
+];
+
 function App(): React.JSX.Element {
   const [integerBitsString, setIntegerBitsString] = useState<string>('4');
   const [fractionalBitsString, setFractionalBitsString] = useState<string>('4');
@@ -72,12 +92,16 @@ function App(): React.JSX.Element {
   const [roundingMode, setRoundingMode] = useState<RoundingModeType>(
     RoundingMode.TiesToEven,
   );
+  const [overflowMode, setOverflowMode] = useState<OverflowModeType>(
+    OverflowMode.Error,
+  );
   const presentation = inputFormatPresentation[inputFormat];
   const conversionErrorId = useId();
 
   const conversionInput: ConversionInput = inputFormat === InputFormat.Decimal
     ? {
       inputString,
+      overflowMode,
       isSigned,
       integerBitsString,
       fractionalBitsString,
@@ -86,6 +110,7 @@ function App(): React.JSX.Element {
     }
     : {
       inputString,
+      overflowMode,
       isSigned,
       integerBitsString,
       fractionalBitsString,
@@ -174,9 +199,12 @@ function App(): React.JSX.Element {
           {inputFormat === InputFormat.Decimal
             ? (
               <SelectField
-                hint={'Values whose rounded result is outside the '
+                hint={overflowMode === OverflowMode.Error
+                  ? 'Values whose rounded result is outside the '
                   + 'fixed-point range are rejected. Exact only rejects '
-                  + 'precision loss in fixed-point conversion.'}
+                  + 'precision loss in fixed-point conversion.'
+                  : 'Exact only rejects precision loss in fixed-point '
+                    + 'conversion.'}
                 label="Fixed-point rounding"
                 onValueChange={setRoundingMode}
                 options={roundingModeOptions}
@@ -184,6 +212,13 @@ function App(): React.JSX.Element {
               />
             )
             : null}
+
+          <SelectField
+            label="Overflow"
+            onValueChange={setOverflowMode}
+            options={overflowModeOptions}
+            value={overflowMode}
+          />
 
           <TextField
             errorId={conversionErrorId}

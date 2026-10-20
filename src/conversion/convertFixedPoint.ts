@@ -1,5 +1,6 @@
 import {
   InputFormat,
+  type OverflowModeType,
   type BitPatternFormat,
   type ConversionInput,
   type ConversionOutcome,
@@ -13,6 +14,7 @@ import {
   formatBitPattern,
   parseBitPattern,
 } from './bitPatternNotation';
+import { applyOverflow } from './applyOverflow';
 
 type ConversionFormatReading = {
   status: 'valid';
@@ -59,23 +61,26 @@ function convertFixedPointPattern(
   inputString: string,
   inputFormat: BitPatternFormat,
   format: FixedPointFormat,
+  overflowMode: OverflowModeType,
 ): ConversionOutcome {
   const pattern = parseBitPattern(
-    inputString,
-    inputFormat,
-    format.totalBits,
-    format.isSigned,
+    inputString, inputFormat, format.totalBits, format.isSigned, overflowMode,
   );
   if (pattern.status === 'invalid') {
     return pattern;
   }
-  const { integer } = pattern;
+  const adjusted = applyOverflow(pattern.integer, format, overflowMode);
+  if (adjusted.status === 'invalid') {
+    return adjusted;
+  }
+  const { integer } = adjusted;
   const original = {
     status: 'original',
     value: inputString,
   } as const;
   return {
     status: 'success',
+    overflowAction: adjusted.overflowAction,
     result: {
       hexadecimal: inputFormat === InputFormat.Hexadecimal
         ? original
@@ -102,11 +107,13 @@ function convertDecimalFixedPoint(
   inputString: string,
   format: FixedPointFormat,
   roundingMode: RoundingModeType,
+  overflowMode: OverflowModeType,
 ): ConversionOutcome {
   const encoding = encodeDecimalFixedPoint(
     inputString,
     format,
     roundingMode,
+    overflowMode,
   );
   if (encoding.status === 'invalid') {
     return encoding;
@@ -114,6 +121,7 @@ function convertDecimalFixedPoint(
   const status = encoding.inputWasRounded ? 'rounded' : 'exact';
   return {
     status: 'success',
+    overflowAction: encoding.overflowAction,
     result: {
       hexadecimal: {
         status,
@@ -158,6 +166,10 @@ export function convertFixedPoint(input: ConversionInput): ConversionOutcome {
     };
   }
   return input.inputFormat === InputFormat.Decimal
-    ? convertDecimalFixedPoint(inputString, format, input.roundingMode)
-    : convertFixedPointPattern(inputString, input.inputFormat, format);
+    ? convertDecimalFixedPoint(
+      inputString, format, input.roundingMode, input.overflowMode,
+    )
+    : convertFixedPointPattern(
+      inputString, input.inputFormat, format, input.overflowMode,
+    );
 }

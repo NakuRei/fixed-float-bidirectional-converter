@@ -1,5 +1,8 @@
 import {
   RoundingMode,
+  OverflowMode,
+  type OverflowModeType,
+  type OverflowAction,
   type ConversionDiagnostic,
   type RoundingModeType,
 } from './contracts';
@@ -7,6 +10,7 @@ import {
   representsInteger,
   type FixedPointFormat,
 } from './fixedPointFormat';
+import { applyOverflow } from './applyOverflow';
 
 export const MAX_DECIMAL_BITS = 16384;
 
@@ -34,6 +38,7 @@ const precisionError = {
 interface RoundedDecimalInteger {
   integer: bigint;
   inputWasRounded: boolean;
+  overflowAction?: OverflowAction;
 }
 
 type DecimalEncoding = {
@@ -185,6 +190,21 @@ function scaledFloorQuotient(
   return divideFloor(numerator, denominator);
 }
 
+function encodeQuantizedInteger(
+  integer: bigint,
+  inputWasRounded: boolean,
+  format: FixedPointFormat,
+  overflowMode: OverflowModeType,
+): DecimalQuantization {
+  const result = applyOverflow(integer, format, overflowMode);
+  return result.status === 'invalid'
+    ? result
+    : {
+      ...result,
+      inputWasRounded,
+    };
+}
+
 /*
  * The range applies to the rounded value, so a value less than one step
  * outside it still converts when its rounding mode moves it inward.
@@ -193,6 +213,7 @@ function quantizeDecimalValue(
   value: DecimalValue,
   format: FixedPointFormat,
   roundingMode: RoundingModeType,
+  overflowMode: OverflowModeType,
 ): DecimalQuantization {
   if (value.coefficient === 0n) {
     return {
@@ -201,23 +222,20 @@ function quantizeDecimalValue(
       inputWasRounded: false,
     };
   }
-  // Such a value exceeds the range by far more than any rounding can move it.
+  // This integer is outside the range and divisible by 2^totalBits.
   if (value.exponent > BigInt(format.totalBits)) {
-    return rangeError;
+    const outside = (value.coefficient < 0n ? -1n : 1n)
+      << BigInt(format.totalBits);
+    return encodeQuantizedInteger(outside, false, format, overflowMode);
   }
   const quotient = scaledFloorQuotient(value, format.fractionalBits);
   if (quotient.fraction === 'zero') {
-    return representsInteger(format, quotient.lower)
-      ? {
-        status: 'success',
-        integer: quotient.lower,
-        inputWasRounded: false,
-      }
-      : rangeError;
+    return encodeQuantizedInteger(quotient.lower, false, format, overflowMode);
   }
   if (roundingMode === RoundingMode.Exact) {
     // A representable neighbor means another rounding mode would fit it.
-    return representsInteger(format, quotient.lower)
+    return overflowMode !== OverflowMode.Error
+      || representsInteger(format, quotient.lower)
       || representsInteger(format, quotient.lower + 1n)
       ? precisionError
       : rangeError;
@@ -225,19 +243,14 @@ function quantizeDecimalValue(
   const integer = selectNeighbor[roundingMode](quotient) === 'upper'
     ? quotient.lower + 1n
     : quotient.lower;
-  return representsInteger(format, integer)
-    ? {
-      status: 'success',
-      integer,
-      inputWasRounded: true,
-    }
-    : rangeError;
+  return encodeQuantizedInteger(integer, true, format, overflowMode);
 }
 
 export function encodeDecimalFixedPoint(
   inputString: string,
   format: FixedPointFormat,
   roundingMode: RoundingModeType,
+  overflowMode: OverflowModeType,
 ): DecimalEncoding {
   const value = readDecimalValue(inputString);
   if (value === null) {
@@ -249,5 +262,5 @@ export function encodeDecimalFixedPoint(
       },
     };
   }
-  return quantizeDecimalValue(value, format, roundingMode);
+  return quantizeDecimalValue(value, format, roundingMode, overflowMode);
 }

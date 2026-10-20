@@ -1,4 +1,4 @@
-import type { ConversionResults } from '../conversion/contracts';
+import type { ConversionResults, OverflowAction } from '../conversion/contracts';
 import { CopyButton } from './CopyButton';
 
 type NotationResult = ConversionResults[keyof ConversionResults];
@@ -7,22 +7,29 @@ interface ConversionResultRowProps {
   descriptionId: string | undefined;
   label: string;
   result: NotationResult;
+  overflowAction: OverflowAction | undefined;
 }
 
 const statusLabels: Record<
-  Exclude<NotationResult['status'], 'overflow'>,
-  string
+  NotationResult['status'],
+  string | undefined
 > = {
   original: 'original',
   exact: 'exact',
   rounded: 'rounded',
+  overflow: undefined,
 };
 
 export function ConversionResultRow({
   descriptionId,
   label,
   result,
+  overflowAction,
 }: ConversionResultRowProps): React.JSX.Element {
+  const action = result.status === 'original' ? undefined : overflowAction;
+  const precision = result.status === 'exact' && action !== undefined
+    ? undefined
+    : statusLabels[result.status];
   return (
     <div
       aria-describedby={descriptionId}
@@ -52,11 +59,17 @@ export function ConversionResultRow({
             {result.status === 'overflow' ? 'Out of range' : result.value}
           </span>
 
-          {result.status === 'overflow'
+          {precision === undefined && action === undefined
             ? null
             : (
-              <span className="text-xs text-on-background shrink-0 w-12">
-                {statusLabels[result.status]}
+              <span className="text-xs text-on-background shrink-0 min-w-12">
+                {precision === undefined
+                  ? null
+                  : <span className="block">{precision}</span>}
+
+                {action === undefined
+                  ? null
+                  : <span className="block">{action}</span>}
               </span>
             )}
         </div>
