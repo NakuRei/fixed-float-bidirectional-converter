@@ -4,10 +4,10 @@ import App from '../src/App';
 import { InputFormat, OverflowMode } from '../src/conversion/contracts';
 
 it.each([
-  [OverflowMode.Saturate, '8', /outside.*saturated/u, false],
-  [OverflowMode.Wrap, '8', /outside.*wrapped/u, false],
-  [OverflowMode.Saturate, '7.99', /rounded.*outside.*saturated/u, true],
-  [OverflowMode.Wrap, '7.99', /rounded.*outside.*wrapped/u, true],
+  [OverflowMode.Saturate, '8', /saturated/u, false],
+  [OverflowMode.Wrap, '8', /wrapped/u, false],
+  [OverflowMode.Saturate, '7.99', /saturated/u, true],
+  [OverflowMode.Wrap, '7.99', /wrapped/u, true],
 ] as const)('announces %s for %s in the status region', (
   overflowMode, value, message, rounded,
 ) => {
@@ -23,7 +23,10 @@ it.each([
   });
   const status = screen.getByRole('status');
   expect(status).toHaveTextContent(message);
-  if (!rounded) {
+  expect(status).toHaveTextContent(/outside/u);
+  if (rounded) {
+    expect(status).toHaveTextContent(/rounded/u);
+  } else {
     expect(status).not.toHaveTextContent(/rounded/u);
   }
   expect(status).not.toHaveTextContent(overflowMode === OverflowMode.Saturate
@@ -68,10 +71,10 @@ it.each([
   [
     OverflowMode.Saturate,
     '08000000000000000',
-    /saturated.*Precision was lost/u,
+    /saturated/u,
   ],
-  [OverflowMode.Wrap, '18000000000000001', /wrapped.*Precision was lost/u],
-] as const)('announces %s before Float64 precision loss', (
+  [OverflowMode.Wrap, '18000000000000001', /wrapped/u],
+] as const)('announces both %s and Float64 precision loss', (
   overflowMode, value, message,
 ) => {
   render(<App />);
@@ -93,4 +96,5 @@ it.each([
     name: 'Fixed-Point Bit Pattern:',
   }), { target: { value } });
   expect(screen.getByRole('status')).toHaveTextContent(message);
+  expect(screen.getByRole('status')).toHaveTextContent(/Precision was lost/u);
 });

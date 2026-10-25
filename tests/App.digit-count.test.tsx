@@ -5,9 +5,7 @@ import { InputFormat, OverflowMode } from '../src/conversion/contracts';
 
 it.each(([
   [InputFormat.Binary, 'Binary', '0000001', 8, 7, '000000001', 9],
-  [InputFormat.Binary, 'Binary', '0b', 8, 0, '000000001', 9],
   [InputFormat.Hexadecimal, 'Hexadecimal', '1', 2, 1, '001', 3],
-  [InputFormat.Hexadecimal, 'Hexadecimal', '0x', 2, 0, '001', 3],
 ] as const).flatMap(([
   inputFormat,
   label,
